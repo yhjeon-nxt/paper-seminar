@@ -460,6 +460,138 @@
       border-right: 1px solid #f1f5f9;
     }
 
+    /* ===== FIG 2B: EVALUATED CASE ===== */
+    .eval-case-wrapper {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .eval-case-card {
+      background-color: #fffaf5;
+      border: 1px solid #e8d5c4;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .eval-case-header {
+      background-color: #d97706;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eval-case-body {
+      padding: 20px 18px;
+      font-size: 0.8rem;
+      color: #44403c;
+      line-height: 1.65;
+    }
+
+    .eval-section-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #78350f;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .eval-section-title:first-child {
+      margin-top: 0;
+    }
+
+    .eval-case-body p {
+      margin: 4px 0;
+    }
+
+    .eval-case-body .eval-sub {
+      padding-left: 14px;
+      color: #57534e;
+      font-size: 0.78rem;
+    }
+
+    .eval-case-body .eval-result {
+      background-color: #fef3c7;
+      border-left: 3px solid #f59e0b;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      font-weight: 600;
+      color: #92400e;
+    }
+
+    .eval-criteria-card {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .eval-criteria-header {
+      background-color: #16a34a;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eval-criteria-body {
+      padding: 16px 18px;
+    }
+
+    .eval-scale-item {
+      display: flex;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 0.78rem;
+      color: #334155;
+      line-height: 1.5;
+      border-bottom: 1px solid #dcfce7;
+    }
+
+    .eval-scale-item:last-child {
+      border-bottom: none;
+    }
+
+    .eval-scale-badge {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 1px;
+    }
+
+    .eval-scale-5 { background-color: #16a34a; }
+    .eval-scale-4 { background-color: #65a30d; }
+    .eval-scale-3 { background-color: #ca8a04; }
+    .eval-scale-2 { background-color: #ea580c; }
+    .eval-scale-1 { background-color: #dc2626; }
+
+    .eval-scale-label {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    @media (max-width: 768px) {
+      .eval-case-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ===== SECTION 4: MODEL ===== */
     .flow-diagram {
       display: flex;
@@ -1054,20 +1186,72 @@
         <h3 class="subsection-title">데이터 품질 검증</h3>
 
         <div class="figures-row">
-          <figure class="figure-container" onclick="openLightbox(this)">
-            <img src="images/fig2c-human-eval.png" alt="Figure 2c: Human Evaluation Results" loading="lazy">
-            <figcaption>
-              Figure 2c. Human Evaluation: 의료 전문가에 의한 생성된 추론 경로 품질 평가 결과.
-              <span class="figure-hint">클릭하여 확대</span>
-            </figcaption>
-          </figure>
-          <figure class="figure-container" onclick="openLightbox(this)">
-            <img src="images/fig2b-evaluated-case.png" alt="Figure 2b: Evaluated Case Example" loading="lazy">
-            <figcaption>
-              Figure 2b. 평가된 케이스 예시: Thinking-Graph가 생성한 임상 추론 경로의 구체적 사례.
-              <span class="figure-hint">클릭하여 확대</span>
-            </figcaption>
-          </figure>
+          <div style="grid-column: 1 / -1;">
+            <div class="chart-container" style="height:380px;">
+              <div class="chart-title">Figure 2c. Human Evaluation: 의료 전문가 평가 점수 비교 (*** p &lt; 0.001)</div>
+              <div class="chart-wrapper" style="height:300px;">
+                <canvas id="chart-fig2c"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="eval-case-wrapper" style="grid-column: 1 / -1;">
+            <!-- Evaluated Case -->
+            <div class="eval-case-card">
+              <div class="eval-case-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Evaluated Case
+              </div>
+              <div class="eval-case-body">
+                <div class="eval-section-title">## Extraction</div>
+                <p><strong>1. **Discharge [2130-06-10 00:00:00]**:</strong></p>
+                <p>The patient has a history of left lower extremity claudication and rest pain, with a floating intraluminal thrombus in the descending thoracic aorta and occlusion of the left mid superficial femoral artery.</p>
+                <p class="eval-sub">- The patient was started on anticoagulation therapy and transitioned to apixaban (Eliquis) for discharge.</p>
+                <p class="eval-sub">- The discharge diagnosis includes an intra-aortic thrombus and a hypercoagulable state of unknown cause.</p>
+                <p><strong>2. **Radiology Examinations [2130-06-26 20:44:00]**:</strong></p>
+                <p class="eval-sub">...</p>
+
+                <div class="eval-section-title">## Reasoning</div>
+                <p>The patient has a history of thrombotic events, with a documented floating thrombus in the thoracic aorta and occlusions in the femoral and popliteal arteries. The recent CTA findings reveal a new occlusion in the left common femoral artery and the proximal portion of the left deep femoral artery, which suggests a progression of thrombotic disease in the lower extremity vasculature. The acute onset of left leg pain and numbness, alongside the administration of heparin, indicates an acute thrombotic event requiring intervention...</p>
+
+                <div class="eval-section-title">## Final Results</div>
+                <div class="eval-result">Embolectomy and endarterectomy of lower limbs</div>
+              </div>
+            </div>
+
+            <!-- Evaluation Criteria -->
+            <div class="eval-criteria-card">
+              <div class="eval-criteria-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Evaluation Criteria
+              </div>
+              <div class="eval-criteria-body">
+                <div class="eval-scale-item">
+                  <span class="eval-scale-badge eval-scale-5">5</span>
+                  <div><span class="eval-scale-label">Very Satisfied:</span> The extracted information is mostly accurate and largely supports the conclusion.</div>
+                </div>
+                <div class="eval-scale-item">
+                  <span class="eval-scale-badge eval-scale-4">4</span>
+                  <div><span class="eval-scale-label">Satisfied:</span> The extracted information supports most of the conclusion. A small part of the conclusion lacks evidence but is reasonably justified.</div>
+                </div>
+                <div class="eval-scale-item">
+                  <span class="eval-scale-badge eval-scale-3">3</span>
+                  <div><span class="eval-scale-label">Average:</span> The extracted information supports only a small part of the conclusion. The final result contains a large portion of content that is not adequately supported.</div>
+                </div>
+                <div class="eval-scale-item">
+                  <span class="eval-scale-badge eval-scale-2">2</span>
+                  <div><span class="eval-scale-label">Poor:</span> The extracted information is related to the final result, but it fails to support the conclusion.</div>
+                </div>
+                <div class="eval-scale-item">
+                  <span class="eval-scale-badge eval-scale-1">1</span>
+                  <div><span class="eval-scale-label">Very Poor:</span> The extracted information is highly irrelevant to the diagnostic conclusion. The conclusion lacks a reasonable basis, and the reasoning process is unreliable.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <figcaption style="font-size:0.85rem;color:#64748b;margin-top:14px;text-align:center;line-height:1.5;">
+            Figure 2b. 평가된 케이스 예시: Thinking-Graph가 생성한 임상 추론 경로의 구체적 사례와 의료 전문가 평가 기준 (1~5점 척도).
+          </figcaption>
         </div>
       </div>
     </section>
@@ -1485,6 +1669,101 @@
         closeLightbox();
       }
     });
+
+    // ===== CHART.JS: FIG 2C HUMAN EVALUATION =====
+    (function initHumanEvalChart() {
+      var tasks = ['Procedures\nICD', 'Prescriptions', 'Diagnose\nICD', 'Labevents', 'Microbiology\nevents', 'Transfers', 'Radiology'];
+      var woTG = [4.2189, 3.8400, 3.6658, 4.6461, 3.1039, 3.7545, 2.7173];
+      var wTG  = [4.6415, 4.1585, 4.0168, 4.7291, 3.4813, 4.4955, 3.6713];
+
+      var ctx = document.getElementById('chart-fig2c').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: tasks,
+          datasets: [
+            {
+              label: 'GPT-4o w/o thinking-graph',
+              data: woTG,
+              backgroundColor: '#8faabe',
+              borderColor: '#6d8fa8',
+              borderWidth: 1,
+              borderRadius: 3,
+            },
+            {
+              label: 'GPT-4o w/ thinking-graph',
+              data: wTG,
+              backgroundColor: '#c9944a',
+              borderColor: '#b07e35',
+              borderWidth: 1,
+              borderRadius: 3,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 2,
+              max: 6,
+              ticks: { stepSize: 1, font: { size: 11 } },
+              title: { display: true, text: 'Score', font: { size: 12 } },
+              grid: { color: '#f1f5f9' }
+            },
+            x: {
+              ticks: { font: { size: 10 }, maxRotation: 0 },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { size: 11 }, boxWidth: 14, padding: 16 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.parsed.y.toFixed(4);
+                }
+              }
+            }
+          }
+        },
+        plugins: [{
+          id: 'significanceBrackets',
+          afterDraw: function(chart) {
+            var meta0 = chart.getDatasetMeta(0);
+            var meta1 = chart.getDatasetMeta(1);
+            var ctx = chart.ctx;
+            ctx.save();
+            ctx.font = '10px sans-serif';
+            ctx.fillStyle = '#1e293b';
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            ctx.textAlign = 'center';
+
+            for (var i = 0; i < meta0.data.length; i++) {
+              var bar0 = meta0.data[i];
+              var bar1 = meta1.data[i];
+              var topY = Math.min(bar0.y, bar1.y) - 14;
+              var x0 = bar0.x;
+              var x1 = bar1.x;
+
+              ctx.beginPath();
+              ctx.moveTo(x0, topY + 8);
+              ctx.lineTo(x0, topY);
+              ctx.lineTo(x1, topY);
+              ctx.lineTo(x1, topY + 8);
+              ctx.stroke();
+
+              ctx.fillText('***', (x0 + x1) / 2, topY - 2);
+            }
+            ctx.restore();
+          }
+        }]
+      });
+    })();
 
     // ===== CHART.JS: DECISION-MAKING =====
     (function initDecisionChart() {
