@@ -335,6 +335,190 @@
       gap: 8px;
     }
 
+    /* ── Terminal Mockup ── */
+    .terminal {
+      background: #020617;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      margin-bottom: 24px;
+    }
+    .terminal-bar {
+      background: #1e293b;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .terminal-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .terminal-dot.red { background: #ef4444; }
+    .terminal-dot.yellow { background: #f59e0b; }
+    .terminal-dot.green { background: #22c55e; }
+    .terminal-title {
+      margin-left: 8px;
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+    .terminal-body {
+      padding: 16px 20px;
+      font-family: 'SF Mono',SFMono-Regular,Consolas,monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .terminal-body .user-input {
+      color: var(--text);
+    }
+    .terminal-body .ai-response {
+      color: var(--text-sub);
+    }
+    .terminal-body .prompt-sign {
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .terminal-body .tool-call {
+      color: var(--amber);
+      font-size: 0.78rem;
+    }
+    .terminal-body .success {
+      color: var(--green);
+    }
+
+    /* ── Concentric Circles ── */
+    .concentric {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .concentric-ring {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .concentric-label {
+      position: absolute;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── Hub-Spoke ── */
+    .hub-spoke {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 0 auto 24px;
+    }
+    .hub-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      z-index: 2;
+    }
+    .spoke-node {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+    .spoke-line {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 1px;
+      background: #334155;
+      transform-origin: 0 0;
+      z-index: 1;
+    }
+
+    /* ── Cycle Diagram ── */
+    .cycle-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin-bottom: 24px;
+    }
+    .cycle-step {
+      background: var(--card);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-width: 80px;
+    }
+    .cycle-arrow {
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      padding: 0 4px;
+    }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin-bottom: 24px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #334155;
+    }
+    .timeline-item {
+      position: relative;
+      padding: 10px 0 10px 20px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 14px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--blue);
+      background: var(--bg);
+    }
+    .timeline-item.hook-point::before {
+      background: var(--amber);
+      border-color: var(--amber);
+    }
+
     /* ── Staircase summary ── */
     .staircase {
       display: flex;
@@ -402,6 +586,41 @@
         <div class="card mb-24" style="border-left: 4px solid var(--amber);">
           <p style="font-style: italic; color: var(--text); line-height: 1.75; margin-bottom: 10px;">"There's a new kind of coding I call 'vibe coding', where you fully give in to the vibes, embrace exponentials, and forget that the code even exists."</p>
           <p style="color: var(--text-sub); font-size: 0.82rem;">&#8212; Andrej Karpathy, Feb 2025</p>
+        </div>
+
+        <!-- Terminal mockup: before/after -->
+        <p class="label-row mb-12">비교: 기존 방식 vs 바이브 코딩</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot red"></div>
+              <div class="terminal-dot yellow"></div>
+              <div class="terminal-dot green"></div>
+              <span class="terminal-title">기존 방식</span>
+            </div>
+            <div class="terminal-body" style="min-height: 120px;">
+              <div style="color: var(--text-sub); font-size: 0.78rem;">1. 문법 검색...</div>
+              <div style="color: var(--text-sub); font-size: 0.78rem;">2. 코드 작성...</div>
+              <div style="color: var(--text-sub); font-size: 0.78rem;">3. 에러 디버깅...</div>
+              <div style="color: var(--text-sub); font-size: 0.78rem;">4. Stack Overflow...</div>
+              <div style="color: var(--text-sub); font-size: 0.78rem; margin-top: 8px;">⏱ 수 시간</div>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="terminal-dot red"></div>
+              <div class="terminal-dot yellow"></div>
+              <div class="terminal-dot green"></div>
+              <span class="terminal-title">바이브 코딩</span>
+            </div>
+            <div class="terminal-body" style="min-height: 120px;">
+              <div><span class="prompt-sign">❯</span> <span class="user-input">CSV 파일 읽어서 bar chart로 시각화해줘</span></div>
+              <div class="tool-call">  ↳ Read data.csv</div>
+              <div class="tool-call">  ↳ Write plot.py</div>
+              <div class="tool-call">  ↳ Bash: python plot.py</div>
+              <div class="success" style="margin-top: 8px;">✓ chart.png 생성 완료 (30초)</div>
+            </div>
+          </div>
         </div>
 
         <!-- Why it matters -->
@@ -479,6 +698,22 @@
           </div>
         </div>
 
+        <!-- Agent Loop Diagram -->
+        <p class="label-row mb-12">에이전트 동작 루프</p>
+        <div class="cycle-diagram">
+          <div class="cycle-step" style="border-color: var(--green);">프롬프트<br><span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">사용자 요청</span></div>
+          <span class="cycle-arrow">→</span>
+          <div class="cycle-step" style="border-color: var(--blue);">분석<br><span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">의도 파악</span></div>
+          <span class="cycle-arrow">→</span>
+          <div class="cycle-step" style="border-color: var(--amber);">도구 선택<br><span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">Read/Edit/Bash</span></div>
+          <span class="cycle-arrow">→</span>
+          <div class="cycle-step" style="border-color: var(--purple);">실행<br><span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">파일 수정</span></div>
+          <span class="cycle-arrow">→</span>
+          <div class="cycle-step" style="border-color: var(--green);">검증<br><span style="font-size:0.7rem;color:var(--text-sub);font-weight:400;">결과 확인</span></div>
+          <span class="cycle-arrow">↻</span>
+        </div>
+        <p style="text-align:center;color:var(--text-sub);font-size:0.8rem;margin-bottom:24px;">목표를 달성할 때까지 자율적으로 반복합니다</p>
+
         <!-- Models -->
         <p class="label-row mb-12">모델 선택</p>
         <div class="grid-2 mb-24">
@@ -537,6 +772,27 @@
         <div class="code-block mb-24">
           <div><span class="code-prompt">$</span> <span class="code-cmd">npm install -g @anthropic-ai/claude-code</span></div>
           <div><span class="code-prompt">$</span> <span class="code-cmd">claude</span></div>
+        </div>
+
+        <!-- Terminal mockup: first session -->
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">~/my-project</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="code-prompt">$</span> <span class="code-cmd">claude</span></div>
+            <div style="color:var(--text-sub);margin:4px 0;">╭──────────────────────────────────╮</div>
+            <div style="color:var(--text-sub);">│  <span style="color:var(--blue);font-weight:700;">Claude Code</span> <span style="color:var(--text-sub);">v1.0.0</span>           │</div>
+            <div style="color:var(--text-sub);">│  Reading CLAUDE.md...            │</div>
+            <div style="color:var(--text-sub);">╰──────────────────────────────────╯</div>
+            <div style="margin-top: 6px;"><span class="prompt-sign">❯</span> <span class="user-input">이 프로젝트 구조 설명해줘</span></div>
+            <div class="tool-call">  ↳ Read: package.json</div>
+            <div class="tool-call">  ↳ Glob: src/**/*.ts</div>
+            <div class="ai-response" style="margin-top: 4px;">  이 프로젝트는 TypeScript 기반 REST API입니다...</div>
+          </div>
         </div>
 
         <!-- Auth -->
@@ -608,35 +864,22 @@
         <h1 class="section-title">CLAUDE.md</h1>
         <p class="section-lead">매 세션마다 자동 로드되는 프로젝트 설명서</p>
 
-        <!-- 3-level diagram -->
-        <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px;">
-          <div class="card" style="border-left: 4px solid var(--blue);">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span>Project</span>
-                <code style="color: var(--blue); font-family: monospace; font-size: 0.82rem;">./CLAUDE.md</code>
+        <!-- Concentric circles diagram -->
+        <div class="concentric">
+          <div class="concentric-ring" style="width: 280px; height: 280px; border: 2px solid #475569; background: rgba(71,85,105,0.08);">
+            <div class="concentric-label" style="top: 8px; left: 50%; transform: translateX(-50%); color: #64748b;">Global <span style="font-weight:400;font-size:0.65rem;">managed settings</span></div>
+            <div class="concentric-ring" style="width: 190px; height: 190px; border: 2px solid var(--purple); background: rgba(167,139,250,0.08);">
+              <div class="concentric-label" style="top: 8px; left: 50%; transform: translateX(-50%); color: var(--purple);">User <span style="font-weight:400;font-size:0.65rem;">~/.claude/</span></div>
+              <div class="concentric-ring" style="width: 100px; height: 100px; border: 2px solid var(--blue); background: rgba(56,189,248,0.15);">
+                <div style="text-align:center;">
+                  <div style="font-weight:700;font-size:0.8rem;color:var(--blue);">Project</div>
+                  <div style="font-size:0.6rem;color:var(--text-sub);">./CLAUDE.md</div>
+                </div>
               </div>
-              <span class="badge" style="background: rgba(56,189,248,0.15); color: var(--blue);">가장 우선</span>
             </div>
-            <p style="color: var(--text-sub); font-size: 0.82rem; margin-top: 4px;">이 프로젝트 전용 (git 공유)</p>
-          </div>
-          <div style="text-align: center; color: var(--text-sub); font-size: 1rem; line-height: 1;">&#8595;</div>
-          <div class="card" style="border-left: 4px solid var(--purple);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span>User</span>
-              <code style="color: var(--purple); font-family: monospace; font-size: 0.82rem;">~/.claude/CLAUDE.md</code>
-            </div>
-            <p style="color: var(--text-sub); font-size: 0.82rem; margin-top: 4px;">개인 설정</p>
-          </div>
-          <div style="text-align: center; color: var(--text-sub); font-size: 1rem; line-height: 1;">&#8595;</div>
-          <div class="card" style="border-left: 4px solid #475569;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span>Global</span>
-              <code style="color: var(--text-sub); font-family: monospace; font-size: 0.82rem;">managed settings</code>
-            </div>
-            <p style="color: var(--text-sub); font-size: 0.82rem; margin-top: 4px;">조직 전체 적용</p>
           </div>
         </div>
+        <p style="text-align:center;color:var(--text-sub);font-size:0.8rem;margin-bottom:24px;">안쪽이 바깥을 override — <span style="color:var(--blue);">Project</span>가 가장 우선</p>
 
         <!-- Example -->
         <div class="code-block mb-20">
@@ -684,6 +927,36 @@
           <div class="card" style="flex: 1; text-align: center; border-color: var(--green); padding: 14px;">
             <p style="font-weight: 600; margin-bottom: 4px;">PostToolUse</p>
             <span class="badge" style="background: rgba(34,197,94,0.15); color: var(--green); font-size: 0.68rem;">후처리</span>
+          </div>
+        </div>
+
+        <!-- Session timeline -->
+        <p class="label-row mb-12">세션 라이프사이클에서 Hook 발동 시점</p>
+        <div class="timeline mb-24">
+          <div class="timeline-item hook-point">
+            <p style="font-weight:600;color:var(--amber);font-size:0.85rem;">SessionStart</p>
+            <p style="color:var(--text-sub);font-size:0.78rem;">환경 로드, 컨텍스트 주입</p>
+          </div>
+          <div class="timeline-item">
+            <p style="font-weight:600;font-size:0.85rem;">사용자 프롬프트 입력</p>
+          </div>
+          <div class="timeline-item hook-point">
+            <p style="font-weight:600;color:var(--amber);font-size:0.85rem;">PreToolUse</p>
+            <p style="color:var(--text-sub);font-size:0.78rem;">도구 실행 전 검증 · 차단 가능</p>
+          </div>
+          <div class="timeline-item">
+            <p style="font-weight:600;font-size:0.85rem;">도구 실행 (Read, Edit, Bash...)</p>
+          </div>
+          <div class="timeline-item hook-point">
+            <p style="font-weight:600;color:var(--amber);font-size:0.85rem;">PostToolUse</p>
+            <p style="color:var(--text-sub);font-size:0.78rem;">자동 포맷팅, 린트, 로깅</p>
+          </div>
+          <div class="timeline-item">
+            <p style="font-weight:600;font-size:0.85rem;">Claude 응답 생성</p>
+          </div>
+          <div class="timeline-item hook-point">
+            <p style="font-weight:600;color:var(--amber);font-size:0.85rem;">Notification</p>
+            <p style="color:var(--text-sub);font-size:0.78rem;">입력 대기 시 데스크톱 알림</p>
           </div>
         </div>
 
@@ -765,6 +1038,25 @@
           <div>커밋 메시지를 작성해주세요. <span class="code-cmd">$ARGUMENTS</span></div>
         </div>
 
+        <!-- Terminal mockup: /commit -->
+        <p class="label-row mb-12">실행 예시</p>
+        <div class="terminal mb-24">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">~/my-project</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span style="color:var(--blue);font-weight:600;">/commit</span></div>
+            <div class="tool-call">  ↳ Bash: git diff --staged</div>
+            <div class="tool-call">  ↳ Analyzing changes...</div>
+            <div class="ai-response" style="margin-top:4px;">  커밋 메시지를 생성했습니다:</div>
+            <div style="margin-top:4px;"><span class="success">  feat: 사용자 인증 로직에 OAuth2 지원 추가</span></div>
+            <div style="color:var(--text-sub);margin-top:4px;">  커밋할까요? (y/n)</div>
+          </div>
+        </div>
+
         <!-- Project vs User -->
         <div class="grid-2 mb-20">
           <div class="card" style="border-left: 4px solid var(--blue);">
@@ -815,6 +1107,43 @@
             <p style="color: var(--text-sub); font-size: 0.8rem;">GitHub, DB, Slack...</p>
           </div>
         </div>
+
+        <!-- Hub-spoke diagram -->
+        <div class="hub-spoke">
+          <div class="hub-center" style="color:var(--blue);">Claude<br>Code</div>
+          <!-- Spoke lines + nodes at cardinal + diagonal positions -->
+          <div class="spoke-line" style="width:100px;transform:rotate(0deg);top:50%;left:calc(50% + 45px);"></div>
+          <div class="spoke-node" style="top:50%;right:0;transform:translateY(-50%);border-color:var(--green);">
+            <span style="font-size:1rem;">🌐</span>
+            <span>GitHub</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(90deg);top:calc(50% + 45px);left:50%;"></div>
+          <div class="spoke-node" style="bottom:0;left:50%;transform:translateX(-50%);border-color:var(--amber);">
+            <span style="font-size:1rem;">🗄</span>
+            <span>DB</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(180deg);top:50%;right:calc(50% + 45px);"></div>
+          <div class="spoke-node" style="top:50%;left:0;transform:translateY(-50%);border-color:var(--purple);">
+            <span style="font-size:1rem;">💬</span>
+            <span>Slack</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(270deg);bottom:calc(50% + 45px);left:50%;"></div>
+          <div class="spoke-node" style="top:0;left:50%;transform:translateX(-50%);border-color:var(--blue);">
+            <span style="font-size:1rem;">🔍</span>
+            <span>Search</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(45deg);top:calc(50% - 30px);left:calc(50% + 30px);"></div>
+          <div class="spoke-node" style="top:0;right:0;border-color:#64748b;">
+            <span style="font-size:1rem;">📊</span>
+            <span>Sentry</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(225deg);top:calc(50% + 30px);right:calc(50% + 30px);"></div>
+          <div class="spoke-node" style="bottom:0;left:0;border-color:#64748b;">
+            <span style="font-size:1rem;">🎨</span>
+            <span>Figma</span>
+          </div>
+        </div>
+        <p style="text-align:center;color:var(--text-sub);font-size:0.8rem;margin-bottom:24px;">MCP 서버를 통해 다양한 외부 서비스에 연결</p>
 
         <!-- Config -->
         <div class="code-block mb-24">
