@@ -564,9 +564,9 @@
       <li><a href="#about">소개</a></li>
       <li><a href="#start">시작하기</a></li>
       <li><a href="#claudemd">CLAUDE.md</a></li>
-      <li><a href="#hooks">Hooks</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#mcp">MCP</a></li>
+      <li><a href="#hooks">Hooks</a></li>
       <li><a href="#plugins">Plugins</a></li>
       <li><a href="#agent">Agent</a></li>
       <li><a href="#wrapup">마무리</a></li>
@@ -906,7 +906,179 @@
       </div>
     </section>
 
-    <!-- ── Section 4: Hooks ── -->
+    <!-- ── Section 4: Skills ── -->
+    <section id="skills">
+      <div class="section-inner">
+        <p class="section-tag">CUSTOMIZE</p>
+        <h1 class="section-title">Skills</h1>
+        <p class="section-lead">재사용 가능한 커스텀 /명령어</p>
+
+        <!-- Folder tree -->
+        <div class="code-block mb-24">
+          <div><span class="code-comment"># 프로젝트 스킬</span></div>
+          <div>.claude/commands/<span class="code-cmd">commit.md</span></div>
+          <div>.claude/commands/<span class="code-cmd">review.md</span></div>
+          <div>&nbsp;</div>
+          <div><span class="code-comment"># 유저 스킬 (개인용)</span></div>
+          <div>~/.claude/commands/<span class="code-cmd">my-deploy.md</span></div>
+        </div>
+
+        <!-- SKILL.md example -->
+        <div class="code-block mb-24">
+          <div><span class="code-comment">---</span></div>
+          <div><span class="code-cmd">name:</span> <span class="code-string">commit</span></div>
+          <div><span class="code-cmd">description:</span> <span class="code-string">변경사항 분석 후 커밋 메시지 자동 생성</span></div>
+          <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash Grep Read</span></div>
+          <div><span class="code-comment">---</span></div>
+          <div>staged changes를 분석하고 conventional commit 형식으로</div>
+          <div>커밋 메시지를 작성해주세요. <span class="code-cmd">$ARGUMENTS</span></div>
+        </div>
+
+        <!-- Terminal mockup: /commit -->
+        <p class="label-row mb-12">실행 예시</p>
+        <div class="terminal mb-24">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">~/my-project</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span style="color:var(--blue);font-weight:600;">/commit</span></div>
+            <div class="tool-call">  ↳ Bash: git diff --staged</div>
+            <div class="tool-call">  ↳ Analyzing changes...</div>
+            <div class="ai-response" style="margin-top:4px;">  커밋 메시지를 생성했습니다:</div>
+            <div style="margin-top:4px;"><span class="success">  feat: 사용자 인증 로직에 OAuth2 지원 추가</span></div>
+            <div style="color:var(--text-sub);margin-top:4px;">  커밋할까요? (y/n)</div>
+          </div>
+        </div>
+
+        <!-- Project vs User -->
+        <div class="grid-2 mb-20">
+          <div class="card" style="border-left: 4px solid var(--blue);">
+            <p style="font-weight: 700; color: var(--blue); margin-bottom: 10px;">프로젝트 스킬</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">.claude/commands/</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">git으로 팀 공유</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">프로젝트 맥락에 특화</p>
+          </div>
+          <div class="card" style="border-left: 4px solid var(--purple);">
+            <p style="font-weight: 700; color: var(--purple); margin-bottom: 10px;">유저 스킬</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">~/.claude/commands/</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">개인 전용</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">모든 프로젝트에서 사용</p>
+          </div>
+        </div>
+
+        <button class="toggle-btn" onclick="toggleSection(this)">&#9658; 커뮤니티 스킬이란?</button>
+        <div class="toggle-content">
+          <div class="card" style="margin-top: 8px;">
+            <p style="margin-bottom: 8px;">마켓플레이스에서 다른 사용자가 만든 스킬을 검색하고 설치 가능</p>
+            <p style="color: var(--text-sub); font-size: 0.88rem;">예: /commit-smart, /review-pr, /debug 등 바로 사용 가능한 워크플로우</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 5: MCP ── -->
+    <section id="mcp">
+      <div class="section-inner">
+        <p class="section-tag">EXTEND</p>
+        <h1 class="section-title">MCP</h1>
+        <p class="section-lead">AI가 외부 서비스를 연결하는 표준 프로토콜</p>
+
+        <!-- Connection diagram -->
+        <div class="flex-row mb-24" style="flex-wrap: nowrap;">
+          <div class="card" style="flex: 1; text-align: center; border-color: var(--blue); padding: 14px;">
+            <p style="font-weight: 700; margin-bottom: 4px;">Claude Code</p>
+            <p style="color: var(--text-sub); font-size: 0.8rem;">에이전트</p>
+          </div>
+          <span class="arrow">&#8596;</span>
+          <div class="card" style="flex: 1; text-align: center; border-color: var(--amber); padding: 14px;">
+            <p style="font-weight: 700; margin-bottom: 4px;">MCP Server</p>
+            <p style="color: var(--text-sub); font-size: 0.8rem;">프로토콜 변환</p>
+          </div>
+          <span class="arrow">&#8596;</span>
+          <div class="card" style="flex: 1; text-align: center; border-color: var(--purple); padding: 14px;">
+            <p style="font-weight: 700; margin-bottom: 4px;">외부 서비스</p>
+            <p style="color: var(--text-sub); font-size: 0.8rem;">GitHub, DB, Slack...</p>
+          </div>
+        </div>
+
+        <!-- Hub-spoke diagram -->
+        <div class="hub-spoke">
+          <div class="hub-center" style="color:var(--blue);">Claude<br>Code</div>
+          <!-- Spoke lines + nodes at cardinal + diagonal positions -->
+          <div class="spoke-line" style="width:100px;transform:rotate(0deg);top:50%;left:calc(50% + 45px);"></div>
+          <div class="spoke-node" style="top:50%;right:0;transform:translateY(-50%);border-color:var(--green);">
+            <span style="font-size:1rem;">🌐</span>
+            <span>GitHub</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(90deg);top:calc(50% + 45px);left:50%;"></div>
+          <div class="spoke-node" style="bottom:0;left:50%;transform:translateX(-50%);border-color:var(--amber);">
+            <span style="font-size:1rem;">🗄</span>
+            <span>DB</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(180deg);top:50%;right:calc(50% + 45px);"></div>
+          <div class="spoke-node" style="top:50%;left:0;transform:translateY(-50%);border-color:var(--purple);">
+            <span style="font-size:1rem;">💬</span>
+            <span>Slack</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(270deg);bottom:calc(50% + 45px);left:50%;"></div>
+          <div class="spoke-node" style="top:0;left:50%;transform:translateX(-50%);border-color:var(--blue);">
+            <span style="font-size:1rem;">🔍</span>
+            <span>Search</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(45deg);top:calc(50% - 30px);left:calc(50% + 30px);"></div>
+          <div class="spoke-node" style="top:0;right:0;border-color:#64748b;">
+            <span style="font-size:1rem;">📊</span>
+            <span>Sentry</span>
+          </div>
+          <div class="spoke-line" style="width:100px;transform:rotate(225deg);top:calc(50% + 30px);right:calc(50% + 30px);"></div>
+          <div class="spoke-node" style="bottom:0;left:0;border-color:#64748b;">
+            <span style="font-size:1rem;">🎨</span>
+            <span>Figma</span>
+          </div>
+        </div>
+        <p style="text-align:center;color:var(--text-sub);font-size:0.8rem;margin-bottom:24px;">MCP 서버를 통해 다양한 외부 서비스에 연결</p>
+
+        <!-- Config -->
+        <div class="code-block mb-24">
+          <div><span class="code-prompt">$</span> <span class="code-cmd">claude mcp add</span> <span class="code-string">github</span> <span class="code-cmd">--transport</span> <span class="code-string">http</span> <span class="code-cmd">--url</span> <span class="code-string">https://api.github.com/mcp</span></div>
+        </div>
+
+        <!-- Popular MCPs -->
+        <p class="label-row mb-12">인기 MCP 서버</p>
+        <div class="grid-2 mb-20">
+          <div class="card" style="padding: 14px 18px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">Playwright</p>
+            <p style="color: var(--text-sub); font-size: 0.82rem;">브라우저 자동화/테스트</p>
+          </div>
+          <div class="card" style="padding: 14px 18px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">PostgreSQL</p>
+            <p style="color: var(--text-sub); font-size: 0.82rem;">DB 조회/마이그레이션</p>
+          </div>
+          <div class="card" style="padding: 14px 18px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">Slack</p>
+            <p style="color: var(--text-sub); font-size: 0.82rem;">메시지 전송/채널 관리</p>
+          </div>
+          <div class="card" style="padding: 14px 18px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">Web Search</p>
+            <p style="color: var(--text-sub); font-size: 0.82rem;">웹 검색 결과 활용</p>
+          </div>
+        </div>
+
+        <button class="toggle-btn" onclick="toggleSection(this)">&#9658; 연구자를 위한 활용 예시</button>
+        <div class="toggle-content">
+          <div class="card" style="margin-top: 8px;">
+            <p style="margin-bottom: 8px;">&#8226; 논문 데이터베이스 조회 &#8212; PubMed, arXiv 검색 자동화</p>
+            <p style="margin-bottom: 8px;">&#8226; 실험 결과 시각화 &#8212; matplotlib/plotly 그래프 자동 생성</p>
+            <p>&#8226; 서버 데이터 직접 접근 &#8212; SSH를 통한 원격 서버 조작</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 6: Hooks ── -->
     <section id="hooks">
       <div class="section-inner">
         <p class="section-tag">AUTOMATE</p>
@@ -1007,178 +1179,6 @@
           <div>}</div>
         </div>
         <p style="color: var(--text-sub); font-size: 0.78rem;">설정 위치: ~/.claude/settings.json 또는 .claude/settings.json</p>
-      </div>
-    </section>
-
-    <!-- ── Section 5: Skills ── -->
-    <section id="skills">
-      <div class="section-inner">
-        <p class="section-tag">CUSTOMIZE</p>
-        <h1 class="section-title">Skills</h1>
-        <p class="section-lead">재사용 가능한 커스텀 /명령어</p>
-
-        <!-- Folder tree -->
-        <div class="code-block mb-24">
-          <div><span class="code-comment"># 프로젝트 스킬</span></div>
-          <div>.claude/commands/<span class="code-cmd">commit.md</span></div>
-          <div>.claude/commands/<span class="code-cmd">review.md</span></div>
-          <div>&nbsp;</div>
-          <div><span class="code-comment"># 유저 스킬 (개인용)</span></div>
-          <div>~/.claude/commands/<span class="code-cmd">my-deploy.md</span></div>
-        </div>
-
-        <!-- SKILL.md example -->
-        <div class="code-block mb-24">
-          <div><span class="code-comment">---</span></div>
-          <div><span class="code-cmd">name:</span> <span class="code-string">commit</span></div>
-          <div><span class="code-cmd">description:</span> <span class="code-string">변경사항 분석 후 커밋 메시지 자동 생성</span></div>
-          <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash Grep Read</span></div>
-          <div><span class="code-comment">---</span></div>
-          <div>staged changes를 분석하고 conventional commit 형식으로</div>
-          <div>커밋 메시지를 작성해주세요. <span class="code-cmd">$ARGUMENTS</span></div>
-        </div>
-
-        <!-- Terminal mockup: /commit -->
-        <p class="label-row mb-12">실행 예시</p>
-        <div class="terminal mb-24">
-          <div class="terminal-bar">
-            <div class="terminal-dot red"></div>
-            <div class="terminal-dot yellow"></div>
-            <div class="terminal-dot green"></div>
-            <span class="terminal-title">~/my-project</span>
-          </div>
-          <div class="terminal-body">
-            <div><span class="prompt-sign">❯</span> <span style="color:var(--blue);font-weight:600;">/commit</span></div>
-            <div class="tool-call">  ↳ Bash: git diff --staged</div>
-            <div class="tool-call">  ↳ Analyzing changes...</div>
-            <div class="ai-response" style="margin-top:4px;">  커밋 메시지를 생성했습니다:</div>
-            <div style="margin-top:4px;"><span class="success">  feat: 사용자 인증 로직에 OAuth2 지원 추가</span></div>
-            <div style="color:var(--text-sub);margin-top:4px;">  커밋할까요? (y/n)</div>
-          </div>
-        </div>
-
-        <!-- Project vs User -->
-        <div class="grid-2 mb-20">
-          <div class="card" style="border-left: 4px solid var(--blue);">
-            <p style="font-weight: 700; color: var(--blue); margin-bottom: 10px;">프로젝트 스킬</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">.claude/commands/</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">git으로 팀 공유</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">프로젝트 맥락에 특화</p>
-          </div>
-          <div class="card" style="border-left: 4px solid var(--purple);">
-            <p style="font-weight: 700; color: var(--purple); margin-bottom: 10px;">유저 스킬</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">~/.claude/commands/</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem; margin-bottom: 4px;">개인 전용</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">모든 프로젝트에서 사용</p>
-          </div>
-        </div>
-
-        <button class="toggle-btn" onclick="toggleSection(this)">&#9658; 커뮤니티 스킬이란?</button>
-        <div class="toggle-content">
-          <div class="card" style="margin-top: 8px;">
-            <p style="margin-bottom: 8px;">마켓플레이스에서 다른 사용자가 만든 스킬을 검색하고 설치 가능</p>
-            <p style="color: var(--text-sub); font-size: 0.88rem;">예: /commit-smart, /review-pr, /debug 등 바로 사용 가능한 워크플로우</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Section 6: MCP ── -->
-    <section id="mcp">
-      <div class="section-inner">
-        <p class="section-tag">EXTEND</p>
-        <h1 class="section-title">MCP</h1>
-        <p class="section-lead">AI가 외부 서비스를 연결하는 표준 프로토콜</p>
-
-        <!-- Connection diagram -->
-        <div class="flex-row mb-24" style="flex-wrap: nowrap;">
-          <div class="card" style="flex: 1; text-align: center; border-color: var(--blue); padding: 14px;">
-            <p style="font-weight: 700; margin-bottom: 4px;">Claude Code</p>
-            <p style="color: var(--text-sub); font-size: 0.8rem;">에이전트</p>
-          </div>
-          <span class="arrow">&#8596;</span>
-          <div class="card" style="flex: 1; text-align: center; border-color: var(--amber); padding: 14px;">
-            <p style="font-weight: 700; margin-bottom: 4px;">MCP Server</p>
-            <p style="color: var(--text-sub); font-size: 0.8rem;">프로토콜 변환</p>
-          </div>
-          <span class="arrow">&#8596;</span>
-          <div class="card" style="flex: 1; text-align: center; border-color: var(--purple); padding: 14px;">
-            <p style="font-weight: 700; margin-bottom: 4px;">외부 서비스</p>
-            <p style="color: var(--text-sub); font-size: 0.8rem;">GitHub, DB, Slack...</p>
-          </div>
-        </div>
-
-        <!-- Hub-spoke diagram -->
-        <div class="hub-spoke">
-          <div class="hub-center" style="color:var(--blue);">Claude<br>Code</div>
-          <!-- Spoke lines + nodes at cardinal + diagonal positions -->
-          <div class="spoke-line" style="width:100px;transform:rotate(0deg);top:50%;left:calc(50% + 45px);"></div>
-          <div class="spoke-node" style="top:50%;right:0;transform:translateY(-50%);border-color:var(--green);">
-            <span style="font-size:1rem;">🌐</span>
-            <span>GitHub</span>
-          </div>
-          <div class="spoke-line" style="width:100px;transform:rotate(90deg);top:calc(50% + 45px);left:50%;"></div>
-          <div class="spoke-node" style="bottom:0;left:50%;transform:translateX(-50%);border-color:var(--amber);">
-            <span style="font-size:1rem;">🗄</span>
-            <span>DB</span>
-          </div>
-          <div class="spoke-line" style="width:100px;transform:rotate(180deg);top:50%;right:calc(50% + 45px);"></div>
-          <div class="spoke-node" style="top:50%;left:0;transform:translateY(-50%);border-color:var(--purple);">
-            <span style="font-size:1rem;">💬</span>
-            <span>Slack</span>
-          </div>
-          <div class="spoke-line" style="width:100px;transform:rotate(270deg);bottom:calc(50% + 45px);left:50%;"></div>
-          <div class="spoke-node" style="top:0;left:50%;transform:translateX(-50%);border-color:var(--blue);">
-            <span style="font-size:1rem;">🔍</span>
-            <span>Search</span>
-          </div>
-          <div class="spoke-line" style="width:100px;transform:rotate(45deg);top:calc(50% - 30px);left:calc(50% + 30px);"></div>
-          <div class="spoke-node" style="top:0;right:0;border-color:#64748b;">
-            <span style="font-size:1rem;">📊</span>
-            <span>Sentry</span>
-          </div>
-          <div class="spoke-line" style="width:100px;transform:rotate(225deg);top:calc(50% + 30px);right:calc(50% + 30px);"></div>
-          <div class="spoke-node" style="bottom:0;left:0;border-color:#64748b;">
-            <span style="font-size:1rem;">🎨</span>
-            <span>Figma</span>
-          </div>
-        </div>
-        <p style="text-align:center;color:var(--text-sub);font-size:0.8rem;margin-bottom:24px;">MCP 서버를 통해 다양한 외부 서비스에 연결</p>
-
-        <!-- Config -->
-        <div class="code-block mb-24">
-          <div><span class="code-prompt">$</span> <span class="code-cmd">claude mcp add</span> <span class="code-string">github</span> <span class="code-cmd">--transport</span> <span class="code-string">http</span> <span class="code-cmd">--url</span> <span class="code-string">https://api.github.com/mcp</span></div>
-        </div>
-
-        <!-- Popular MCPs -->
-        <p class="label-row mb-12">인기 MCP 서버</p>
-        <div class="grid-2 mb-20">
-          <div class="card" style="padding: 14px 18px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">Playwright</p>
-            <p style="color: var(--text-sub); font-size: 0.82rem;">브라우저 자동화/테스트</p>
-          </div>
-          <div class="card" style="padding: 14px 18px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">PostgreSQL</p>
-            <p style="color: var(--text-sub); font-size: 0.82rem;">DB 조회/마이그레이션</p>
-          </div>
-          <div class="card" style="padding: 14px 18px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">Slack</p>
-            <p style="color: var(--text-sub); font-size: 0.82rem;">메시지 전송/채널 관리</p>
-          </div>
-          <div class="card" style="padding: 14px 18px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">Web Search</p>
-            <p style="color: var(--text-sub); font-size: 0.82rem;">웹 검색 결과 활용</p>
-          </div>
-        </div>
-
-        <button class="toggle-btn" onclick="toggleSection(this)">&#9658; 연구자를 위한 활용 예시</button>
-        <div class="toggle-content">
-          <div class="card" style="margin-top: 8px;">
-            <p style="margin-bottom: 8px;">&#8226; 논문 데이터베이스 조회 &#8212; PubMed, arXiv 검색 자동화</p>
-            <p style="margin-bottom: 8px;">&#8226; 실험 결과 시각화 &#8212; matplotlib/plotly 그래프 자동 생성</p>
-            <p>&#8226; 서버 데이터 직접 접근 &#8212; SSH를 통한 원격 서버 조작</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1349,7 +1349,7 @@
       </div>
     </section>
 
-    <!-- ── Section 8: 마무리 ── -->
+    <!-- ── Section 9: 마무리 ── -->
     <section id="wrapup">
       <div class="section-inner">
         <p class="section-tag">WRAP UP</p>
