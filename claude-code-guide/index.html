@@ -567,7 +567,62 @@
     <section class="slide" id="slide-3">
       <span class="section-tag">CUSTOMIZE</span>
       <h1 class="slide-title">CLAUDE.md</h1>
-      <p class="slide-subtitle">Placeholder</p>
+      <p class="slide-subtitle">매 세션 시작 시 자동으로 로드되는 프로젝트 설명서</p>
+
+      <!-- 3-level diagram -->
+      <div style="display: flex; flex-direction: column; align-items: center; max-width: 500px; width: 100%; margin-bottom: 24px;">
+        <div class="card" style="width: 100%; border-left: 4px solid var(--blue);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span>📁 Project</span>
+              <code style="color: var(--blue); font-family: monospace; font-size: 0.85rem;">./CLAUDE.md</code>
+            </div>
+            <span class="badge" style="background: rgba(56,189,248,0.2); color: var(--blue);">가장 우선</span>
+          </div>
+          <p style="color: var(--text-sub); font-size: 0.85rem;">이 프로젝트 전용 (git 공유)</p>
+        </div>
+        <div style="color: var(--text-sub); font-size: 1.2rem; line-height: 1; padding: 4px 0;">↓</div>
+        <div class="card" style="width: 100%; border-left: 4px solid var(--purple);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span>👤 User</span>
+            <code style="color: var(--purple); font-family: monospace; font-size: 0.85rem;">~/.claude/CLAUDE.md</code>
+          </div>
+          <p style="color: var(--text-sub); font-size: 0.85rem;">개인 설정</p>
+        </div>
+        <div style="color: var(--text-sub); font-size: 1.2rem; line-height: 1; padding: 4px 0;">↓</div>
+        <div class="card" style="width: 100%; border-left: 4px solid var(--text-sub);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span>🏢 Global</span>
+            <code style="color: var(--text-sub); font-family: monospace; font-size: 0.85rem;">managed settings</code>
+          </div>
+          <p style="color: var(--text-sub); font-size: 0.85rem;">조직 전체 적용</p>
+        </div>
+      </div>
+
+      <!-- Example code block -->
+      <div class="code-block" style="max-width: 600px; width: 100%; margin-bottom: 24px;">
+        <div><span class="code-comment"># My Project</span></div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment">## Build</span></div>
+        <div><span class="code-cmd">- npm run dev:</span> 개발 서버 시작</div>
+        <div><span class="code-cmd">- npm test:</span> 테스트 실행</div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment">## Rules</span></div>
+        <div>- TypeScript strict mode 사용</div>
+        <div>- 커밋 메시지는 한글로 작성</div>
+      </div>
+
+      <!-- Toggle: AGENTS.md -->
+      <div style="max-width: 600px; width: 100%;">
+        <button class="toggle-btn" onclick="toggleSection(this)">▸ AGENTS.md란?</button>
+        <div class="toggle-content">
+          <div class="card" style="margin-top: 8px; border-radius: 8px;">
+            <p style="margin-bottom: 8px;">서브에이전트가 참조하는 전용 지침 파일</p>
+            <p style="margin-bottom: 8px; color: var(--text-sub); font-size: 0.9rem;">.claude/agents/ 폴더에 커스텀 에이전트 정의 가능</p>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">메인 CLAUDE.md와 별도로, 에이전트별 행동 규칙 설정</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="slide" id="slide-4">
