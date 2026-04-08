@@ -1195,7 +1195,54 @@
           <div>&nbsp; }</div>
           <div>}</div>
         </div>
-        <p style="color: var(--text-sub); font-size: 0.78rem;">설정 위치: ~/.claude/settings.json 또는 .claude/settings.json</p>
+        <p style="color: var(--text-sub); font-size: 0.78rem; margin-bottom: 24px;">설정 위치: ~/.claude/settings.json 또는 .claude/settings.json</p>
+
+        <!-- Real-world examples -->
+        <p class="label-row mb-12">실제 사용 예시 (현재 설정에서 발췌)</p>
+
+        <!-- Example 1: Dangerous command blocker -->
+        <div class="terminal mb-20">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">예시 1: 위험 명령 차단기</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span class="user-input">node_modules 다 지워줘</span></div>
+            <div class="tool-call">  ↳ Bash: rm -rf node_modules/</div>
+            <div style="margin-top:6px;color:#ef4444;font-weight:600;">  🛑 BLOCKED: Critical path protection!</div>
+            <div style="color:var(--text-sub);font-size:0.78rem;margin-top:2px;">  Protected resource: Node.js dependencies</div>
+            <div style="color:var(--text-sub);font-size:0.78rem;">  This path contains critical project files.</div>
+          </div>
+        </div>
+        <div class="card mb-24" style="padding:14px 18px;border-left:4px solid var(--amber);">
+          <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:4px;"><strong style="color:var(--text);">Hook:</strong> PreToolUse → Bash 명령 감지 → dangerous-command-blocker.py 실행</p>
+          <p style="font-size:0.82rem;color:var(--text-sub);">rm -rf /, .git, .claude, .env 등 위험 경로를 패턴 매칭으로 자동 차단 (exit 2 = 차단)</p>
+        </div>
+
+        <!-- Example 2: Secret scanner -->
+        <div class="terminal mb-20">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">예시 2: 시크릿 유출 방지</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span class="user-input">변경사항 커밋해줘</span></div>
+            <div class="tool-call">  ↳ Bash: git add -A && git commit -m "feat: add API"</div>
+            <div style="margin-top:6px;color:#ef4444;font-weight:600;">  🚨 SECRET SCANNER: Potential secrets detected!</div>
+            <div style="color:var(--text-sub);font-size:0.78rem;margin-top:2px;">  🟠 Anthropic API Key</div>
+            <div style="color:var(--text-sub);font-size:0.78rem;">     File: config.py:12</div>
+            <div style="color:var(--text-sub);font-size:0.78rem;">     Match: sk-ant-api03-...</div>
+            <div style="color:#ef4444;font-size:0.78rem;margin-top:4px;">  ❌ COMMIT BLOCKED: Remove secrets before committing</div>
+          </div>
+        </div>
+        <div class="card mb-12" style="padding:14px 18px;border-left:4px solid var(--amber);">
+          <p style="font-size:0.82rem;color:var(--text-sub);margin-bottom:4px;"><strong style="color:var(--text);">Hook:</strong> PreToolUse → git commit 감지 → secret-scanner.py 실행</p>
+          <p style="font-size:0.82rem;color:var(--text-sub);">AWS, OpenAI, Stripe, GitHub 등 40개+ API 키 패턴을 정규식으로 스캔, 발견 시 커밋 차단</p>
+        </div>
       </div>
     </section>
 
