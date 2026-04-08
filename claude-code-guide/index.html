@@ -567,8 +567,8 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#mcp">MCP</a></li>
       <li><a href="#hooks">Hooks</a></li>
-      <li><a href="#plugins">Plugins</a></li>
       <li><a href="#agent">Agent</a></li>
+      <li><a href="#plugins">Plugins</a></li>
       <li><a href="#wrapup">마무리</a></li>
     </ul>
   </nav>
@@ -1246,85 +1246,42 @@
       </div>
     </section>
 
-    <!-- ── Section 7: Plugins ── -->
-    <section id="plugins">
-      <div class="section-inner">
-        <p class="section-tag">EXTEND</p>
-        <h1 class="section-title">Plugins</h1>
-        <p class="section-lead">Skills, Hooks, MCP, Agent를 패키지로 묶어 설치하고 공유</p>
-
-        <!-- What is a plugin -->
-        <div class="card" style="border-left: 4px solid var(--amber); margin-bottom: 24px;">
-          <p style="margin-bottom: 8px; font-weight: 600;">Plugin = 확장 패키지</p>
-          <p style="color: var(--text-sub); font-size: 0.9rem;">Skills, Hooks, Agent, MCP 서버를 하나로 묶은 재사용 가능한 패키지. 마켓플레이스를 통해 설치하고 팀 간 공유할 수 있습니다.</p>
-        </div>
-
-        <!-- Plugin vs others -->
-        <table class="info-table" style="margin-bottom: 24px;">
-          <thead>
-            <tr><th>구성 요소</th><th>범위</th><th>공유 방식</th></tr>
-          </thead>
-          <tbody>
-            <tr><td style="color: var(--amber); font-weight: 600;">Plugin</td><td>여러 기능을 하나로 묶음</td><td>마켓플레이스로 배포</td></tr>
-            <tr><td>Skill</td><td>단일 커스텀 명령어</td><td>.claude/commands/ (프로젝트별)</td></tr>
-            <tr><td>MCP</td><td>외부 서비스 연결</td><td>settings.json 설정</td></tr>
-            <tr><td>Hook</td><td>이벤트 자동화</td><td>settings.json 설정</td></tr>
-          </tbody>
-        </table>
-
-        <!-- Install -->
-        <p style="color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">설치 방법</p>
-        <div class="code-block" style="margin-bottom: 24px;">
-          <span class="code-comment"># 마켓플레이스 추가</span><br>
-          <span class="code-prompt">$</span> <span class="code-cmd">/plugin marketplace add</span> <span class="code-string">source</span><br><br>
-          <span class="code-comment"># 플러그인 설치</span><br>
-          <span class="code-prompt">$</span> <span class="code-cmd">/plugin install</span> <span class="code-string">name@marketplace</span><br><br>
-          <span class="code-comment"># 플러그인 관리 UI</span><br>
-          <span class="code-prompt">$</span> <span class="code-cmd">/plugin</span>
-        </div>
-
-        <!-- Popular plugins -->
-        <p style="color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;">공식 마켓플레이스 주요 플러그인</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
-          <div class="card" style="padding: 16px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">Code Intelligence</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">Python, TypeScript, Go 등 LSP 기반 코드 분석</p>
-          </div>
-          <div class="card" style="padding: 16px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">GitHub / GitLab</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">PR, 이슈, CI/CD 통합</p>
-          </div>
-          <div class="card" style="padding: 16px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">Figma / Slack / Sentry</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">디자인, 커뮤니케이션, 모니터링 연동</p>
-          </div>
-          <div class="card" style="padding: 16px;">
-            <p style="font-weight: 600; margin-bottom: 4px;">커뮤니티 플러그인</p>
-            <p style="color: var(--text-sub); font-size: 0.85rem;">superpowers, octopus 등 워크플로우 확장</p>
-          </div>
-        </div>
-
-        <!-- Toggle: settings.json -->
-        <button class="toggle-btn" onclick="toggleSection(this)">&#9656; settings.json 설정 예시</button>
-        <div class="toggle-content">
-          <div class="code-block" style="margin-top: 8px;">
-            {<br>
-            &nbsp;&nbsp;<span class="code-cmd">"enabledPlugins"</span>: {<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"code-intel@official"</span>: <span class="code-cmd">true</span>,<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"github@official"</span>: <span class="code-cmd">true</span><br>
-            &nbsp;&nbsp;}<br>
-            }
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Section 8: Agent ── -->
+    <!-- ── Section 7: Agent ── -->
     <section id="agent">
       <div class="section-inner">
         <p class="section-tag">ORCHESTRATE</p>
         <h1 class="section-title">Agent &amp; Multi-Agent</h1>
         <p class="section-lead">Claude가 하위 에이전트를 만들어 병렬 작업</p>
+
+        <!-- Custom Agent: .claude/agents/ -->
+        <p class="label-row mb-12">커스텀 에이전트 만들기</p>
+        <div class="grid-2 mb-24">
+          <div>
+            <p style="font-weight:600;color:var(--blue);margin-bottom:8px;">폴더 구조</p>
+            <div class="code-block">
+              <div>.claude/agents/</div>
+              <div>├── <span class="code-cmd">code-reviewer.md</span></div>
+              <div>├── <span class="code-cmd">debugger.md</span></div>
+              <div>└── <span class="code-cmd">test-automator.md</span></div>
+            </div>
+          </div>
+          <div>
+            <p style="font-weight:600;color:var(--purple);margin-bottom:8px;">AGENT.md 예시</p>
+            <div class="code-block">
+              <div><span class="code-comment">---</span></div>
+              <div><span class="code-cmd">name:</span> <span class="code-string">code-reviewer</span></div>
+              <div><span class="code-cmd">description:</span> <span class="code-string">코드 리뷰 전문가</span></div>
+              <div><span class="code-cmd">tools:</span> <span class="code-string">Read Grep Bash</span></div>
+              <div><span class="code-cmd">model:</span> <span class="code-string">opus</span></div>
+              <div><span class="code-comment">---</span></div>
+              <div style="margin-top:4px;">보안, 성능, 유지보수성을</div>
+              <div>종합적으로 검토하세요.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-24" style="padding:14px 18px;border-left:4px solid var(--blue);">
+          <p style="font-size:0.85rem;color:var(--text-sub);"><strong style="color:var(--text);">자동 위임:</strong> Claude가 요청 내용과 에이전트의 description을 매칭하여 자동으로 적합한 에이전트에게 작업을 위임합니다</p>
+        </div>
 
         <!-- Worktree concept -->
         <div style="margin-bottom: 24px;">
@@ -1392,14 +1349,15 @@
           </table>
         </div>
 
-        <button class="toggle-btn mb-12" style="margin-bottom: 12px;" onclick="toggleSection(this)">&#9658; [Experimental] Agent Teams 상세</button>
-        <div class="toggle-content">
-          <div class="card" style="margin-top: 8px; margin-bottom: 12px;">
-            <div style="margin-bottom: 10px;"><span class="badge" style="background: rgba(245,158,11,0.2); color: var(--amber);">Experimental</span></div>
-            <p style="margin-bottom: 8px;">&#8226; 환경변수 <code style="color: var(--blue); font-family: monospace;">CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 로 활성화</p>
-            <p style="margin-bottom: 8px;">&#8226; 여러 Claude 인스턴스가 팀으로 협업</p>
-            <p>&#8226; tmux/iTerm2에서 분할 패널로 동시 관찰 가능</p>
+        <!-- Agent Teams visible card (was inside toggle) -->
+        <div class="card mb-20" style="border-left: 4px solid var(--amber); padding: 16px 18px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <p style="font-weight: 600; margin: 0;">Agent Teams</p>
+            <span class="badge" style="background: rgba(245,158,11,0.2); color: var(--amber);">Experimental</span>
           </div>
+          <p style="margin-bottom: 8px;">&#8226; 환경변수 <code style="color: var(--blue); font-family: monospace;">CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 로 활성화</p>
+          <p style="margin-bottom: 8px;">&#8226; 여러 Claude 인스턴스가 팀으로 협업</p>
+          <p>&#8226; tmux/iTerm2에서 분할 패널로 동시 관찰 가능</p>
         </div>
 
         <button class="toggle-btn" onclick="toggleSection(this)">&#9658; Headless / SDK 활용</button>
@@ -1408,6 +1366,79 @@
             <p style="margin-bottom: 8px;">&#8226; <code style="color: var(--blue); font-family: monospace;">claude -p "프롬프트"</code>: 비대화형 실행 (스크립트, CI 파이프라인용)</p>
             <p style="margin-bottom: 8px;">&#8226; Claude Agent SDK: 커스텀 에이전트 애플리케이션 구축</p>
             <p>&#8226; 출력 포맷: <code style="color: var(--amber); font-family: monospace;">--output-format text|json|stream-json</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 8: Plugins ── -->
+    <section id="plugins">
+      <div class="section-inner">
+        <p class="section-tag">EXTEND</p>
+        <h1 class="section-title">Plugins</h1>
+        <p class="section-lead">Skills, Hooks, MCP, Agent를 패키지로 묶어 설치하고 공유</p>
+
+        <!-- What is a plugin -->
+        <div class="card" style="border-left: 4px solid var(--amber); margin-bottom: 24px;">
+          <p style="margin-bottom: 8px; font-weight: 600;">Plugin = 확장 패키지</p>
+          <p style="color: var(--text-sub); font-size: 0.9rem;">Skills, Hooks, Agent, MCP 서버를 하나로 묶은 재사용 가능한 패키지. 마켓플레이스를 통해 설치하고 팀 간 공유할 수 있습니다.</p>
+        </div>
+
+        <!-- Plugin vs others -->
+        <table class="info-table" style="margin-bottom: 24px;">
+          <thead>
+            <tr><th>구성 요소</th><th>범위</th><th>공유 방식</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="color: var(--amber); font-weight: 600;">Plugin</td><td>여러 기능을 하나로 묶음</td><td>마켓플레이스로 배포</td></tr>
+            <tr><td>Skill</td><td>단일 커스텀 명령어</td><td>.claude/commands/ (프로젝트별)</td></tr>
+            <tr><td>MCP</td><td>외부 서비스 연결</td><td>settings.json 설정</td></tr>
+            <tr><td>Hook</td><td>이벤트 자동화</td><td>settings.json 설정</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Install -->
+        <p style="color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;">설치 방법</p>
+        <div class="code-block" style="margin-bottom: 24px;">
+          <span class="code-comment"># 마켓플레이스 추가</span><br>
+          <span class="code-prompt">$</span> <span class="code-cmd">/plugin marketplace add</span> <span class="code-string">source</span><br><br>
+          <span class="code-comment"># 플러그인 설치</span><br>
+          <span class="code-prompt">$</span> <span class="code-cmd">/plugin install</span> <span class="code-string">name@marketplace</span><br><br>
+          <span class="code-comment"># 플러그인 관리 UI</span><br>
+          <span class="code-prompt">$</span> <span class="code-cmd">/plugin</span>
+        </div>
+
+        <!-- Popular plugins -->
+        <p style="color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;">공식 마켓플레이스 주요 플러그인</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+          <div class="card" style="padding: 16px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">Code Intelligence</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Python, TypeScript, Go 등 LSP 기반 코드 분석</p>
+          </div>
+          <div class="card" style="padding: 16px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">GitHub / GitLab</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">PR, 이슈, CI/CD 통합</p>
+          </div>
+          <div class="card" style="padding: 16px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">Figma / Slack / Sentry</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">디자인, 커뮤니케이션, 모니터링 연동</p>
+          </div>
+          <div class="card" style="padding: 16px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">커뮤니티 플러그인</p>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">superpowers, octopus 등 워크플로우 확장</p>
+          </div>
+        </div>
+
+        <!-- Toggle: settings.json -->
+        <button class="toggle-btn" onclick="toggleSection(this)">&#9656; settings.json 설정 예시</button>
+        <div class="toggle-content">
+          <div class="code-block" style="margin-top: 8px;">
+            {<br>
+            &nbsp;&nbsp;<span class="code-cmd">"enabledPlugins"</span>: {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"code-intel@official"</span>: <span class="code-cmd">true</span>,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"github@official"</span>: <span class="code-cmd">true</span><br>
+            &nbsp;&nbsp;}<br>
+            }
           </div>
         </div>
       </div>
