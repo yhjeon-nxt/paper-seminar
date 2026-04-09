@@ -569,6 +569,7 @@
       <li><a href="#hooks">Hooks</a></li>
       <li><a href="#agent">Agent</a></li>
       <li><a href="#plugins">Plugins</a></li>
+      <li><a href="#memory">Memory</a></li>
       <li><a href="#harness">Harness</a></li>
       <li><a href="#wrapup">마무리</a></li>
     </ul>
@@ -1445,7 +1446,186 @@
       </div>
     </section>
 
-    <!-- ── Section 9: 하네스 엔지니어링 ── -->
+    <!-- ── Section 9: Memory ── -->
+    <section id="memory">
+      <div class="section-inner">
+        <p class="section-tag">PERSIST</p>
+        <h1 class="section-title">Memory</h1>
+        <p class="section-lead">세션이 끝나도 사라지지 않는 지속적 기억</p>
+
+        <!-- What is Memory -->
+        <div class="card mb-24" style="border-left: 4px solid var(--purple);">
+          <p style="font-weight:600;margin-bottom:8px;">Memory란?</p>
+          <p style="color:var(--text-sub);font-size:0.9rem;">Claude Code는 대화가 끝나면 모든 맥락을 잊습니다. Memory는 <strong style="color:var(--text);">세션 간 지식을 파일로 저장</strong>하여, 다음 대화에서도 사용자의 역할, 선호도, 프로젝트 상황을 기억하게 합니다.</p>
+        </div>
+
+        <!-- How it works: diagram -->
+        <p class="label-row mb-12">동작 방식</p>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;margin-bottom:32px;">
+          <div class="card" style="text-align:center;padding:16px;">
+            <div style="font-size:1.3rem;margin-bottom:6px;">💬</div>
+            <p style="font-weight:700;font-size:0.85rem;">대화 중 학습</p>
+            <p style="font-size:0.75rem;color:var(--text-sub);">사용자 정보, 피드백<br>프로젝트 맥락 파악</p>
+          </div>
+          <span style="color:var(--text-sub);font-size:1.3rem;font-weight:700;">→</span>
+          <div class="card" style="text-align:center;padding:16px;">
+            <div style="font-size:1.3rem;margin-bottom:6px;">💾</div>
+            <p style="font-weight:700;font-size:0.85rem;">파일로 저장</p>
+            <p style="font-size:0.75rem;color:var(--text-sub);">memory/ 폴더에<br>마크다운 파일 생성</p>
+          </div>
+          <span style="color:var(--text-sub);font-size:1.3rem;font-weight:700;">→</span>
+          <div class="card" style="text-align:center;padding:16px;">
+            <div style="font-size:1.3rem;margin-bottom:6px;">🔄</div>
+            <p style="font-weight:700;font-size:0.85rem;">다음 세션에 활용</p>
+            <p style="font-size:0.75rem;color:var(--text-sub);">MEMORY.md 인덱스로<br>관련 기억 자동 참조</p>
+          </div>
+        </div>
+
+        <!-- Memory types -->
+        <p class="label-row mb-12">4가지 메모리 유형</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span class="badge" style="background:rgba(56,189,248,0.15);color:var(--blue);">user</span>
+              <span style="font-weight:600;font-size:0.88rem;">사용자 프로필</span>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-sub);">역할, 기술 수준, 선호하는 협업 방식</p>
+            <p style="font-size:0.75rem;color:#475569;margin-top:6px;">"나는 데이터 사이언티스트야"</p>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span class="badge" style="background:rgba(34,197,94,0.15);color:var(--green);">feedback</span>
+              <span style="font-weight:600;font-size:0.88rem;">작업 피드백</span>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-sub);">교정, 확인된 접근법, 행동 지침</p>
+            <p style="font-size:0.75rem;color:#475569;margin-top:6px;">"테스트에서 DB 목킹 하지 마"</p>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span class="badge" style="background:rgba(245,158,11,0.15);color:var(--amber);">project</span>
+              <span style="font-weight:600;font-size:0.88rem;">프로젝트 상황</span>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-sub);">진행 중인 작업, 마감일, 의사결정 배경</p>
+            <p style="font-size:0.75rem;color:#475569;margin-top:6px;">"4/10부터 코드 프리즈"</p>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span class="badge" style="background:rgba(167,139,250,0.15);color:var(--purple);">reference</span>
+              <span style="font-weight:600;font-size:0.88rem;">외부 참조</span>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-sub);">외부 시스템 위치, 대시보드, 문서 링크</p>
+            <p style="font-size:0.75rem;color:#475569;margin-top:6px;">"버그는 Linear INGEST 프로젝트에"</p>
+          </div>
+        </div>
+
+        <!-- File structure -->
+        <p class="label-row mb-12">저장 구조</p>
+        <div class="code-block mb-24">
+          <div><span class="code-comment"># 프로젝트별 메모리 폴더</span></div>
+          <div>~/.claude/projects/&lt;project&gt;/memory/</div>
+          <div>├── <span class="code-string">MEMORY.md</span>           <span class="code-comment"># 인덱스 — 매 세션 자동 로드</span></div>
+          <div>├── <span class="code-cmd">user_role.md</span>          <span class="code-comment"># user: 데이터 사이언티스트</span></div>
+          <div>├── <span class="code-cmd">feedback_testing.md</span>   <span class="code-comment"># feedback: DB 목킹 금지</span></div>
+          <div>├── <span class="code-cmd">project_freeze.md</span>     <span class="code-comment"># project: 코드 프리즈 일정</span></div>
+          <div>└── <span class="code-cmd">reference_linear.md</span>   <span class="code-comment"># reference: Linear 프로젝트</span></div>
+        </div>
+
+        <!-- Memory file format -->
+        <button class="toggle-btn" onclick="toggleSection(this)">&#9658; 메모리 파일 형식 보기</button>
+        <div class="toggle-content">
+          <div class="code-block" style="margin-top:8px;margin-bottom:16px;">
+            <div><span class="code-comment">---</span></div>
+            <div><span class="code-cmd">name:</span> <span class="code-string">DB 목킹 금지</span></div>
+            <div><span class="code-cmd">description:</span> <span class="code-string">테스트에서 실제 DB 사용 필수</span></div>
+            <div><span class="code-cmd">type:</span> <span class="code-string">feedback</span></div>
+            <div><span class="code-comment">---</span></div>
+            <div>&nbsp;</div>
+            <div>통합 테스트에서 DB를 목킹하지 않는다.</div>
+            <div>&nbsp;</div>
+            <div><span class="code-cmd">**Why:**</span> 목킹 테스트가 통과했지만</div>
+            <div>프로덕션 마이그레이션에서 장애 발생한 전례</div>
+            <div>&nbsp;</div>
+            <div><span class="code-cmd">**How to apply:**</span> 테스트 작성 시</div>
+            <div>항상 실제 DB 연결 사용</div>
+          </div>
+        </div>
+
+        <!-- Terminal: memory in action -->
+        <p class="label-row mb-12" style="margin-top:24px;">Memory가 동작하는 모습</p>
+        <div class="terminal mb-24">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">~/my-project — Session 1</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span class="user-input">나는 Go 10년차인데 이 프로젝트 React 쪽은 처음이야</span></div>
+            <div class="tool-call">  ↳ Memory: user_expertise.md 저장</div>
+            <div class="success">  ✓ 기억했습니다 — Go 전문가, React 초보</div>
+          </div>
+        </div>
+        <div class="terminal mb-24">
+          <div class="terminal-bar">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">~/my-project — Session 2 (다음 날)</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="prompt-sign">❯</span> <span class="user-input">이 컴포넌트 구조 설명해줘</span></div>
+            <div class="tool-call">  ↳ Memory: user_expertise.md 참조</div>
+            <div style="color:var(--text-sub);font-size:0.82rem;margin-top:4px;">  React의 useEffect는 Go의 goroutine과 비슷하게</div>
+            <div style="color:var(--text-sub);font-size:0.82rem;">  비동기 사이드이펙트를 처리합니다...</div>
+            <div class="success" style="margin-top:4px;">  ✓ 사용자 배경에 맞춘 설명 제공</div>
+          </div>
+        </div>
+
+        <!-- CLAUDE.md vs Memory -->
+        <p class="label-row mb-12">CLAUDE.md vs Memory</p>
+        <div class="card mb-24">
+          <table class="info-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th style="color:var(--blue);">CLAUDE.md</th>
+                <th style="color:var(--purple);">Memory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;font-size:0.82rem;">작성자</td>
+                <td>사용자가 직접</td>
+                <td>Claude가 자동으로</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;font-size:0.82rem;">공유 범위</td>
+                <td>git으로 팀 공유</td>
+                <td>로컬 개인 메모</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;font-size:0.82rem;">내용</td>
+                <td>프로젝트 규칙, 빌드 명령</td>
+                <td>사용자 선호, 피드백, 맥락</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;font-size:0.82rem;">관리</td>
+                <td style="border-bottom:none;">수동 편집</td>
+                <td style="border-bottom:none;">대화 중 자동 축적</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Key insight -->
+        <div class="card" style="border-left:4px solid var(--purple);">
+          <p style="font-weight:600;margin-bottom:8px;color:var(--purple);">핵심 인사이트</p>
+          <p style="color:var(--text-sub);font-size:0.9rem;">CLAUDE.md가 <strong style="color:var(--text);">프로젝트의 규칙</strong>이라면, Memory는 <strong style="color:var(--text);">사용자와의 관계</strong>입니다. 함께 일할수록 Claude는 당신의 스타일에 맞게 적응합니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 10: 하네스 엔지니어링 ── -->
     <section id="harness">
       <div class="section-inner">
         <p class="section-tag">PUTTING IT ALL TOGETHER</p>
@@ -1489,6 +1669,11 @@
           <div style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:10px 16px;text-align:center;">
             <div style="font-weight:700;font-size:0.85rem;color:var(--purple);">Plugins</div>
             <div style="font-size:0.7rem;color:var(--text-sub);">패키지</div>
+          </div>
+          <div style="color:var(--text-sub);display:flex;align-items:center;font-size:1.2rem;">+</div>
+          <div style="background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:10px 16px;text-align:center;">
+            <div style="font-weight:700;font-size:0.85rem;color:var(--purple);">Memory</div>
+            <div style="font-size:0.7rem;color:var(--text-sub);">기억</div>
           </div>
           <div style="color:var(--text-sub);display:flex;align-items:center;font-size:1.2rem;">=</div>
           <div style="background:rgba(34,197,94,0.15);border:2px solid var(--green);border-radius:8px;padding:10px 20px;text-align:center;">
@@ -1616,6 +1801,7 @@
             <div class="stair-bar" style="height: 156px; background: var(--amber);"><span>Skills</span></div>
             <div class="stair-bar" style="height: 176px; background: var(--purple);"><span>MCP</span></div>
             <div class="stair-bar" style="height: 196px; background: var(--purple);"><span>Agent</span></div>
+            <div class="stair-bar" style="height: 216px; background: var(--purple);"><span>Memory</span></div>
           </div>
         </div>
 
