@@ -1453,6 +1453,45 @@
       });
     })();
 
+    // ===== INTRO FLOW NAV (scroll spy + smooth scroll) =====
+    (function initIntroFlowNav() {
+      var flowLinks = document.querySelectorAll('.intro-flow-step');
+      if (flowLinks.length === 0) return;
+      var navHeight = 59; // progress bar (3px) + nav (56px)
+
+      function setActiveFlow(id) {
+        flowLinks.forEach(function(link) {
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+
+      var steps = document.querySelectorAll('.intro-step');
+      var flowObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) setActiveFlow(entry.target.id);
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      steps.forEach(function(step) { flowObserver.observe(step); });
+
+      flowLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            var target = document.querySelector(href);
+            if (target) {
+              var targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight;
+              window.scrollTo({ top: targetTop, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    })();
+
     // ===== LIGHTBOX =====
     var lightbox = document.getElementById('lightbox');
     var lightboxImg = document.getElementById('lightbox-img');
