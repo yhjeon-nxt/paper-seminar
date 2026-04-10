@@ -536,6 +536,135 @@
       padding: 0 20px 20px;
     }
 
+    /* ===== INTRO FLOW NAV ===== */
+    /* Override the global `nav { position: fixed; ... }` rule that would
+       otherwise float this in-flow nav on top of the page header. */
+    .intro-flow-nav {
+      position: static;
+      top: auto;
+      left: auto;
+      right: auto;
+      height: auto;
+      border-bottom: none;
+      z-index: auto;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 16px 20px;
+      margin-bottom: 40px;
+    }
+
+    .intro-flow-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: color 0.15s, background-color 0.15s;
+      cursor: pointer;
+    }
+
+    .intro-flow-step:hover {
+      color: #1e293b;
+      background-color: #f1f5f9;
+    }
+
+    .intro-flow-step.active {
+      color: #ffffff;
+      background-color: #2563eb;
+    }
+
+    .intro-flow-step .intro-flow-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .intro-flow-step.active .intro-flow-num {
+      background-color: #ffffff;
+      color: #2563eb;
+    }
+
+    .intro-flow-arrow {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+
+    /* ===== INTRO STEP ===== */
+    .intro-step {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+
+    .intro-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .intro-step-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .intro-step-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      line-height: 1.35;
+    }
+
+    .intro-step-terminal {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background-color: #f1f5f9;
+      border-left: 3px solid #2563eb;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      color: #334155;
+      font-style: italic;
+    }
+
+    /* ===== HERO TIMELINE ===== */
+    .hero-timeline-wrap {
+      margin-top: 24px;
+    }
+
+    .hero-timeline-wrap:hover {
+      transform: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .hero-timeline-wrap svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
@@ -548,6 +677,9 @@
       .container { padding: 0 16px; }
       .overview-paper-title { font-size: 1.3rem; }
       .section-title { font-size: 1.5rem; }
+      .intro-flow-nav { padding: 12px 14px; gap: 6px; }
+      .intro-flow-arrow { display: none; }
+      .intro-step-title { font-size: 1.15rem; }
     }
 
     @media (max-width: 640px) {
@@ -623,54 +755,204 @@
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">Background</h2>
-          <p class="section-subtitle">알츠하이머병 바이오마커와 신경병리학적 해석의 필요성</p>
+          <p class="section-subtitle">논문 Introduction의 논리 흐름을 따라 — 왜 이 연구가 필요했는가</p>
         </div>
 
-        <div class="info-card">
-          <h3 class="info-card-title">알츠하이머병(AD)의 병리학적 특징</h3>
-          <p class="info-card-body">
-            AD는 아밀로이드 &beta;(A&beta;) 펩타이드로 구성된 노인성 플라크(senile plaques)와, 과인산화된 tau 단백질이 축적된 신경원섬유매듭(neurofibrillary tangles, NFTs), 그리고 뇌 위축을 특징으로 한다. A&beta; 축적은 임상 증상 발현 20년 이상 전부터 시작되며, tau 병리는 임상적 AD 단계와 동시에 나타난다.
-          </p>
-        </div>
+        <!-- Intro Flow Navigation -->
+        <nav class="intro-flow-nav" aria-label="Introduction 흐름 네비게이션">
+          <a href="#step-1" class="intro-flow-step" data-step="1"><span class="intro-flow-num">1</span>질병 맥락</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-2" class="intro-flow-step" data-step="2"><span class="intro-flow-num">2</span>PET 한계</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-3" class="intro-flow-step" data-step="3"><span class="intro-flow-num">3</span>혈액 p-tau217</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-4" class="intro-flow-step" data-step="4"><span class="intro-flow-num">4</span>두 가지 갭</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-5" class="intro-flow-step" data-step="5"><span class="intro-flow-num">5</span>이 연구</a>
+        </nav>
 
-        <div class="info-card">
-          <h3 class="info-card-title">Preclinical AD란?</h3>
-          <p class="info-card-body">
-            Preclinical AD는 뇌에 A&beta; 플라크가 축적되기 시작했지만(A&beta;+), 아직 tau tangle(NFT)이 대뇌피질에 나타나지 않고(NFT-), 인지 기능도 정상인 단계를 말한다. 임상 증상이 나타나기 최대 20년 전부터 이 상태가 지속될 수 있으며, Braak senile plaque(SP) stage 1-2 / NFT stage 0-2에 해당한다. 이 단계에서 바이오마커를 통해 AD를 조기에 감지하고 치료적 개입의 시점을 결정하는 것이 핵심 과제이다.
-          </p>
-        </div>
-
-        <div class="grid-2 mb-28">
-          <div class="limitation-card">
-            <h3 class="card-title">한계 1: 체액 바이오마커의 공간 정보 부재</h3>
-            <p class="card-body">
-              혈액/CSF에서 측정되는 p-tau217은 preclinical AD에서 A&beta; 축적을 민감하게 반영하는 바이오마커이다. 그러나 체액 바이오마커만으로는 뇌 조직 내에서 어디에, 어떤 세포에서 p-tau가 생성되는지 알 수 없다. 체액 수준과 신경병리학적 변화 간의 직접적 연결이 충분히 규명되지 않았다.
+        <!-- STEP 1 -->
+        <div id="step-1" class="intro-step">
+          <span class="intro-step-label">STEP 1 · 질병 맥락</span>
+          <h3 class="intro-step-title">알츠하이머병과 조기 진단의 숙제</h3>
+          <div class="info-card">
+            <p class="info-card-body">
+              알츠하이머병(AD)은 노인성 치매의 주요 원인이 되는 진행성 신경퇴행 질환이다. 병리학적으로 세 가지가 동시에 관찰된다: 아밀로이드 &beta;(A&beta;) 펩타이드로 구성된 <strong>노인성 플라크(senile plaques)</strong>, 과인산화된 tau 단백질이 축적된 <strong>신경원섬유매듭(neurofibrillary tangles, NFTs)</strong>, 그리고 <strong>뇌 위축</strong>.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              A&beta; 축적은 임상 증상 발현 <strong>20년 이상 전</strong>부터 시작되며, 만성 신경염증·NFT 전파·뉴런 손실을 유발한다. 최근 항-A&beta; 면역요법(레카네맙 등)이 승인되면서 플라크 부담을 줄이고 인지 저하를 부분적으로 늦출 수 있게 되었지만, 치료의 효과를 극대화하려면 <strong>증상이 나타나기 전(preclinical)</strong> 환자를 조기에 찾아내는 것이 핵심 과제가 되었다.
             </p>
           </div>
-          <div class="limitation-card">
-            <h3 class="card-title">한계 2: p-tau217의 세포 내 위치 불명</h3>
-            <p class="card-body">
-              기존 연구에서 p-tau 에피토프는 주로 NFT와 pretangle에서 검출되었으나, 최근 p-tau217이 granulovacuolar degeneration body나 multivesicular body에서도 발견되었다. 그러나 preclinical AD 단계에서 p-tau217이 어떤 세포 구획(축삭, 시냅스 등)에 출현하는지, 그 메커니즘은 무엇인지 체계적으로 연구되지 않았다.
-            </p>
-          </div>
+          <p class="intro-step-terminal">그렇다면 preclinical 단계를 어떻게 검출할 것인가?</p>
         </div>
 
-        <div class="grid-4 mb-28">
-          <div class="stat-card">
-            <div class="stat-value">34</div>
-            <div class="stat-label">부검 뇌 샘플</div>
+        <!-- STEP 2 -->
+        <div id="step-2" class="intro-step">
+          <span class="intro-step-label">STEP 2 · PET 이미징의 한계</span>
+          <h3 class="intro-step-title">표준 검사법의 벽</h3>
+          <div class="info-card">
+            <p class="info-card-body">
+              양전자방출단층촬영(PET) 이미징은 살아있는 환자의 뇌에서 A&beta;와 tau 병리를 정확히 검출할 수 있는 유일한 방법이다. PET 연구가 밝혀낸 핵심은 <strong>A&beta;는 임상 발현 20년 전부터, tau는 임상 발현 시점과 거의 동시에</strong> 검출된다는 시간적 비대칭이다.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              그러나 PET 이미징은 <strong>고비용, 방사선 노출, 낮은 접근성, 환자 적용의 제한</strong>이라는 실질적 벽에 부딪힌다. 대규모 스크리닝이나 반복 측정에는 부적합하기 때문에, 면역요법 대상 환자를 효율적으로 발굴하려면 더 싸고 쉬운 대체 검사법이 필요했다.
+            </p>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">5</div>
-            <div class="stat-label">p-tau 에피토프 분석</div>
+          <p class="intro-step-terminal">더 싸고 쉽고 민감한 방법이 있어야 한다.</p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div id="step-3" class="intro-step">
+          <span class="intro-step-label">STEP 3 · 혈액 p-tau217의 등장</span>
+          <h3 class="intro-step-title">20년의 창(window) — 혈액으로 잡아낸 조기 신호</h3>
+          <div class="info-card">
+            <p class="info-card-body">
+              뇌척수액(CSF) 기반 p-tau 측정이 먼저 개발되었고, 이후 <strong>혈액 기반</strong>으로 확장되었다. p-tau181, p-tau205, p-tau217, p-tau231 등 서로 다른 인산화 부위가 모두 AD 환자에서 상승하지만, 그중 <strong>p-tau217이 가장 민감한 혈액 바이오마커</strong>로 자리 잡았다.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              가장 중요한 발견은 이것이다: 혈중 p-tau217 상승은 <strong>A&beta; PET 양성</strong>과 상관하며, <strong>tau PET이 양성이 되기 약 20년 전</strong>부터 검출된다. 즉 preclinical 단계의 뇌에서 이미 비정상적 tau 인산화가 일어나고 있으며, 혈중 p-tau217은 <strong>A&beta; 플라크 형성과 관련된 초기 신경병리학적 변화</strong>를 반영한다는 것을 시사한다.
+            </p>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">3</div>
-            <div class="stat-label">AD 진행 단계 (Control/Preclinical/AD)</div>
+
+          <!-- HERO TIMELINE: 20-year window -->
+          <figure class="figure-container hero-timeline-wrap" style="margin-top:24px; cursor:default;">
+            <svg viewBox="0 0 800 340" role="img" aria-labelledby="hero-timeline-title hero-timeline-desc">
+              <title id="hero-timeline-title">혈중 p-tau217과 tau PET의 20년 시간 비대칭 개념도</title>
+              <desc id="hero-timeline-desc">Schematic conceptual timeline showing that amyloid beta accumulation and blood p-tau217 elevation both begin approximately 20 years before clinical onset of Alzheimer disease, while tau PET positivity and cognitive decline appear only near clinical onset.</desc>
+
+              <!-- 개념도 배지 -->
+              <g transform="translate(640, 16)">
+                <rect x="0" y="0" width="148" height="22" rx="4" fill="#f1f5f9"/>
+                <text x="74" y="15" text-anchor="middle" font-family="Pretendard, -apple-system, sans-serif" font-size="11" fill="#64748b">개념도 · 시점은 근사치</text>
+              </g>
+
+              <!-- 축 (baseline) -->
+              <line x1="80" y1="270" x2="760" y2="270" stroke="#94a3b8" stroke-width="1.5"/>
+
+              <!-- X축 틱 & 라벨 -->
+              <g font-family="Pretendard, -apple-system, sans-serif" font-size="12" fill="#64748b">
+                <line x1="80"  y1="270" x2="80"  y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="80"  y="294" text-anchor="middle">-25yr</text>
+                <line x1="216" y1="270" x2="216" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="216" y="294" text-anchor="middle">-20yr</text>
+                <line x1="352" y1="270" x2="352" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="352" y="294" text-anchor="middle">-15yr</text>
+                <line x1="488" y1="270" x2="488" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="488" y="294" text-anchor="middle">-10yr</text>
+                <line x1="624" y1="270" x2="624" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="624" y="294" text-anchor="middle">-5yr</text>
+                <line x1="760" y1="270" x2="760" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="760" y="294" text-anchor="middle">0 (임상 발현)</text>
+              </g>
+
+              <!-- 그리드 (점선, 5년 간격) -->
+              <g stroke="#e2e8f0" stroke-dasharray="2 3">
+                <line x1="216" y1="70"  x2="216" y2="270"/>
+                <line x1="352" y1="70"  x2="352" y2="270"/>
+                <line x1="488" y1="70"  x2="488" y2="270"/>
+                <line x1="624" y1="70"  x2="624" y2="270"/>
+                <line x1="760" y1="70"  x2="760" y2="270"/>
+              </g>
+
+              <!-- 바 1: Aβ 축적 (-20 ~ 0+) -->
+              <rect x="216" y="80" width="544" height="28" rx="4" fill="#dbeafe"/>
+              <text x="228" y="99" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">A&beta; 축적</text>
+
+              <!-- 바 2: p-tau217 혈액 상승 (-20 ~ 0+) — 강조 -->
+              <rect x="216" y="120" width="544" height="32" rx="4" fill="#2563eb"/>
+              <text x="228" y="141" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">혈중 p-tau217 상승</text>
+
+              <!-- 바 3: Tau PET 양성 (-3 ~ 0+) -->
+              <rect x="678" y="164" width="82" height="28" rx="4" fill="#94a3b8"/>
+              <text x="690" y="183" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#ffffff">Tau PET 양성</text>
+
+              <!-- 바 4: 인지 저하 (-2 ~ 0+) -->
+              <rect x="705" y="204" width="55" height="28" rx="4" fill="#f59e0b"/>
+              <text x="650" y="223" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#92400e" text-anchor="end">인지 저하</text>
+
+              <!-- 20-year window 브라켓 -->
+              <g stroke="#2563eb" stroke-width="1.5" fill="none" stroke-dasharray="4 3">
+                <line x1="216" y1="246" x2="216" y2="256"/>
+                <line x1="216" y1="256" x2="678" y2="256"/>
+                <line x1="678" y1="246" x2="678" y2="256"/>
+              </g>
+              <text x="447" y="324" text-anchor="middle" font-family="Pretendard, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#2563eb">20-year window</text>
+            </svg>
+            <figcaption>
+              <strong>20년의 창</strong>: A&beta; 축적과 혈중 p-tau217 상승은 임상 발현 약 20년 전부터 나타나지만, tau PET 양성과 인지 저하는 임상 발현 시점에 가까워서야 검출된다. 이 20년의 시차가 p-tau217을 조기 진단·면역요법 스크리닝의 핵심 바이오마커로 만드는 이유다.
+              <br><br>
+              <em style="color:#64748b; font-size:0.82rem;">본 그림은 논문 본문(Jack et al., 2013; Palmqvist et al., 2020 등)의 시점 보고를 바탕으로 한 <strong>개념도</strong>이며, 각 바이오마커의 시작/상승 시점은 개인차가 크고 수치는 근사치이다.</em>
+            </figcaption>
+          </figure>
+          <p class="intro-step-terminal">정확한 시점은 개인차가 있지만, 평균적으로 혈중 p-tau217은 tau PET보다 수년~수십년 이르다.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <div id="step-4" class="intro-step">
+          <span class="intro-step-label">STEP 4 · 두 가지 근본적 갭</span>
+          <h3 class="intro-step-title">답하지 못한 두 질문</h3>
+          <div class="grid-2">
+            <div class="limitation-card">
+              <h3 class="card-title">Gap A · 공간 정보의 부재</h3>
+              <p class="card-body">
+                혈액·CSF 바이오마커는 "뇌 어딘가에서 p-tau217이 나오고 있다"는 것만 알려준다. <strong>어느 뇌 영역, 어떤 세포 유형, 어떤 세포소기관</strong>에서 생성되는지는 체액 샘플만으로는 알 수 없다. 신경병리학적 맥락이 없는 상태에서 바이오마커를 해석하는 것은 불완전하다.
+              </p>
+            </div>
+            <div class="limitation-card">
+              <h3 class="card-title">Gap B · 풀리지 않은 미스터리 ★</h3>
+              <p class="card-body">
+                선행 부검 연구는 <strong>AD 환자 뇌</strong>에서 p-tau217이 주로 NFT·pretangle·GVD(granulovacuolar degeneration body)에서 검출됨을 보였다 — 즉 tau 전파와 연결되는 듯했다. <strong>그런데</strong> preclinical 단계에서는 혈중 p-tau217이 tau 병리가 아닌 <strong>A&beta; PET 양성과 강하게 상관</strong>한다. 왜 preclinical p-tau217은 tau가 아닌 A&beta; 병리를 예측하는가? — 이것이 이 논문의 핵심 연구 질문이다.
+              </p>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-value">FC</div>
-            <div class="stat-label">분석 부위 (전두엽 피질)</div>
+          <p class="intro-step-terminal">preclinical 뇌 조직을 직접 들여다봐야 답이 나온다.</p>
+        </div>
+
+        <!-- STEP 5 -->
+        <div id="step-5" class="intro-step">
+          <span class="intro-step-label">STEP 5 · 이 연구의 접근</span>
+          <h3 class="intro-step-title">3가지 구체적 질문으로 좁힌 스코프</h3>
+          <div class="info-card" style="margin-bottom:24px;">
+            <p class="info-card-body">
+              <strong>부위 선택:</strong> 중전두회(middle frontal gyrus)의 전두피질(FC)을 선택했다. 이 영역은 <strong>A&beta; 플라크가 NFT보다 앞서 형성</strong>되는 곳이므로, preclinical 단계의 가장 이른 p-tau217 신호를 잡아내기에 최적이다.
+            </p>
+          </div>
+
+          <div class="grid-3 mb-28">
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 1</span>
+              <h3 class="card-title">시공간 관계</h3>
+              <p class="card-body">p-tau217 신호가 A&beta; 플라크 및 다른 p-tau 에피토프(181/205/231/262)와 어떻게 공존·배치되는가?</p>
+            </div>
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 2</span>
+              <h3 class="card-title">세포 내 위치 · 뉴런 유형</h3>
+              <p class="card-body">어떤 세포소기관(축삭? 시냅스?)과 어떤 뉴런 유형(흥분성 vs 억제성)에서 p-tau217이 나타나는가?</p>
+            </div>
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 3</span>
+              <h3 class="card-title">메커니즘</h3>
+              <p class="card-body">어떤 tau kinase가 현장에서 활성화되어 있는가? 글리아에 의한 engulfment인가, 뉴런 자체의 반응인가?</p>
+            </div>
+          </div>
+
+          <div class="grid-4">
+            <div class="stat-card">
+              <div class="stat-value">34</div>
+              <div class="stat-label">부검 뇌 샘플</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">5</div>
+              <div class="stat-label">p-tau 에피토프 분석</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">3</div>
+              <div class="stat-label">AD 진행 단계 (Control/Preclinical/AD)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">FC</div>
+              <div class="stat-label">분석 부위 (전두엽 피질)</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1171,6 +1453,45 @@
     (function initSmoothScroll() {
       var navHeight = 59; // progress bar (3px) + nav (56px)
       document.querySelectorAll('.nav-links a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            var target = document.querySelector(href);
+            if (target) {
+              var targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight;
+              window.scrollTo({ top: targetTop, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    })();
+
+    // ===== INTRO FLOW NAV (scroll spy + smooth scroll) =====
+    (function initIntroFlowNav() {
+      var flowLinks = document.querySelectorAll('.intro-flow-step');
+      if (flowLinks.length === 0) return;
+      var navHeight = 59; // progress bar (3px) + nav (56px)
+
+      function setActiveFlow(id) {
+        flowLinks.forEach(function(link) {
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+
+      var steps = document.querySelectorAll('.intro-step');
+      var flowObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) setActiveFlow(entry.target.id);
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      steps.forEach(function(step) { flowObserver.observe(step); });
+
+      flowLinks.forEach(function(link) {
         link.addEventListener('click', function(e) {
           var href = link.getAttribute('href');
           if (href && href.startsWith('#')) {
