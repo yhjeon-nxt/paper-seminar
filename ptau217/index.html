@@ -791,7 +791,86 @@
         <div id="step-3" class="intro-step">
           <span class="intro-step-label">STEP 3 · 혈액 p-tau217의 등장</span>
           <h3 class="intro-step-title">20년의 창(window) — 혈액으로 잡아낸 조기 신호</h3>
-          <!-- content + hero timeline fill in Task 6 -->
+          <div class="info-card">
+            <p class="info-card-body">
+              뇌척수액(CSF) 기반 p-tau 측정이 먼저 개발되었고, 이후 <strong>혈액 기반</strong>으로 확장되었다. p-tau181, p-tau205, p-tau217, p-tau231 등 서로 다른 인산화 부위가 모두 AD 환자에서 상승하지만, 그중 <strong>p-tau217이 가장 민감한 혈액 바이오마커</strong>로 자리 잡았다.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              가장 중요한 발견은 이것이다: 혈중 p-tau217 상승은 <strong>A&beta; PET 양성</strong>과 상관하며, <strong>tau PET이 양성이 되기 약 20년 전</strong>부터 검출된다. 즉 preclinical 단계의 뇌에서 이미 비정상적 tau 인산화가 일어나고 있으며, 혈중 p-tau217은 <strong>A&beta; 플라크 형성과 관련된 초기 신경병리학적 변화</strong>를 반영한다는 것을 시사한다.
+            </p>
+          </div>
+
+          <!-- HERO TIMELINE: 20-year window -->
+          <figure class="figure-container hero-timeline-wrap" style="margin-top:24px; cursor:default;">
+            <svg viewBox="0 0 800 340" role="img" aria-labelledby="hero-timeline-title hero-timeline-desc">
+              <title id="hero-timeline-title">혈중 p-tau217과 tau PET의 20년 시간 비대칭 개념도</title>
+              <desc id="hero-timeline-desc">Schematic conceptual timeline showing that amyloid beta accumulation and blood p-tau217 elevation both begin approximately 20 years before clinical onset of Alzheimer disease, while tau PET positivity and cognitive decline appear only near clinical onset.</desc>
+
+              <!-- 개념도 배지 -->
+              <g transform="translate(640, 16)">
+                <rect x="0" y="0" width="148" height="22" rx="4" fill="#f1f5f9"/>
+                <text x="74" y="15" text-anchor="middle" font-family="Pretendard, -apple-system, sans-serif" font-size="11" fill="#64748b">개념도 · 시점은 근사치</text>
+              </g>
+
+              <!-- 축 (baseline) -->
+              <line x1="80" y1="270" x2="760" y2="270" stroke="#94a3b8" stroke-width="1.5"/>
+
+              <!-- X축 틱 & 라벨 -->
+              <g font-family="Pretendard, -apple-system, sans-serif" font-size="12" fill="#64748b">
+                <line x1="80"  y1="270" x2="80"  y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="80"  y="294" text-anchor="middle">-25yr</text>
+                <line x1="216" y1="270" x2="216" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="216" y="294" text-anchor="middle">-20yr</text>
+                <line x1="352" y1="270" x2="352" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="352" y="294" text-anchor="middle">-15yr</text>
+                <line x1="488" y1="270" x2="488" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="488" y="294" text-anchor="middle">-10yr</text>
+                <line x1="624" y1="270" x2="624" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="624" y="294" text-anchor="middle">-5yr</text>
+                <line x1="760" y1="270" x2="760" y2="276" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="760" y="294" text-anchor="middle">0 (임상 발현)</text>
+              </g>
+
+              <!-- 그리드 (점선, 5년 간격) -->
+              <g stroke="#e2e8f0" stroke-dasharray="2 3">
+                <line x1="216" y1="70"  x2="216" y2="270"/>
+                <line x1="352" y1="70"  x2="352" y2="270"/>
+                <line x1="488" y1="70"  x2="488" y2="270"/>
+                <line x1="624" y1="70"  x2="624" y2="270"/>
+                <line x1="760" y1="70"  x2="760" y2="270"/>
+              </g>
+
+              <!-- 바 1: Aβ 축적 (-20 ~ 0+) -->
+              <rect x="216" y="80" width="544" height="28" rx="4" fill="#dbeafe"/>
+              <text x="228" y="99" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">A&beta; 축적</text>
+
+              <!-- 바 2: p-tau217 혈액 상승 (-20 ~ 0+) — 강조 -->
+              <rect x="216" y="120" width="544" height="32" rx="4" fill="#2563eb"/>
+              <text x="228" y="141" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#ffffff">혈중 p-tau217 상승</text>
+
+              <!-- 바 3: Tau PET 양성 (-3 ~ 0+) -->
+              <rect x="678" y="164" width="82" height="28" rx="4" fill="#94a3b8"/>
+              <text x="690" y="183" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#ffffff">Tau PET 양성</text>
+
+              <!-- 바 4: 인지 저하 (-2 ~ 0+) -->
+              <rect x="705" y="204" width="55" height="28" rx="4" fill="#f59e0b"/>
+              <text x="650" y="223" font-family="Pretendard, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#92400e" text-anchor="end">인지 저하</text>
+
+              <!-- 20-year window 브라켓 -->
+              <g stroke="#2563eb" stroke-width="1.5" fill="none" stroke-dasharray="4 3">
+                <line x1="216" y1="246" x2="216" y2="256"/>
+                <line x1="216" y1="256" x2="678" y2="256"/>
+                <line x1="678" y1="246" x2="678" y2="256"/>
+              </g>
+              <text x="447" y="324" text-anchor="middle" font-family="Pretendard, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#2563eb">20-year window</text>
+            </svg>
+            <figcaption>
+              <strong>20년의 창</strong>: A&beta; 축적과 혈중 p-tau217 상승은 임상 발현 약 20년 전부터 나타나지만, tau PET 양성과 인지 저하는 임상 발현 시점에 가까워서야 검출된다. 이 20년의 시차가 p-tau217을 조기 진단·면역요법 스크리닝의 핵심 바이오마커로 만드는 이유다.
+              <br><br>
+              <em style="color:#64748b; font-size:0.82rem;">본 그림은 논문 본문(Jack et al., 2013; Palmqvist et al., 2020 등)의 시점 보고를 바탕으로 한 <strong>개념도</strong>이며, 각 바이오마커의 시작/상승 시점은 개인차가 크고 수치는 근사치이다.</em>
+            </figcaption>
+          </figure>
+          <p class="intro-step-terminal">정확한 시점은 개인차가 있지만, 평균적으로 혈중 p-tau217은 tau PET보다 수년~수십년 이르다.</p>
         </div>
 
         <!-- STEP 4 -->
