@@ -542,8 +542,9 @@ const BenchmarkChart = ({ chart }) => {
               <span key={i} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6, color: s.color,
               }}>
-                <svg width="18" height="6" style={{ display: 'inline-block' }}>
-                  <line x1="0" y1="3" x2="18" y2="3" stroke={s.color} strokeWidth="1.4" strokeDasharray="4 3" />
+                <svg width="22" height="6" style={{ display: 'inline-block' }}>
+                  <line x1="0" y1="3" x2="22" y2="3" stroke={s.color} strokeWidth="1.6"
+                    strokeDasharray={s.dashed ? '5 4' : undefined} />
                 </svg>
                 {s.name}
               </span>
@@ -603,7 +604,10 @@ const BenchmarkChart = ({ chart }) => {
             const pts = sorted.map(p => `${xFor(p.date)},${yFor(p.y)}`).join(' ');
             return (
               <polyline key={`line-${si}`} points={pts} fill="none"
-                stroke={s.color} strokeWidth="1.4" strokeDasharray="4 3" opacity="0.45" />
+                stroke={s.color}
+                strokeWidth={s.dashed ? 1.2 : 1.6}
+                strokeDasharray={s.dashed ? '5 4' : undefined}
+                opacity={s.dashed ? 0.5 : 0.65} />
             );
           })}
 
@@ -621,10 +625,12 @@ const BenchmarkChart = ({ chart }) => {
                 return (
                   <g key={pi}>
                     {shape(p.provider, cx, cy, s.color)}
-                    <text x={cx + defaultDX} y={cy + defaultDY}
-                      textAnchor={anchor}
-                      fontFamily="var(--sans)" fontSize="10.5" fontWeight="500"
-                      fill="var(--ink-2)">{p.label}</text>
+                    {!p.hideLabel && (
+                      <text x={cx + defaultDX} y={cy + defaultDY}
+                        textAnchor={anchor}
+                        fontFamily="var(--sans)" fontSize="10.5" fontWeight="500"
+                        fill="var(--ink-2)">{p.label}</text>
+                    )}
                   </g>
                 );
               })}
