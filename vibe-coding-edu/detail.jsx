@@ -420,7 +420,241 @@ const SectionBody = ({ sec, isFirst }) => (
         <DoDontCol kind="dont" items={sec.dontList} />
       </div>
     )}
+
+    {sec.chart && <BenchmarkChart chart={sec.chart} />}
+
+    {sec.dialog && <DialogBlock dialog={sec.dialog} />}
+
+    {sec.timeline && <Timeline items={sec.timeline} />}
+
+    {sec.note && (
+      <p style={{
+        fontSize: 16, lineHeight: 1.75, color: 'var(--ink-3)',
+        margin: '20px 0 28px', padding: '4px 0 4px 18px',
+        borderLeft: '2px solid var(--line)', textWrap: 'pretty',
+        fontStyle: 'italic',
+      }}>
+        {sec.note}
+      </p>
+    )}
   </>
+);
+
+// ──────────────────────────────────────────────
+// BenchmarkChart — SVG scatter/line chart for model benchmark progression
+// ──────────────────────────────────────────────
+const BenchmarkChart = ({ chart }) => {
+  const { title, subtitle, yMax = 100, points = [], caption } = chart;
+  const W = 820, H = 440;
+  const pad = { t: 32, r: 28, b: 76, l: 58 };
+  const plotW = W - pad.l - pad.r;
+  const plotH = H - pad.t - pad.b;
+  const n = points.length;
+  const xFor = (i) => pad.l + (n > 1 ? (plotW * i) / (n - 1) : plotW / 2);
+  const yFor = (v) => pad.t + plotH - (plotH * v) / yMax;
+  const gridYs = [0, 25, 50, 75, 100];
+
+  const linePts = points.map((p, i) => `${xFor(i)},${yFor(p.y)}`).join(' ');
+  const areaPts = `${xFor(0)},${yFor(0)} ${linePts} ${xFor(n - 1)},${yFor(0)}`;
+
+  return (
+    <figure style={{
+      margin: '28px 0 32px', border: '1px solid var(--ink)', background: 'var(--paper)',
+    }}>
+      <div style={{
+        padding: '14px 18px', borderBottom: '1px solid var(--line)',
+      }}>
+        <div className="mono" style={{
+          fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)', marginBottom: 4,
+        }}>▸ FIG. 01 · CHART</div>
+        <div className="serif" style={{ fontSize: 19, lineHeight: 1.2, letterSpacing: '-0.015em' }}>
+          {title}
+        </div>
+        {subtitle && (
+          <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 4 }}>{subtitle}</div>
+        )}
+      </div>
+
+      <div style={{ padding: '20px 20px 10px' }}>
+        <svg
+          viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet"
+          style={{ display: 'block', overflow: 'visible' }}
+        >
+          {/* gridlines */}
+          {gridYs.map(g => (
+            <g key={g}>
+              <line
+                x1={pad.l} x2={W - pad.r} y1={yFor(g)} y2={yFor(g)}
+                stroke="var(--line-2)" strokeWidth="1"
+                strokeDasharray={g === 0 ? undefined : '3 4'}
+              />
+              <text
+                x={pad.l - 10} y={yFor(g) + 4} textAnchor="end"
+                fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)"
+              >{g}</text>
+            </g>
+          ))}
+
+          {/* axes */}
+          <line x1={pad.l} x2={pad.l} y1={pad.t - 8} y2={H - pad.b}
+            stroke="var(--ink)" strokeWidth="1" />
+          <line x1={pad.l} x2={W - pad.r} y1={H - pad.b} y2={H - pad.b}
+            stroke="var(--ink)" strokeWidth="1" />
+
+          {/* axis labels */}
+          <text x={pad.l - 48} y={pad.t - 14}
+            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">해결률 (%)</text>
+          <text x={W - pad.r} y={H - 10} textAnchor="end"
+            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">출시 시점 →</text>
+
+          {/* shaded area under curve */}
+          <polygon points={areaPts} fill="var(--accent-ink)" opacity="0.08" />
+
+          {/* trend line */}
+          <polyline points={linePts}
+            fill="none" stroke="var(--accent-ink)" strokeWidth="2" />
+
+          {/* data points */}
+          {points.map((p, i) => {
+            const cx = xFor(i), cy = yFor(p.y);
+            const prev = i > 0 ? points[i - 1].y : p.y;
+            const next = i < n - 1 ? points[i + 1].y : p.y;
+            const above = p.y >= prev && p.y >= next;
+            const labelY = above ? cy - 14 : cy + 18;
+            return (
+              <g key={i}>
+                <circle cx={cx} cy={cy} r="5.5"
+                  fill="var(--paper)" stroke="var(--accent-ink)" strokeWidth="2" />
+                <text x={cx} y={labelY} textAnchor="middle"
+                  fontFamily="var(--mono)" fontSize="11" fontWeight="600" fill="var(--ink)">
+                  {p.y}
+                </text>
+                <text x={cx} y={H - pad.b + 18} textAnchor="middle"
+                  fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">
+                  {p.date}
+                </text>
+                <text x={cx} y={H - pad.b + 34} textAnchor="middle"
+                  fontFamily="var(--sans)" fontSize="10.5" fill="var(--ink-2)">
+                  {p.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {caption && (
+        <figcaption style={{
+          padding: '12px 18px', borderTop: '1px solid var(--line)',
+          fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)',
+          background: 'var(--bg-2)',
+        }}>
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+};
+
+// ──────────────────────────────────────────────
+// DialogBlock — chat-style transcript for narrative anecdotes
+// ──────────────────────────────────────────────
+const DialogBlock = ({ dialog }) => (
+  <div style={{
+    margin: '24px 0 28px', border: '1px solid var(--line)',
+    background: 'var(--paper)',
+  }}>
+    <div className="mono" style={{
+      fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)',
+      padding: '10px 18px', borderBottom: '1px solid var(--line)',
+      display: 'flex', justifyContent: 'space-between',
+    }}>
+      <span>▸ SCENE · CHATGPT TAB, CIRCA 2024</span>
+      <span>— REPLAY</span>
+    </div>
+    <div style={{ padding: '4px 18px' }}>
+      {dialog.map((d, i) => {
+        const me = d.role === '나' || d.role === 'me' || d.role === 'user';
+        return (
+          <div key={i} style={{
+            display: 'grid', gridTemplateColumns: '92px 1fr', gap: 18,
+            padding: '16px 0',
+            borderBottom: i < dialog.length - 1 ? '1px dashed var(--line)' : 'none',
+            alignItems: 'flex-start',
+          }}>
+            <div className="mono" style={{
+              fontSize: 11, letterSpacing: '0.08em', paddingTop: 3,
+              color: me ? 'var(--ink)' : 'var(--accent-ink)',
+              fontWeight: 500,
+            }}>
+              {me ? '▸ 나' : `↳ ${d.role}`}
+            </div>
+            <div style={{
+              fontFamily: 'var(--mono)', fontSize: 13, lineHeight: 1.75,
+              color: 'var(--ink-2)', whiteSpace: 'pre-wrap',
+              textWrap: 'pretty',
+            }}>
+              {d.text}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// ──────────────────────────────────────────────
+// Timeline — vertical timeline of events
+// ──────────────────────────────────────────────
+const Timeline = ({ items }) => (
+  <div style={{
+    margin: '24px 0 28px', border: '1px solid var(--ink)',
+    background: 'var(--paper)', padding: '24px 26px',
+  }}>
+    <div className="mono" style={{
+      fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)', marginBottom: 20,
+      display: 'flex', justifyContent: 'space-between',
+    }}>
+      <span>▸ ~ 2 WEEKS</span>
+      <span>3 MODELS · SAME DIRECTION</span>
+    </div>
+    <div style={{ position: 'relative', paddingLeft: 28 }}>
+      <div style={{
+        position: 'absolute', left: 7, top: 6, bottom: 6, width: 1,
+        background: 'var(--line)',
+      }} />
+      {items.map((it, i) => (
+        <div key={i} style={{
+          position: 'relative', paddingBottom: i < items.length - 1 ? 22 : 0,
+        }}>
+          <div style={{
+            position: 'absolute', left: -25, top: 4,
+            width: 13, height: 13, borderRadius: 7,
+            border: '2px solid var(--accent-ink)', background: 'var(--paper)',
+          }} />
+          <div style={{
+            display: 'grid', gridTemplateColumns: '80px 1fr', gap: 18,
+            alignItems: 'baseline',
+          }}>
+            <div className="mono" style={{
+              fontSize: 11, letterSpacing: '0.08em', color: 'var(--ink-3)',
+            }}>{it.when}</div>
+            <div>
+              <div className="serif" style={{
+                fontSize: 22, letterSpacing: '-0.015em', lineHeight: 1.2,
+              }}>{it.model}</div>
+              {it.note && (
+                <div style={{
+                  fontSize: 14, lineHeight: 1.6, color: 'var(--ink-2)',
+                  marginTop: 5, textWrap: 'pretty',
+                }}>{it.note}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
 const CodeBlock = ({ code, lang = 'markdown' }) => {

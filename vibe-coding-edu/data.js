@@ -13,32 +13,127 @@ window.VIBE_DATA = {
       kicker: "Context",
       title: "LLM의 최근 트렌드",
       titleEn: "Recent Trends in LLMs",
-      summary: "2025-26, 모델은 무엇이 달라졌고 우리는 무엇을 해야 하는가.",
-      readTime: "8 min",
+      summary: "'챗봇'이던 LLM이 reasoner·agent·reader가 된 2년. 수렴한 벤치마크, 쏟아지는 새 숫자, 그리고 심상치 않았던 어느 2주.",
+      readTime: "9 min",
       tag: "Landscape",
       sections: [
         {
-          heading: "무엇이 바뀌었나",
-          body: "Reasoning 모델의 등장, Long-context (1M+ tokens), Tool-use와 Agent의 성숙. 2024년까지의 'LLM == 챗봇' 관점은 이미 오래된 프레임.",
+          heading: "여러분은 요즘 LLM이 어디까지 왔는지 알고 계신가요?",
+          body: "질문을 드리는 이유는 — 이 장을 여는 많은 연구자들이 머릿속에 가지고 있는 LLM의 이미지가, 대체로 2년 전에 멈춰 있기 때문입니다. 그때의 LLM은 '말 잘하는 챗봇'이었습니다. 지난 2년 동안 그 실체는 두어 번쯤 완전히 바뀌었고, 바뀌는 속도도 한 번 더 빨라졌습니다. 이 장은 그 2년의 이야기이고, 동시에 오늘부터의 이야기입니다.",
+        },
+        {
+          heading: "요즘 커뮤니티는 이렇게 말합니다",
+          body: "2026년의 LLM을 '챗봇'이라고 부르는 사람은 거의 없습니다. 대신 학계와 실무 커뮤니티에서 반복해서 도는 문장들은 이렇습니다.",
           bullets: [
-            "Reasoning/Thinking 모델 — GPT-5, Claude Sonnet 4.5, Gemini 2.5 (chain-of-thought 내재화)",
-            "Agentic loop — Tool calling + 자율 실행, Claude Code / Cursor Agent / Codex 급부상",
-            "Context window — 200K → 1M+ tokens, 대규모 코드베이스 통째 이해 가능",
-            "Multimodal — 코드, 이미지, PDF, 음성을 한 컨텍스트에서 추론",
+            "“LLM은 이제 reasoner다” — chain-of-thought가 모델 내부에 내재화된 reasoning 모델이 기본선이 됐다",
+            "“LLM은 이제 agent다” — tool calling과 자율 실행 루프가 chat UI 밖, CLI·IDE 안에서 돌아간다",
+            "“LLM은 이제 reader다” — 1M 토큰 컨텍스트로 논문 한 편이 아니라 코드베이스 한 덩어리를 통째 삼킨다",
+            "“LLM은 이제 collaborator다” — 단발 응답이 아니라, 수십 분짜리 과제를 스스로 쪼개서 끝낸다",
           ],
         },
         {
-          heading: "연구자에게 의미하는 것",
-          body: "연구 생산성의 병목이 '아이디어 → 코드' 구간에서 '실험 설계 → 해석' 구간으로 이동 중. 코드는 더 이상 시간의 bottleneck이 아님.",
-          bullets: [
-            "프로토타입 시간 단축: 2주 → 2시간 규모의 압축",
-            "데이터 처리 파이프라인 자동화 — pandas, numpy, plotting 전체 AI 위임 가능",
-            "Ablation 실험 속도 수십배 — 변수 변경을 자연어로",
+          heading: "벤치마크도 세대교체 중입니다",
+          body: "지난 시대의 지표는 대부분 포화됐습니다. 이제 연구자와 엔지니어가 실제로 쳐다보는 숫자는 전혀 다른 종류입니다.",
+          compare: {
+            before: {
+              label: "수렴해버린 벤치마크",
+              lines: [
+                "• MMLU — 90%+ 대에서 모두 평탄화",
+                "• HumanEval — 사실상 포화",
+                "• GSM8K — 소형 모델도 해결",
+                "• BBH — 상위권 격차 소멸",
+                "• ARC-Challenge — 더 이상 변별력 없음",
+                "",
+                "# '누가 더 잘 대답하는가'는",
+                "# 거의 구분되지 않는다",
+              ],
+            },
+            after: {
+              label: "지금 쓰는 벤치마크",
+              lines: [
+                "▸ SWE-bench Verified — 실제 GitHub 이슈 수리",
+                "▸ Aider Polyglot — 멀티파일·다국어 편집",
+                "▸ Terminal-Bench — 터미널 자율 작업",
+                "▸ METR Long-Horizon — 장시간 자율성",
+                "▸ ARC-AGI-2 — 일반화·추상 추론",
+                "▸ GPQA Diamond — 박사 수준 과학 QA",
+                "",
+                "# 전부 '실제로 일을 끝내는가'",
+                "# 를 측정한다",
+              ],
+            },
+          },
+        },
+        {
+          heading: "그리고, 속도가 너무 빠릅니다",
+          body: "아래는 SWE-bench Verified 해결률입니다. 실제 GitHub 이슈 500개를 모델에게 주고 패치를 만들게 한 뒤, 숨겨진 테스트를 돌려 통과하는지 측정하는 벤치마크. 세로축은 해결률(%), 가로축은 출시 시점입니다.",
+          chart: {
+            title: "SWE-bench Verified — 실제 이슈 해결률",
+            subtitle: "각 모델 출시 시점의 대표 스코어 (공개 발표 기준, %)",
+            yMax: 100,
+            points: [
+              { date: "'23.03", y: 2,  label: "GPT-4" },
+              { date: "'24.03", y: 11, label: "Claude 3 Opus" },
+              { date: "'24.06", y: 33, label: "3.5 Sonnet" },
+              { date: "'24.10", y: 49, label: "3.5 Sonnet v2" },
+              { date: "'25.02", y: 63, label: "Claude 3.7" },
+              { date: "'25.08", y: 74, label: "GPT-5" },
+              { date: "'25.09", y: 77, label: "Sonnet 4.5" },
+              { date: "'25.11", y: 80, label: "Opus 4.5" }
+            ],
+            caption: "2년 전 2% 근처였던 것이 이제 80%를 넘깁니다. 같은 기간 MMLU가 몇 점 오르내리는 사이에, 실제 코드 작업 해결률은 40배가 뛰었습니다."
+          },
+        },
+        {
+          heading: "필자가 기억하는 '똑똑한 구글' 시절",
+          body: "저는 GPT-4o가 막 풀렸을 무렵 LLM을 처음 진지하게 쓰기 시작했습니다. 그때의 사용법은 지금 돌아보면 귀엽다고 할 만큼 단순했습니다. 브라우저 탭을 하나 더 띄워두는 것. 코드 조각을 복사해서 물어보고, 에러 스택트레이스를 통째로 긁어다 붙이고, 돌아온 답을 다시 복사해서 에디터로 옮기는 — 딱 거기까지였습니다.",
+          dialog: [
+            {
+              role: "나",
+              text: "numpy로 2개 배열 아다마르 곱 뒤에 배치 차원으로 합치려는데 ValueError가 납니다.\n\nValueError: operands could not be broadcast together with shapes (32,128) (128,32)"
+            },
+            {
+              role: "GPT-4o",
+              text: "transpose 방향이 반대입니다. (128,32) 쪽을 .T로 돌리거나, 의도가 배치별 가중합이면 np.einsum('bi,bi->b', A, B) 한 줄이 더 안전합니다."
+            },
+            {
+              role: "나",
+              text: "ㅇㅋ 고맙다 → (복붙 → 실행 → 됐다)"
+            }
           ],
+          note: "이게 그때는 충분히 혁신이었습니다. Stack Overflow를 15분 뒤져야 풀리던 문제가 2분 만에 해결됐으니까요. 하지만 여전히 'AI가 물건을 만들지는 않는다'는 전제가 깔려 있었습니다 — 운전대는 내가 잡고 있었고, AI는 조수석에서 책을 읽어주는 동승자였습니다.",
+        },
+        {
+          heading: "심상치 않다고 느낀 어느 2주",
+          body: "변곡점은 조용하지 않게 왔습니다. 약 2주 사이에 세 모델이 연달아 떨어졌고, 각자의 출시 노트에는 이상할 정도로 비슷한 단어들이 반복됐습니다 — long-horizon agent, autonomous task completion, multi-file reasoning, 30-minute unattended work. 개별 모델의 점프라기보다, 업계 전체가 같은 방향으로 정렬된 한 주였습니다.",
+          timeline: [
+            {
+              when: "Day 1",
+              model: "Gemini 3 Pro",
+              note: "멀티모달·긴 컨텍스트·추론이 동시에 한 단계. 노트북 한 권 분량을 한 컨텍스트에서 돌려버림."
+            },
+            {
+              when: "Day 4",
+              model: "GPT-5",
+              note: "thinking 모드가 기본으로 내재화. 툴 호출 안정성과 장시간 자율 작업이 확 올라옴."
+            },
+            {
+              when: "Day 13",
+              model: "Claude Opus 4.5",
+              note: "에이전트 루프 신뢰성에 초점. 30분 넘는 자율 코딩 과제를 끊지 않고 끝내기 시작."
+            }
+          ],
+          note: "어느 하나가 단독으로 떨어졌다면 '또 새 모델이네' 정도로 넘어갔을 겁니다. 세 개가 2주에 걸쳐 쏟아지고, 전부 같은 말을 하고 있었다는 게 체감상 심상치 않았습니다.",
+        },
+        {
+          heading: "그렇게 코딩 에이전트의 시대가 시작됐습니다",
+          body: "코딩 에이전트는 사실 그 전부터 있었습니다. 다만 '신기한 장난감'이었던 것이 '실제 연구 생산성을 바꾸는 도구'로 바뀐 순간이 바로 이때입니다. 품질은 일부 구간에서 시니어 엔지니어의 속도와 정확도를 따라잡거나 넘어섰고, 툴·워크플로우의 다양성은 한 해 만에 폭발했습니다. 다음 장부터는 그 도구들 중 연구자의 일과에 가장 잘 녹아드는 하나 — Claude Code — 를 중심으로, '바이브 코딩'이라는 단어가 실제로 무엇을 가리키는지 이야기합니다.",
         },
       ],
       links: [
-        { label: "Anthropic — Building with Claude", url: "https://docs.anthropic.com" },
+        { label: "Karpathy — Vibe coding 원전 트윗", url: "https://x.com/karpathy/status/1886192184808149383" },
+        { label: "SWE-bench — 실제 코드 벤치마크", url: "https://www.swebench.com" },
+        { label: "METR — Long-horizon agent 평가", url: "https://metr.org" },
         { label: "Simon Willison's Weblog", url: "https://simonwillison.net" },
       ],
     },
