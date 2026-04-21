@@ -889,12 +889,73 @@
     background: color-mix(in oklab, var(--accent) 8%, transparent);
   }
   .bench-indicator button.active .dot { background: var(--accent); }
+  /* Hover tooltip (llm-stats 스타일) */
+  .bench-tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 30;
+    min-width: 150px;
+    padding: 10px 12px 9px;
+    background: color-mix(in oklab, var(--bg-deep, #0b0f1a) 94%, var(--surface));
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+    opacity: 0;
+    transform: translate(-50%, -100%);
+    transition: opacity .12s ease-out;
+    font-family: var(--sans);
+    white-space: nowrap;
+  }
+  .bench-tooltip.show { opacity: 1; }
+  .bench-tooltip .tt-model {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .bench-tooltip .tt-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .bench-tooltip .tt-score {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 4px;
+    line-height: 1;
+  }
+  .bench-tooltip .tt-score .tt-unit {
+    color: var(--text-sub);
+    font-size: 13px;
+    margin-left: 2px;
+    font-weight: 500;
+  }
+  .bench-tooltip .tt-meta {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-sub);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+  .bench-tooltip::after {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -5px;
+    transform: translateX(-50%) rotate(45deg);
+    width: 8px; height: 8px;
+    background: inherit;
+    border-right: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line-2);
+  }
   @media (max-width: 620px) {
     .bench-stage-wrap { grid-template-columns: 30px 1fr 30px; gap: 4px; }
     .bench-stage { min-height: 320px; padding: 14px 12px 8px; }
     .bench-stage .bs-name { font-size: 16px; }
     .bench-indicator { flex-wrap: wrap; }
     .bench-indicator button { font-size: 10px; padding: 4px 8px; }
+    .bench-tooltip { min-width: 130px; padding: 8px 10px; }
+    .bench-tooltip .tt-score { font-size: 18px; }
   }
 
   /* Cycle */
@@ -2003,6 +2064,7 @@
         <button type="button" class="bench-arrow prev" id="bench-prev" aria-label="이전 벤치마크">‹</button>
         <div id="bench-stage" class="bench-stage" role="img" aria-live="polite"></div>
         <button type="button" class="bench-arrow next" id="bench-next" aria-label="다음 벤치마크">›</button>
+        <div class="bench-tooltip" id="bench-tooltip" role="tooltip" aria-hidden="true"></div>
       </div>
       <div class="bench-indicator" id="bench-indicator" role="tablist" aria-label="벤치마크 선택"></div>
     </figure>
@@ -3870,7 +3932,38 @@ document.querySelectorAll('section .card, section .terminal, section .code-block
   const indicator = document.getElementById('bench-indicator');
   const prevBtn = document.getElementById('bench-prev');
   const nextBtn = document.getElementById('bench-next');
+  const tooltip = document.getElementById('bench-tooltip');
+  const stageWrap = stage ? stage.parentElement : null;
   if (!stage || !indicator || !prevBtn || !nextBtn) return;
+
+  function showTooltip(p, color, anchorEl) {
+    if (!tooltip || !stageWrap) return;
+    const providerName = PROVIDER_LABEL[p.provider] || p.provider;
+    tooltip.innerHTML =
+      '<div class="tt-model"><span class="tt-dot" style="background:' + color + ';"></span>' +
+      p.model + '</div>' +
+      '<div class="tt-score">' + p.y + '<span class="tt-unit">%</span></div>' +
+      '<div class="tt-meta">' + providerName + ' &middot; ' + p.date + '</div>';
+    tooltip.setAttribute('aria-hidden', 'false');
+    // Measure after content set
+    const anchorRect = anchorEl.getBoundingClientRect();
+    const wrapRect = stageWrap.getBoundingClientRect();
+    const cx = anchorRect.left + anchorRect.width / 2 - wrapRect.left;
+    const cy = anchorRect.top - wrapRect.top - 10; // 10px above dot
+    // Clamp horizontally within wrap
+    const tw = tooltip.offsetWidth;
+    const minX = tw / 2 + 4;
+    const maxX = wrapRect.width - tw / 2 - 4;
+    const clampedX = Math.max(minX, Math.min(maxX, cx));
+    tooltip.style.left = clampedX + 'px';
+    tooltip.style.top = cy + 'px';
+    tooltip.classList.add('show');
+  }
+  function hideTooltip() {
+    if (!tooltip) return;
+    tooltip.classList.remove('show');
+    tooltip.setAttribute('aria-hidden', 'true');
+  }
 
   const HUE = {
     anthropic: 'var(--amber)',
@@ -4056,6 +4149,9 @@ document.querySelectorAll('section .card, section .terminal, section .code-block
     currentIdx = (idx + BENCH.length) % BENCH.length;
     const bench = BENCH[currentIdx];
 
+    // Hide any lingering tooltip from the previous panel
+    hideTooltip();
+
     // Clear stage, rebuild
     stage.innerHTML = '';
     if (bench.saturated) stage.setAttribute('data-saturated', 'true');
@@ -4201,17 +4297,36 @@ document.querySelectorAll('section .card, section .terminal, section .code-block
         stroke: 'var(--bg-deep)', 'stroke-width': 1.4,
         class: 'dot'
       });
-      const title = document.createElementNS(ns, 'title');
-      title.textContent = `${p.model} · ${p.y}% · ${p.date}`;
-      dot.appendChild(title);
       svg.appendChild(dot);
+
+      // Invisible larger hit target (on top) — richer hover area + tooltip hooks
+      const hit = el('circle', {
+        cx: p.cx, cy: p.cy, r: 13,
+        fill: 'transparent', 'pointer-events': 'all',
+        style: 'cursor: pointer;'
+      });
+      const hover = () => {
+        dot.setAttribute('r', '7');
+        dot.setAttribute('stroke-width', '2');
+        showTooltip(p, color, dot);
+      };
+      const unhover = () => {
+        dot.setAttribute('r', '5.5');
+        dot.setAttribute('stroke-width', '1.4');
+        hideTooltip();
+      };
+      hit.addEventListener('mouseenter', hover);
+      hit.addEventListener('mouseleave', unhover);
+      hit.addEventListener('touchstart', hover, { passive: true });
+      svg.appendChild(hit);
 
       // Model label (skip if layout couldn't find a clear slot)
       if (p._lbl) {
         svg.appendChild(el('text', {
           x: p.cx + p._lbl.dx, y: p.cy + p._lbl.dy,
           'text-anchor': p._lbl.anchor, fill: 'var(--text-2)',
-          'font-size': 11, 'font-family': 'var(--sans)'
+          'font-size': 11, 'font-family': 'var(--sans)',
+          'pointer-events': 'none'
         }, p.model));
       }
     });
