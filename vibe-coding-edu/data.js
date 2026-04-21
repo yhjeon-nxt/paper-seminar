@@ -68,6 +68,7 @@ window.VIBE_DATA = {
           heading: "그리고, 속도가 너무 빠릅니다",
           body: "아래는 SWE-bench Verified 해결률입니다. 실제 GitHub 이슈 500개를 모델에게 주고 패치를 만들게 한 뒤, 숨겨진 테스트를 돌려 통과하는지 측정하는 벤치마크. 세로축은 해결률(%), 가로축은 출시 시점입니다.",
           chart: {
+            kicker: "▸ FIG. 01 · CHART",
             title: "SWE-bench Verified — 실제 이슈 해결률",
             subtitle: "각 모델 출시 시점의 대표 스코어 (공개 발표 기준, %)",
             yMax: 100,
@@ -87,42 +88,50 @@ window.VIBE_DATA = {
         {
           heading: "필자가 기억하는 '똑똑한 구글' 시절",
           body: "저는 GPT-4o가 막 풀렸을 무렵 LLM을 처음 진지하게 쓰기 시작했습니다. 그때의 사용법은 지금 돌아보면 귀엽다고 할 만큼 단순했습니다. 브라우저 탭을 하나 더 띄워두는 것. 코드 조각을 복사해서 물어보고, 에러 스택트레이스를 통째로 긁어다 붙이고, 돌아온 답을 다시 복사해서 에디터로 옮기는 — 딱 거기까지였습니다.",
-          dialog: [
-            {
-              role: "나",
-              text: "numpy로 2개 배열 아다마르 곱 뒤에 배치 차원으로 합치려는데 ValueError가 납니다.\n\nValueError: operands could not be broadcast together with shapes (32,128) (128,32)"
-            },
-            {
-              role: "GPT-4o",
-              text: "transpose 방향이 반대입니다. (128,32) 쪽을 .T로 돌리거나, 의도가 배치별 가중합이면 np.einsum('bi,bi->b', A, B) 한 줄이 더 안전합니다."
-            },
-            {
-              role: "나",
-              text: "ㅇㅋ 고맙다 → (복붙 → 실행 → 됐다)"
-            }
-          ],
+          dialog: {
+            kicker: "▸ SCENE · CHATGPT TAB, CIRCA 2024",
+            note: "— REPLAY",
+            turns: [
+              {
+                role: "나",
+                text: "numpy로 2개 배열 아다마르 곱 뒤에 배치 차원으로 합치려는데 ValueError가 납니다.\n\nValueError: operands could not be broadcast together with shapes (32,128) (128,32)"
+              },
+              {
+                role: "GPT-4o",
+                text: "transpose 방향이 반대입니다. (128,32) 쪽을 .T로 돌리거나, 의도가 배치별 가중합이면 np.einsum('bi,bi->b', A, B) 한 줄이 더 안전합니다."
+              },
+              {
+                role: "나",
+                text: "ㅇㅋ 고맙다 → (복붙 → 실행 → 됐다)"
+              }
+            ],
+          },
           note: "이게 그때는 충분히 혁신이었습니다. Stack Overflow를 15분 뒤져야 풀리던 문제가 2분 만에 해결됐으니까요. 하지만 여전히 'AI가 물건을 만들지는 않는다'는 전제가 깔려 있었습니다 — 운전대는 내가 잡고 있었고, AI는 조수석에서 책을 읽어주는 동승자였습니다.",
         },
         {
           heading: "심상치 않다고 느낀 어느 2주",
           body: "변곡점은 조용하지 않게 왔습니다. 약 2주 사이에 세 모델이 연달아 떨어졌고, 각자의 출시 노트에는 이상할 정도로 비슷한 단어들이 반복됐습니다 — long-horizon agent, autonomous task completion, multi-file reasoning, 30-minute unattended work. 개별 모델의 점프라기보다, 업계 전체가 같은 방향으로 정렬된 한 주였습니다.",
-          timeline: [
-            {
-              when: "Day 1",
-              model: "Gemini 3 Pro",
-              note: "멀티모달·긴 컨텍스트·추론이 동시에 한 단계. 노트북 한 권 분량을 한 컨텍스트에서 돌려버림."
-            },
-            {
-              when: "Day 4",
-              model: "GPT-5",
-              note: "thinking 모드가 기본으로 내재화. 툴 호출 안정성과 장시간 자율 작업이 확 올라옴."
-            },
-            {
-              when: "Day 13",
-              model: "Claude Opus 4.5",
-              note: "에이전트 루프 신뢰성에 초점. 30분 넘는 자율 코딩 과제를 끊지 않고 끝내기 시작."
-            }
-          ],
+          timeline: {
+            kicker: "▸ ~ 2 WEEKS",
+            note: "3 MODELS · SAME DIRECTION",
+            items: [
+              {
+                when: "Day 1",
+                model: "Gemini 3 Pro",
+                note: "멀티모달·긴 컨텍스트·추론이 동시에 한 단계. 노트북 한 권 분량을 한 컨텍스트에서 돌려버림."
+              },
+              {
+                when: "Day 4",
+                model: "GPT-5",
+                note: "thinking 모드가 기본으로 내재화. 툴 호출 안정성과 장시간 자율 작업이 확 올라옴."
+              },
+              {
+                when: "Day 13",
+                model: "Claude Opus 4.5",
+                note: "에이전트 루프 신뢰성에 초점. 30분 넘는 자율 코딩 과제를 끊지 않고 끝내기 시작."
+              }
+            ],
+          },
           note: "어느 하나가 단독으로 떨어졌다면 '또 새 모델이네' 정도로 넘어갔을 겁니다. 세 개가 2주에 걸쳐 쏟아지고, 전부 같은 말을 하고 있었다는 게 체감상 심상치 않았습니다.",
         },
         {
@@ -784,7 +793,7 @@ $ /plugin marketplace add github:obra/superpowers
 
 # 2. 플러그인 검색·설치
 $ /plugin install superpowers@obra
-$ /plugin install code-intel@official
+$ /plugin install octopus@wshobson
 
 # 3. 관리 UI
 $ /plugin
@@ -793,7 +802,7 @@ $ /plugin
 {
   "enabledPlugins": {
     "superpowers@obra": true,
-    "code-intel@official": true,
+    "octopus@wshobson": true,
     "github@official": false
   }
 }`,

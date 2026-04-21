@@ -425,7 +425,7 @@ const SectionBody = ({ sec, isFirst }) => (
 
     {sec.dialog && <DialogBlock dialog={sec.dialog} />}
 
-    {sec.timeline && <Timeline items={sec.timeline} />}
+    {sec.timeline && <Timeline timeline={sec.timeline} />}
 
     {sec.note && (
       <p style={{
@@ -444,7 +444,7 @@ const SectionBody = ({ sec, isFirst }) => (
 // BenchmarkChart — SVG scatter/line chart for model benchmark progression
 // ──────────────────────────────────────────────
 const BenchmarkChart = ({ chart }) => {
-  const { title, subtitle, yMax = 100, points = [], caption } = chart;
+  const { kicker = '▸ FIG · CHART', title, subtitle, yMax = 100, points = [], caption } = chart;
   const W = 820, H = 440;
   const pad = { t: 32, r: 28, b: 76, l: 58 };
   const plotW = W - pad.l - pad.r;
@@ -452,7 +452,8 @@ const BenchmarkChart = ({ chart }) => {
   const n = points.length;
   const xFor = (i) => pad.l + (n > 1 ? (plotW * i) / (n - 1) : plotW / 2);
   const yFor = (v) => pad.t + plotH - (plotH * v) / yMax;
-  const gridYs = [0, 25, 50, 75, 100];
+  const ticks = 4;
+  const gridYs = Array.from({ length: ticks + 1 }, (_, i) => Math.round((yMax * i) / ticks));
 
   const linePts = points.map((p, i) => `${xFor(i)},${yFor(p.y)}`).join(' ');
   const areaPts = `${xFor(0)},${yFor(0)} ${linePts} ${xFor(n - 1)},${yFor(0)}`;
@@ -466,7 +467,7 @@ const BenchmarkChart = ({ chart }) => {
       }}>
         <div className="mono" style={{
           fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)', marginBottom: 4,
-        }}>▸ FIG. 01 · CHART</div>
+        }}>{kicker}</div>
         <div className="serif" style={{ fontSize: 19, lineHeight: 1.2, letterSpacing: '-0.015em' }}>
           {title}
         </div>
@@ -478,8 +479,11 @@ const BenchmarkChart = ({ chart }) => {
       <div style={{ padding: '20px 20px 10px' }}>
         <svg
           viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet"
+          role="img"
           style={{ display: 'block', overflow: 'visible' }}
         >
+          <title>{title}</title>
+          <desc>{subtitle || caption || title}</desc>
           {/* gridlines */}
           {gridYs.map(g => (
             <g key={g}>
@@ -559,54 +563,63 @@ const BenchmarkChart = ({ chart }) => {
 // ──────────────────────────────────────────────
 // DialogBlock — chat-style transcript for narrative anecdotes
 // ──────────────────────────────────────────────
-const DialogBlock = ({ dialog }) => (
-  <div style={{
-    margin: '24px 0 28px', border: '1px solid var(--line)',
-    background: 'var(--paper)',
-  }}>
-    <div className="mono" style={{
-      fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)',
-      padding: '10px 18px', borderBottom: '1px solid var(--line)',
-      display: 'flex', justifyContent: 'space-between',
+const DialogBlock = ({ dialog }) => {
+  const turns = Array.isArray(dialog) ? dialog : (dialog.turns || []);
+  const kicker = Array.isArray(dialog) ? '▸ DIALOG' : (dialog.kicker || '▸ DIALOG');
+  const note = Array.isArray(dialog) ? '' : (dialog.note || '');
+  return (
+    <div style={{
+      margin: '24px 0 28px', border: '1px solid var(--line)',
+      background: 'var(--paper)',
     }}>
-      <span>▸ SCENE · CHATGPT TAB, CIRCA 2024</span>
-      <span>— REPLAY</span>
-    </div>
-    <div style={{ padding: '4px 18px' }}>
-      {dialog.map((d, i) => {
-        const me = d.role === '나' || d.role === 'me' || d.role === 'user';
-        return (
-          <div key={i} style={{
-            display: 'grid', gridTemplateColumns: '92px 1fr', gap: 18,
-            padding: '16px 0',
-            borderBottom: i < dialog.length - 1 ? '1px dashed var(--line)' : 'none',
-            alignItems: 'flex-start',
-          }}>
-            <div className="mono" style={{
-              fontSize: 11, letterSpacing: '0.08em', paddingTop: 3,
-              color: me ? 'var(--ink)' : 'var(--accent-ink)',
-              fontWeight: 500,
+      <div className="mono" style={{
+        fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)',
+        padding: '10px 18px', borderBottom: '1px solid var(--line)',
+        display: 'flex', justifyContent: 'space-between',
+      }}>
+        <span>{kicker}</span>
+        {note && <span>{note}</span>}
+      </div>
+      <div style={{ padding: '4px 18px' }}>
+        {turns.map((d, i) => {
+          const me = d.role === '나' || d.role === 'me' || d.role === 'user';
+          return (
+            <div key={i} style={{
+              display: 'grid', gridTemplateColumns: '92px 1fr', gap: 18,
+              padding: '16px 0',
+              borderBottom: i < turns.length - 1 ? '1px dashed var(--line)' : 'none',
+              alignItems: 'flex-start',
             }}>
-              {me ? '▸ 나' : `↳ ${d.role}`}
+              <div className="mono" style={{
+                fontSize: 11, letterSpacing: '0.08em', paddingTop: 3,
+                color: me ? 'var(--ink)' : 'var(--accent-ink)',
+                fontWeight: 500,
+              }}>
+                {me ? '▸ 나' : `↳ ${d.role}`}
+              </div>
+              <div style={{
+                fontFamily: 'var(--mono)', fontSize: 13, lineHeight: 1.75,
+                color: 'var(--ink-2)', whiteSpace: 'pre-wrap',
+                textWrap: 'pretty',
+              }}>
+                {d.text}
+              </div>
             </div>
-            <div style={{
-              fontFamily: 'var(--mono)', fontSize: 13, lineHeight: 1.75,
-              color: 'var(--ink-2)', whiteSpace: 'pre-wrap',
-              textWrap: 'pretty',
-            }}>
-              {d.text}
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ──────────────────────────────────────────────
 // Timeline — vertical timeline of events
 // ──────────────────────────────────────────────
-const Timeline = ({ items }) => (
+const Timeline = ({ timeline }) => {
+  const items = Array.isArray(timeline) ? timeline : (timeline.items || []);
+  const kicker = Array.isArray(timeline) ? '▸ TIMELINE' : (timeline.kicker || '▸ TIMELINE');
+  const note = Array.isArray(timeline) ? '' : (timeline.note || '');
+  return (
   <div style={{
     margin: '24px 0 28px', border: '1px solid var(--ink)',
     background: 'var(--paper)', padding: '24px 26px',
@@ -615,8 +628,8 @@ const Timeline = ({ items }) => (
       fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)', marginBottom: 20,
       display: 'flex', justifyContent: 'space-between',
     }}>
-      <span>▸ ~ 2 WEEKS</span>
-      <span>3 MODELS · SAME DIRECTION</span>
+      <span>{kicker}</span>
+      {note && <span>{note}</span>}
     </div>
     <div style={{ position: 'relative', paddingLeft: 28 }}>
       <div style={{
@@ -655,7 +668,8 @@ const Timeline = ({ items }) => (
       ))}
     </div>
   </div>
-);
+  );
+};
 
 const CodeBlock = ({ code, lang = 'markdown' }) => {
   const [copied, setCopied] = React.useState(false);
