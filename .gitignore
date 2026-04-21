@@ -1,5 +1,9 @@
 *.pdf
+*.zip
 docs/
 .superpowers/
 .worktrees/
+.design-fetch/
+.playwright-mcp/
+outputs/
 .DS_Store

@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vibe Coding with Claude Code</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" onerror="this.remove()" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap" />
+
+<style>
+  /* =========================================================
+     TOKEN SYSTEM — Editorial Dark
+     =========================================================
+     The guide has two variants toggled via [data-variant]:
+       B (default) "editorial"  — rhythm breaks, light section, wider blocks
+       A          "refined"    — single-column, unified rhythm (current structure)
+  */
+  :root {
+    /* Canvas */
+    --bg:       #0b0f1a;
+    --bg-alt:   #0d1321;
+    --bg-deep:  #060913;
+    --bg-light: #f7f6f1;      /* used in the editorial light-break section */
+    --surface:  #141c2e;
+    --surface-2:#1a2436;
+    --line:     #253148;
+    --line-2:   #2d3a53;
+    --line-soft:#1c2336;
+    --text:     #f1f5f9;
+    --text-2:   #cbd5e1;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+
+    /* Accents */
+    --blue:   #60a5fa;
+    --green:  #34d399;
+    --amber:  #fbbf24;
+    --purple: #a78bfa;
+    --rose:   #fb7185;
+
+    /* Tinted surfaces */
+    --blue-soft:   rgba(96,165,250,0.12);
+    --green-soft:  rgba(52,211,153,0.12);
+    --amber-soft:  rgba(251,191,36,0.12);
+    --purple-soft: rgba(167,139,250,0.12);
+
+    /* Type */
+    --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --serif: 'Fraunces', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+
+    /* Measures */
+    --measure: 720px;
+    --measure-wide: 1040px;
+    --measure-ultra: 1240px;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+    --shadow-card: 0 1px 0 rgba(255,255,255,0.02) inset, 0 20px 40px -24px rgba(0,0,0,0.6);
+    --shadow-lift: 0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 50px -24px rgba(0,0,0,0.8);
+
+    /* Section accent (overridden per section) */
+    --accent: var(--blue);
+    --accent-soft: var(--blue-soft);
+  }
+
+  /* =========================================================
+     RESET
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11", "kern";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  code, pre, kbd { font-family: var(--mono); font-feature-settings: "ss02", "ss19"; }
+  ::selection { background: rgba(96,165,250,0.35); color: #fff; }
+
+  /* Focus ring */
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* =========================================================
+     PROGRESS + NAV
+     ========================================================= */
+  #progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    z-index: 9999;
+    transition: width 0.08s linear;
+  }
+
+  nav.topnav {
+    position: fixed;
+    top: 2px; left: 0; right: 0;
+    height: 56px;
+    background: color-mix(in oklab, var(--bg) 80%, transparent);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid var(--line-soft);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 max(20px, calc((100vw - var(--measure-ultra)) / 2));
+  }
+
+  .nav-brand {
+    display: flex; align-items: baseline; gap: 12px;
+    flex-shrink: 0;
+  }
+  .nav-mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: inline-grid; place-items: center;
+    color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700;
+    align-self: center;
+  }
+  .nav-title-group { display: flex; flex-direction: column; line-height: 1.05; }
+  .nav-eyebrow {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .nav-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-sub);
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: color .15s, background .15s;
+  }
+  .nav-links a .num {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-links a.active { color: var(--text); background: rgba(96,165,250,0.10); }
+  .nav-links a.active .num { color: var(--blue); }
+  .nav-links a.visited .num { color: var(--green); }
+
+  .nav-drawer-toggle {
+    display: none;
+    width: 40px; height: 34px;
+    align-items: center; justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+
+  /* Mobile nav: drawer */
+  @media (max-width: 860px) {
+    nav.topnav { gap: 12px; padding: 0 16px; }
+    .nav-links {
+      position: fixed;
+      top: 58px; left: 0; right: 0;
+      flex-direction: column;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line-soft);
+      padding: 8px 16px 16px;
+      gap: 2px;
+      max-height: calc(100vh - 58px);
+      overflow-y: auto;
+      transform: translateY(-10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .nav-links.open { opacity: 1; transform: none; pointer-events: auto; }
+    .nav-links a { padding: 10px 12px; font-size: 14px; }
+    .nav-drawer-toggle { display: inline-flex; }
+  }
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  main { padding-top: 58px; }
+
+  .hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line-soft);
+    background:
+      radial-gradient(1200px 500px at 82% -10%, rgba(96,165,250,0.12), transparent 60%),
+      radial-gradient(900px 400px at 10% 110%, rgba(167,139,250,0.10), transparent 60%),
+      var(--bg);
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(148,163,184,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148,163,184,0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8), transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.8), transparent 75%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    max-width: var(--measure-ultra);
+    margin: 0 auto;
+    padding: 96px 24px 72px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 64px;
+    align-items: start;
+  }
+  .hero-left { padding-top: 4px; }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--text-sub);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 28px;
+  }
+  .hero-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-dim); }
+  .hero-meta .pulse {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text-2);
+    background: rgba(96,165,250,0.06);
+  }
+  .hero-meta .pulse::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px rgba(52,211,153,0.2);
+    animation: hero-pulse 2s infinite;
+  }
+  @keyframes hero-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.25); }
+    50%      { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+  }
+
+  .hero-title {
+    font-family: var(--sans);
+    font-size: clamp(40px, 6.2vw, 84px);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    color: var(--text);
+    margin-bottom: 22px;
+  }
+  .hero-title .accent {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--blue);
+    letter-spacing: -0.02em;
+  }
+  .hero-lead {
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: var(--text-2);
+    max-width: 42ch;
+    line-height: 1.55;
+  }
+
+  .hero-toc {
+    border-left: 1px solid var(--line-soft);
+    padding-left: 32px;
+    display: grid;
+    gap: 2px;
+  }
+  .hero-toc-title {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .hero-toc a {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: baseline;
+    gap: 14px;
+    padding: 7px 4px;
+    border-bottom: 1px dashed rgba(148,163,184,0.12);
+    color: var(--text-2);
+    font-size: 14px;
+    transition: color .15s, padding-left .15s;
+  }
+  .hero-toc a:hover { color: var(--text); padding-left: 8px; }
+  .hero-toc a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-toc a .arrow { font-family: var(--mono); color: var(--text-dim); opacity: 0; transition: opacity .15s; }
+  .hero-toc a:hover .arrow { opacity: 1; color: var(--blue); }
+
+  @media (max-width: 880px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 72px 20px 48px;
+    }
+    .hero-toc { border-left: 0; border-top: 1px solid var(--line-soft); padding: 24px 0 0 0; }
+  }
+
+  /* =========================================================
+     SECTIONS
+     ========================================================= */
+  section {
+    position: relative;
+    padding: 88px 24px;
+    border-top: 1px solid var(--line-soft);
+  }
+  section:nth-child(odd of section) { background: var(--bg); }
+  section.alt { background: var(--bg-alt); }
+
+  .section-inner {
+    max-width: var(--measure);
+    margin: 0 auto;
+    position: relative;
+  }
+  .section-inner.wide { max-width: var(--measure-wide); }
+  .section-inner.ultra { max-width: var(--measure-ultra); }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 36px;
+    margin-bottom: 48px;
+    align-items: start;
+  }
+  .section-index {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    padding-top: 8px;
+    white-space: nowrap;
+  }
+  .section-index .slash { color: var(--text-dim); margin: 0 2px; }
+  .section-index .total { color: var(--text-dim); }
+
+  .section-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 4px 8px;
+    border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--line));
+    border-radius: 4px;
+    background: var(--accent-soft);
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: clamp(30px, 3.6vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    color: var(--text);
+    margin-bottom: 14px;
+    text-wrap: balance;
+  }
+  .section-lead {
+    font-size: 18px;
+    color: var(--text-2);
+    max-width: 52ch;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 720px) {
+    section { padding: 64px 20px; }
+    .section-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+    .section-index { padding-top: 0; }
+    .section-title { font-size: 30px; }
+    .section-lead { font-size: 16px; }
+  }
+
+  /* Per-section accent (keeps the current rotation) */
+  #intro    { --accent: var(--amber);  --accent-soft: var(--amber-soft); }
+  #about    { --accent: var(--blue);   --accent-soft: var(--blue-soft); }
+  #start    { --accent: var(--green);  --accent-soft: var(--green-soft); }
+  #claudemd { --accent: var(--blue);   --accent-soft: var(--blue-soft); }
+  #memory   { --accent: var(--purple); --accent-soft: var(--purple-soft); }
+  #skills   { --accent: var(--blue);   --accent-soft: var(--blue-soft); }
+  #mcp      { --accent: var(--amber);  --accent-soft: var(--amber-soft); }
+  #hooks    { --accent: var(--amber);  --accent-soft: var(--amber-soft); }
+  #agent    { --accent: var(--purple); --accent-soft: var(--purple-soft); }
+  #plugins  { --accent: var(--amber);  --accent-soft: var(--amber-soft); }
+  #harness  { --accent: var(--green);  --accent-soft: var(--green-soft); }
+  #wrapup   { --accent: var(--blue);   --accent-soft: var(--blue-soft); }
+
+  /* Editorial light-break section (claudemd inverts in variant B) */
+  [data-variant="editorial"] #claudemd {
+    background: var(--bg-light);
+    color: #15192a;
+  }
+  [data-variant="editorial"] #claudemd .section-title,
+  [data-variant="editorial"] #claudemd .block-title,
+  [data-variant="editorial"] #claudemd .label-row,
+  [data-variant="editorial"] #claudemd .note-title { color: #15192a; }
+  [data-variant="editorial"] #claudemd .section-lead,
+  [data-variant="editorial"] #claudemd .muted,
+  [data-variant="editorial"] #claudemd p { color: #3c4660; }
+  [data-variant="editorial"] #claudemd .card {
+    background: #fff;
+    border: 1px solid #e7e2d2;
+    color: #15192a;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 16px 30px -18px rgba(20,24,40,0.18);
+  }
+  [data-variant="editorial"] #claudemd .section-tag {
+    background: rgba(21,25,42,0.06);
+    color: #15192a;
+    border-color: #d8d3c3;
+  }
+  [data-variant="editorial"] #claudemd .code-block {
+    background: #15192a;
+    color: #f1f5f9;
+    border-color: #15192a;
+  }
+  [data-variant="editorial"] #claudemd .concentric-ring { background: rgba(21,25,42,0.04); border-color: rgba(21,25,42,0.18); }
+
+  /* =========================================================
+     BLOCKS: cards, code, terminals, tables, diagrams
+     ========================================================= */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+  }
+  .card.hover:hover,
+  .grid-cards .card:hover {
+    border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lift);
+  }
+  .card.accent-left { border-left: 3px solid var(--accent); }
+
+  .label-row {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    margin: 36px 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .label-row::before {
+    content: ""; width: 18px; height: 1px; background: var(--accent); opacity: 0.9;
+  }
+
+  .muted { color: var(--text-sub); }
+  .small { font-size: 13px; }
+  .tiny  { font-size: 11.5px; }
+  .num-tab { font-variant-numeric: tabular-nums; }
+
+  /* Code block — IDE feel */
+  .code-block {
+    position: relative;
+    background: #0a0f1d;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-sm);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-2);
+    overflow: hidden;
+  }
+  .code-block .code-chrome {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    background: #080c17;
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .code-block .code-lang {
+    padding: 1px 7px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .code-block .code-file {
+    color: var(--text-sub);
+  }
+  .code-block .code-copy {
+    margin-left: auto;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .code-block .code-copy:hover { color: var(--text); border-color: var(--line-2); background: rgba(255,255,255,0.03); }
+  .code-block .code-copy.copied { color: var(--green); border-color: var(--green); }
+  .code-block .code-body {
+    padding: 16px 18px;
+    overflow-x: auto;
+  }
+  .code-block.plain .code-body { padding: 14px 18px; }
+  .code-block .code-body > div { white-space: pre; }
+  .code-comment { color: #5f7190; font-style: italic; }
+  .code-cmd     { color: #9ec5fe; }
+  .code-string  { color: #a3e9b9; }
+  .code-prompt  { color: var(--text-dim); user-select: none; margin-right: 6px; }
+  .code-kw      { color: #c4a7fa; }
+  .code-num     { color: #fbbf24; }
+
+  /* Terminal */
+  .terminal {
+    background: #050812;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .terminal-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: #0b0f1d;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-dot.red    { background: #ef4444; }
+  .terminal-dot.yellow { background: #f59e0b; }
+  .terminal-dot.green  { background: #22c55e; }
+  .terminal-title {
+    margin-left: 8px;
+    font-family: var(--mono); font-size: 11.5px;
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+  }
+  .terminal-body {
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: var(--text-2);
+    overflow-x: auto;
+  }
+  .prompt-sign  { color: var(--blue); font-weight: 700; }
+  .user-input   { color: var(--text); font-weight: 500; }
+  .tool-call    { color: var(--text-sub); }
+  .ai-response  { color: var(--text-2); }
+  .success      { color: var(--green); }
+
+  /* Info table */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    font-size: 13.5px;
+  }
+  .info-table thead th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-sub);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.015);
+    font-weight: 500;
+  }
+  .info-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--text-2);
+    vertical-align: top;
+  }
+  .info-table tr:last-child td { border-bottom: 0; }
+  .info-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* Grid helpers */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid-cards { display: grid; gap: 14px; }
+  @media (max-width: 720px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  .flex-row {
+    display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap;
+  }
+  .arrow {
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-sub);
+    font-family: var(--mono);
+    font-size: 20px;
+    min-width: 24px;
+  }
+  @media (max-width: 720px) { .arrow { transform: rotate(90deg); } }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .badge.blue   { background: var(--blue-soft);   color: var(--blue); }
+  .badge.green  { background: var(--green-soft);  color: var(--green); }
+  .badge.amber  { background: var(--amber-soft);  color: var(--amber); }
+  .badge.purple { background: var(--purple-soft); color: var(--purple); }
+
+  /* mb utilities */
+  .mb-4  { margin-bottom: 4px; }
+  .mb-6  { margin-bottom: 6px; }
+  .mb-8  { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-20 { margin-bottom: 20px; }
+  .mb-24 { margin-bottom: 24px; }
+  .mb-32 { margin-bottom: 32px; }
+
+  /* Toggle */
+  .toggle-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-sub);
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .toggle-btn::before {
+    content: "+";
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    transition: transform .2s;
+  }
+  .toggle-btn.open::before { transform: rotate(45deg); }
+  .toggle-btn:hover { color: var(--text); border-color: var(--line-2); background: rgba(255,255,255,0.02); }
+  .toggle-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .25s ease;
+  }
+  .toggle-content.open { max-height: 2000px; }
+
+  /* =========================================================
+     DIAGRAMS
+     ========================================================= */
+  .diagram-frame {
+    background:
+      linear-gradient(var(--surface), var(--surface)) padding-box,
+      linear-gradient(135deg, color-mix(in oklab, var(--accent) 30%, transparent), transparent 70%) border-box;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+  }
+  .diagram-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(400px 200px at 80% 20%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Cycle */
+  .cycle-diagram {
+    display: flex; justify-content: center; align-items: center;
+    flex-wrap: wrap; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .cycle-step {
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--accent);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    min-width: 84px;
+    transition: transform .2s, border-color .2s;
+  }
+  .cycle-step:hover { transform: translateY(-2px); }
+  .cycle-arrow { color: var(--text-sub); font-family: var(--mono); }
+
+  /* Concentric circles */
+  .concentric {
+    display: flex; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .concentric-ring {
+    position: relative;
+    display: flex; justify-content: center; align-items: center;
+    border-radius: 50%;
+  }
+  .concentric-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Hub/spoke */
+  .hub-spoke {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    height: 320px;
+    margin: 0 auto;
+  }
+  .hub-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--bg-deep);
+    border: 2px solid var(--blue);
+    box-shadow: 0 0 0 6px rgba(96,165,250,0.08), 0 0 40px rgba(96,165,250,0.25);
+    z-index: 3;
+  }
+  .spoke-node {
+    position: absolute;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    min-width: 76px;
+    text-align: center;
+  }
+  .spoke-node .ico { font-family: var(--mono); font-size: 12px; color: var(--text-sub); }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    display: grid;
+    gap: 0;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 8px; top: 6px; bottom: 6px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--line-2), var(--line-soft));
+  }
+  .timeline-item {
+    position: relative;
+    padding: 12px 0 12px 14px;
+  }
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -24px; top: 18px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--line-2);
+  }
+  .timeline-item.hook-point::before {
+    background: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.18);
+  }
+  .timeline-item.hook-point { padding-left: 14px; }
+
+  /* Staircase */
+  .staircase {
+    display: flex; align-items: flex-end; gap: 4px;
+    padding: 20px 0 0;
+    min-height: 220px;
+    overflow-x: auto;
+  }
+  .stair-bar {
+    min-width: 60px;
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    color: #050812;
+    font-weight: 700;
+    font-size: 11.5px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 8px 4px;
+    text-align: center;
+    line-height: 1.2;
+    transition: transform .2s;
+  }
+  .stair-bar:hover { transform: translateY(-4px); }
+
+  /* Chips (harness) */
+  .chip-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; align-items: center;
+  }
+  .harness-chip {
+    padding: 10px 16px;
+    border: 1px solid color-mix(in oklab, var(--chip-color, var(--blue)) 40%, var(--line));
+    background: color-mix(in oklab, var(--chip-color, var(--blue)) 10%, var(--surface));
+    border-radius: var(--radius-sm);
+    text-align: center;
+    min-width: 96px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .harness-chip:hover { transform: translateY(-2px); box-shadow: 0 12px 20px -14px rgba(0,0,0,0.6); }
+  .harness-chip .name { font-weight: 700; font-size: 13px; color: var(--chip-color, var(--text)); }
+  .harness-chip .role { font-size: 11px; color: var(--text-sub); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; }
+  .chip-plus { color: var(--text-sub); font-family: var(--mono); font-size: 18px; }
+
+  /* Command grid badges */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 8px;
+  }
+  .cmd-badge {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: border-color .15s, transform .15s, background .15s;
+  }
+  .cmd-badge:hover { border-color: var(--blue); background: rgba(96,165,250,0.04); }
+  .cmd-name { font-family: var(--mono); color: var(--blue); font-weight: 600; font-size: 13px; }
+  .cmd-desc { color: var(--text-sub); font-size: 12px; }
+
+  /* Worktree diagram */
+  .worktree {
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+  .worktree .branch-node {
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    min-width: 180px;
+  }
+  .worktree .branch-split {
+    display: flex; align-items: center; justify-content: center;
+    gap: 240px;
+  }
+  .worktree .branch-split .line {
+    width: 1px; height: 36px; background: var(--line-2);
+  }
+  .worktree .branch-pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%;
+  }
+
+  /* =========================================================
+     TWEAKS PANEL
+     ========================================================= */
+  #tweaks {
+    position: fixed;
+    right: 20px; bottom: 20px;
+    width: 280px;
+    background: var(--bg-deep);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px -10px rgba(0,0,0,0.7);
+    color: var(--text);
+    font-size: 13px;
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+  }
+  #tweaks.visible { display: block; }
+  #tweaks header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-sub);
+  }
+  #tweaks .tw-body { padding: 14px; display: grid; gap: 14px; }
+  #tweaks .tw-row .label { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-dim); margin-bottom: 6px; }
+  #tweaks .seg {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+    border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+  }
+  #tweaks .seg button {
+    padding: 8px 10px;
+    color: var(--text-sub);
+    font-size: 12px;
+    border-right: 1px solid var(--line);
+    font-weight: 500;
+    transition: color .15s, background .15s;
+  }
+  #tweaks .seg button:last-child { border-right: 0; }
+  #tweaks .seg button:hover { color: var(--text); }
+  #tweaks .seg button.active { color: var(--bg-deep); background: var(--blue); }
+
+  /* =========================================================
+     VARIANT A ("Refined Dark") overrides
+     ========================================================= */
+  [data-variant="refined"] .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 88px 24px 56px;
+    max-width: var(--measure);
+  }
+  [data-variant="refined"] .hero-toc {
+    border-left: 0; border-top: 1px solid var(--line-soft); padding: 24px 0 0;
+  }
+  [data-variant="refined"] .section-inner,
+  [data-variant="refined"] .section-inner.wide,
+  [data-variant="refined"] .section-inner.ultra {
+    max-width: var(--measure);
+  }
+  [data-variant="refined"] section:nth-child(even of section) { background: var(--bg-alt); }
+
+  /* =========================================================
+     UTILITY: scroll-reveal (subtle)
+     ========================================================= */
+  .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* =========================================================
+     NUMBERED BIG-FIG (editorial pull)
+     ========================================================= */
+  .big-fig {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 20px 0;
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    margin: 24px 0;
+  }
+  .big-fig .n {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(52px, 6vw, 84px);
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .big-fig .label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-sub); margin-bottom: 4px; }
+  .big-fig .desc { color: var(--text-2); font-size: 14.5px; }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+  footer.site-foot {
+    padding: 40px 24px 80px;
+    border-top: 1px solid var(--line-soft);
+    color: var(--text-dim);
+    font-family: var(--mono); font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body data-variant="editorial">
+
+<!-- Progress -->
+<div id="progress-bar" aria-hidden="true"></div>
+
+<!-- Nav -->
+<nav class="topnav" aria-label="섹션 내비게이션">
+  <a href="#intro" class="nav-brand" aria-label="Home">
+    <span class="nav-mark">CC</span>
+    <span class="nav-title-group">
+      <span class="nav-eyebrow">A Guide to</span>
+      <span class="nav-title">Claude Code</span>
+    </span>
+  </a>
+  <button class="nav-drawer-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="섹션 메뉴">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <path d="M1 1h16M1 6h16M1 11h16"/>
+    </svg>
+  </button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#intro"><span class="num">01</span>Intro</a></li>
+    <li><a href="#about"><span class="num">02</span>About</a></li>
+    <li><a href="#start"><span class="num">03</span>Start</a></li>
+    <li><a href="#claudemd"><span class="num">04</span>CLAUDE.md</a></li>
+    <li><a href="#memory"><span class="num">05</span>Memory</a></li>
+    <li><a href="#skills"><span class="num">06</span>Skills</a></li>
+    <li><a href="#mcp"><span class="num">07</span>MCP</a></li>
+    <li><a href="#hooks"><span class="num">08</span>Hooks</a></li>
+    <li><a href="#agent"><span class="num">09</span>Agent</a></li>
+    <li><a href="#plugins"><span class="num">10</span>Plugins</a></li>
+    <li><a href="#harness"><span class="num">11</span>Harness</a></li>
+    <li><a href="#wrapup"><span class="num">12</span>마무리</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ========================================================
+     HERO
+     ======================================================== -->
+<section class="hero" id="intro" aria-label="인트로">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-meta">
+        <span class="pulse">Research Onboarding · 2026</span>
+        <span class="dot"></span>
+        <span>12 Sections · Self-paced</span>
+        <span class="dot"></span>
+        <span>For AI researchers &amp; engineers</span>
+      </div>
+      <h1 class="hero-title">
+        코드를 쓰지 않고,<br/>
+        <span class="accent">vibe</span>로 빌드하기.
+      </h1>
+      <p class="hero-lead">
+        자연어 대화로 소프트웨어를 만드는 새로운 방식과,
+        터미널에서 돌아가는 에이전트 Claude Code를 실전처럼 다루기 위한 단일 페이지 가이드.
+      </p>
+    </div>
+    <aside class="hero-toc" aria-label="섹션 목차">
+      <div class="hero-toc-title">Contents</div>
+      <a href="#intro"><span class="num">01</span><span>바이브 코딩이란?</span><span class="arrow">→</span></a>
+      <a href="#about"><span class="num">02</span><span>Claude Code 소개</span><span class="arrow">→</span></a>
+      <a href="#start"><span class="num">03</span><span>시작하기</span><span class="arrow">→</span></a>
+      <a href="#claudemd"><span class="num">04</span><span>CLAUDE.md</span><span class="arrow">→</span></a>
+      <a href="#memory"><span class="num">05</span><span>Memory</span><span class="arrow">→</span></a>
+      <a href="#skills"><span class="num">06</span><span>Skills</span><span class="arrow">→</span></a>
+      <a href="#mcp"><span class="num">07</span><span>MCP</span><span class="arrow">→</span></a>
+      <a href="#hooks"><span class="num">08</span><span>Hooks</span><span class="arrow">→</span></a>
+      <a href="#agent"><span class="num">09</span><span>Agent &amp; Multi-Agent</span><span class="arrow">→</span></a>
+      <a href="#plugins"><span class="num">10</span><span>Plugins</span><span class="arrow">→</span></a>
+      <a href="#harness"><span class="num">11</span><span>하네스 엔지니어링</span><span class="arrow">→</span></a>
+      <a href="#wrapup"><span class="num">12</span><span>마무리</span><span class="arrow">→</span></a>
+    </aside>
+  </div>
+</section>
+
+<!-- The original intro content now lives here, under the hero, as a sub-opening with the real intro material -->
+<section id="intro-detail" aria-label="바이브 코딩이란?">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">01<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Introduction</span>
+        <h2 class="section-title">바이브 코딩이란?</h2>
+        <p class="section-lead">코드를 직접 쓰지 않고, 자연어 대화로 소프트웨어를 만드는 방식.</p>
+      </div>
+    </div>
+
+    <!-- Karpathy quote -->
+    <figure class="card accent-left mb-24" style="padding: 24px 24px 20px;">
+      <blockquote style="font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 1.5; color: var(--text); margin-bottom: 10px; text-wrap: balance;">
+        “There's a new kind of coding I call ‘vibe coding’, where you fully give in to the vibes, embrace exponentials, and forget that the code even exists.”
+      </blockquote>
+      <figcaption class="muted small" style="font-family: var(--mono); letter-spacing: 0.06em;">— Andrej Karpathy, Feb 2025</figcaption>
+    </figure>
+
+    <!-- Before/after terminals -->
+    <p class="label-row">비교: 기존 방식 vs 바이브 코딩</p>
+    <div class="grid-2 mb-24">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+          <span class="terminal-title">기존 방식</span>
+        </div>
+        <div class="terminal-body" style="min-height: 140px;">
+          <div class="tool-call">1. 문법 검색...</div>
+          <div class="tool-call">2. 코드 작성...</div>
+          <div class="tool-call">3. 에러 디버깅...</div>
+          <div class="tool-call">4. Stack Overflow...</div>
+          <div style="color: var(--rose); margin-top: 8px;">⏱ 수 시간</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+          <span class="terminal-title">바이브 코딩</span>
+        </div>
+        <div class="terminal-body" style="min-height: 140px;">
+          <div><span class="prompt-sign">❯</span> <span class="user-input">CSV 파일 읽어서 bar chart로 시각화해줘</span></div>
+          <div class="tool-call">  ↳ Read data.csv</div>
+          <div class="tool-call">  ↳ Write plot.py</div>
+          <div class="tool-call">  ↳ Bash: python plot.py</div>
+          <div class="success" style="margin-top: 8px;">✓ chart.png 생성 완료 (30초)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why it matters -->
+    <p class="label-row">왜 AI 연구원에게 중요한가?</p>
+    <div class="grid-3 mb-24">
+      <div class="card hover">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">01</p>
+        <p style="font-weight: 600; font-size: 15px;">실험 도구 자동화</p>
+      </div>
+      <div class="card hover">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">02</p>
+        <p style="font-weight: 600; font-size: 15px;">데모/시각화 직접 제작</p>
+      </div>
+      <div class="card hover">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">03</p>
+        <p style="font-weight: 600; font-size: 15px;">반복 작업 스크립트화</p>
+      </div>
+    </div>
+
+    <!-- Tool comparison -->
+    <p class="label-row">도구 비교</p>
+    <table class="info-table">
+      <thead>
+        <tr><th>도구</th><th>유형</th><th>특징</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Cursor</td><td>IDE (VS Code fork)</td><td>GUI 기반, 코드 에디터 내장</td></tr>
+        <tr><td>Windsurf</td><td>IDE</td><td>AI Flow 기반 자동 완성</td></tr>
+        <tr style="background: rgba(96,165,250,0.06);">
+          <td><strong style="color: var(--blue);">Claude Code</strong></td>
+          <td>CLI (터미널)</td>
+          <td>에이전틱, 도구 호출, 확장성</td>
+        </tr>
+        <tr><td>GitHub Copilot</td><td>IDE 플러그인</td><td>자동완성 중심</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ========================================================
+     02 · ABOUT
+     ======================================================== -->
+<section id="about" class="alt">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">02<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">What is Claude Code</span>
+        <h2 class="section-title">터미널에서 돌아가는 <br/>AI 코딩 에이전트.</h2>
+        <p class="section-lead">에디터 내장 자동완성이 아니라, 스스로 파일을 읽고 도구를 호출하며 멀티스텝 작업을 수행합니다.</p>
+      </div>
+    </div>
+
+    <!-- Architecture row -->
+    <div class="flex-row mb-24" style="flex-wrap: nowrap;">
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--green);">
+        <p style="font-weight: 700; margin-bottom: 4px;">You</p>
+        <p class="muted small">자연어 프롬프트</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--blue);">
+        <p style="font-weight: 700; margin-bottom: 4px;">Claude Code</p>
+        <p class="muted small">에이전트 엔진</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--purple);">
+        <p style="font-weight: 700; margin-bottom: 4px;">Tools</p>
+        <p class="muted small">파일/Git/터미널/웹</p>
+      </div>
+    </div>
+
+    <!-- Agent Loop -->
+    <p class="label-row">에이전트 동작 루프</p>
+    <div class="diagram-frame mb-12">
+      <div class="cycle-diagram">
+        <div class="cycle-step" style="border-top-color: var(--green);">프롬프트<div class="tiny muted" style="font-weight:400;">사용자 요청</div></div>
+        <span class="cycle-arrow">→</span>
+        <div class="cycle-step" style="border-top-color: var(--blue);">분석<div class="tiny muted" style="font-weight:400;">의도 파악</div></div>
+        <span class="cycle-arrow">→</span>
+        <div class="cycle-step" style="border-top-color: var(--amber);">도구 선택<div class="tiny muted" style="font-weight:400;">Read/Edit/Bash</div></div>
+        <span class="cycle-arrow">→</span>
+        <div class="cycle-step" style="border-top-color: var(--purple);">실행<div class="tiny muted" style="font-weight:400;">파일 수정</div></div>
+        <span class="cycle-arrow">→</span>
+        <div class="cycle-step" style="border-top-color: var(--green);">검증<div class="tiny muted" style="font-weight:400;">결과 확인</div></div>
+        <span class="cycle-arrow">↻</span>
+      </div>
+    </div>
+    <p class="muted small" style="text-align: center; margin-bottom: 28px;">목표를 달성할 때까지 자율적으로 반복합니다</p>
+
+    <!-- Models -->
+    <p class="label-row">모델 선택</p>
+    <div class="grid-2 mb-24">
+      <div class="card hover">
+        <span class="badge blue mb-8">기본</span>
+        <p style="font-weight: 700; margin: 6px 0 4px;">Sonnet 4</p>
+        <p class="muted small">빠르고 효율적 — 일반 코딩 작업</p>
+      </div>
+      <div class="card hover">
+        <span class="badge purple mb-8">고급</span>
+        <p style="font-weight: 700; margin: 6px 0 4px;">Opus 4</p>
+        <p class="muted small">깊은 추론 — 복잡한 아키텍처 설계</p>
+      </div>
+    </div>
+
+    <!-- Platforms -->
+    <p class="label-row">사용 플랫폼</p>
+    <div class="grid-4 mb-24">
+      <div class="card hover" style="padding: 14px 16px;">
+        <p style="font-weight: 600;">CLI</p>
+        <p class="muted small"><code style="color: var(--blue);">claude</code> 명령</p>
+      </div>
+      <div class="card hover" style="padding: 14px 16px;">
+        <p style="font-weight: 600;">VS Code</p>
+        <p class="muted small">Extension 설치</p>
+      </div>
+      <div class="card hover" style="padding: 14px 16px;">
+        <p style="font-weight: 600;">JetBrains</p>
+        <p class="muted small">Plugin 설치</p>
+      </div>
+      <div class="card hover" style="padding: 14px 16px;">
+        <p style="font-weight: 600;">Web</p>
+        <p class="muted small">claude.ai/code</p>
+      </div>
+    </div>
+
+    <!-- Toggle -->
+    <button class="toggle-btn" onclick="toggleSection(this)">IDE 도구와 뭐가 다른가?</button>
+    <div class="toggle-content">
+      <div class="card accent-left" style="margin-top: 12px;">
+        <p class="mb-8"><strong class="muted">IDE 도구 (Cursor, Copilot):</strong> 에디터 안에서 코드 자동완성/수정</p>
+        <p><strong style="color: var(--blue);">Claude Code:</strong> 에이전트가 직접 파일 읽기/쓰기/실행, 멀티스텝 작업을 자율적으로 수행</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     03 · START
+     ======================================================== -->
+<section id="start">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">03<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Getting Started</span>
+        <h2 class="section-title">5분이면 시작할 수 있습니다.</h2>
+        <p class="section-lead">한 줄 설치, 한 줄 실행. 그다음부터는 프로젝트 폴더에서 <code style="color: var(--green); font-family: var(--mono);">claude</code>만 치면 됩니다.</p>
+      </div>
+    </div>
+
+    <!-- Install code block -->
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">bash</span>
+        <span class="code-file">install.sh</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-prompt">$</span> <span class="code-cmd">npm install -g @anthropic-ai/claude-code</span></div>
+        <div><span class="code-prompt">$</span> <span class="code-cmd">claude</span></div>
+      </div>
+    </div>
+
+    <!-- First session terminal -->
+    <div class="terminal mb-24">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">~/my-project</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="code-prompt">$</span> <span class="code-cmd">claude</span></div>
+        <div class="tool-call" style="margin: 4px 0;">╭──────────────────────────────────╮</div>
+        <div class="tool-call">│  <span style="color:var(--blue);font-weight:700;">Claude Code</span> <span class="muted">v1.0.0</span>           │</div>
+        <div class="tool-call">│  Reading CLAUDE.md...            │</div>
+        <div class="tool-call">╰──────────────────────────────────╯</div>
+        <div style="margin-top: 6px;"><span class="prompt-sign">❯</span> <span class="user-input">이 프로젝트 구조 설명해줘</span></div>
+        <div class="tool-call">  ↳ Read: package.json</div>
+        <div class="tool-call">  ↳ Glob: src/**/*.ts</div>
+        <div class="ai-response" style="margin-top: 4px;">  이 프로젝트는 TypeScript 기반 REST API입니다...</div>
+      </div>
+    </div>
+
+    <!-- Auth -->
+    <p class="label-row">인증 방법</p>
+    <div class="grid-2 mb-24">
+      <div class="card hover">
+        <p style="font-weight: 700; margin-bottom: 6px;">API Key</p>
+        <p class="muted small"><code style="color: var(--blue);">ANTHROPIC_API_KEY</code> 환경변수 — 사용량 기반 과금</p>
+      </div>
+      <div class="card hover">
+        <p style="font-weight: 700; margin-bottom: 6px;">Claude Max 구독</p>
+        <p class="muted small">브라우저 인증 — 월정액 ($100/mo)</p>
+      </div>
+    </div>
+
+    <!-- Permission -->
+    <p class="label-row">Permission 모드</p>
+    <table class="info-table mb-24">
+      <thead><tr><th>모드</th><th>자동 승인</th><th>추천 상황</th></tr></thead>
+      <tbody>
+        <tr><td><code style="color: var(--blue);">default</code></td><td>읽기만</td><td>처음 시작할 때</td></tr>
+        <tr><td><code style="color: var(--blue);">acceptEdits</code></td><td>읽기 + 편집</td><td>코드 작업할 때</td></tr>
+        <tr><td><code style="color: var(--blue);">plan</code></td><td>읽기만 (계획)</td><td>큰 작업 전 탐색</td></tr>
+        <tr><td><code style="color: var(--blue);">auto</code></td><td>전부</td><td>긴 자율 작업</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Slash commands -->
+    <p class="label-row">Slash Commands</p>
+    <div class="cmd-grid">
+      <div class="cmd-badge"><span class="cmd-name">/help</span><span class="cmd-desc">도움말</span></div>
+      <div class="cmd-badge"><span class="cmd-name">/clear</span><span class="cmd-desc">대화 초기화</span></div>
+      <div class="cmd-badge"><span class="cmd-name">/compact</span><span class="cmd-desc">컨텍스트 압축</span></div>
+      <div class="cmd-badge"><span class="cmd-name">/cost</span><span class="cmd-desc">비용 확인</span></div>
+      <div class="cmd-badge"><span class="cmd-name">/config</span><span class="cmd-desc">설정 보기</span></div>
+      <div class="cmd-badge"><span class="cmd-name">/model</span><span class="cmd-desc">모델 전환</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     04 · CLAUDE.md  (Light-break section in variant B)
+     ======================================================== -->
+<section id="claudemd">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">04<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Customize</span>
+        <h2 class="section-title">CLAUDE.md</h2>
+        <p class="section-lead">매 세션마다 자동 로드되는 프로젝트 설명서. 프로젝트가 Global을 override 합니다.</p>
+      </div>
+    </div>
+
+    <!-- Concentric scopes -->
+    <div class="concentric">
+      <div class="concentric-ring" style="width: 320px; height: 320px; border: 1.5px solid #94a3b840; background: rgba(148,163,184,0.05);">
+        <div class="concentric-label" style="top: 10px; left: 50%; transform: translateX(-50%); color: #64748b;">Global · managed settings</div>
+        <div class="concentric-ring" style="width: 220px; height: 220px; border: 1.5px solid rgba(167,139,250,0.6); background: rgba(167,139,250,0.06);">
+          <div class="concentric-label" style="top: 10px; left: 50%; transform: translateX(-50%); color: var(--purple);">User · ~/.claude/</div>
+          <div class="concentric-ring" style="width: 120px; height: 120px; border: 2px solid var(--blue); background: rgba(96,165,250,0.15);">
+            <div style="text-align: center;">
+              <div style="font-weight: 700; font-size: 13px; color: var(--blue);">Project</div>
+              <div class="tiny muted" style="font-family: var(--mono);">./CLAUDE.md</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="muted small" style="text-align: center; margin-bottom: 28px;">안쪽이 바깥을 override — <span style="color: var(--blue); font-weight: 600;">Project</span>가 가장 우선.</p>
+
+    <!-- Example -->
+    <div class="code-block mb-16">
+      <div class="code-chrome">
+        <span class="code-lang">md</span>
+        <span class="code-file">CLAUDE.md</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-comment"># My Project</span></div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment">## Build</span></div>
+        <div><span class="code-cmd">- npm run dev:</span> 개발 서버 시작</div>
+        <div><span class="code-cmd">- npm test:</span> 테스트 실행</div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment">## Rules</span></div>
+        <div>- TypeScript strict mode 사용</div>
+        <div>- 커밋 메시지는 한글로 작성</div>
+      </div>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">AGENTS.md란?</button>
+    <div class="toggle-content">
+      <div class="card accent-left" style="margin-top: 12px;">
+        <p class="mb-8">서브에이전트가 참조하는 전용 지침 파일.</p>
+        <p class="muted small mb-4"><code style="color: var(--blue);">.claude/agents/</code> 폴더에 커스텀 에이전트 정의 가능</p>
+        <p class="muted small">메인 CLAUDE.md와 별도로, 에이전트별 행동 규칙 설정</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     05 · MEMORY  (editorial: wide, full-bleed diagram)
+     ======================================================== -->
+<section id="memory" class="alt">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">05<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Customize</span>
+        <h2 class="section-title">세션이 끝나도<br/>사라지지 않는 기억.</h2>
+        <p class="section-lead">CLAUDE.md가 <em style="color: var(--blue); font-style: normal;">사용자가 작성하는 규칙</em>이라면, Memory는 <em style="color: var(--purple); font-style: normal;">Claude가 스스로 쌓아가는 기억</em>입니다.</p>
+      </div>
+    </div>
+
+    <!-- Flow diagram, wide -->
+    <p class="label-row">동작 방식</p>
+    <div class="diagram-frame mb-32">
+      <div style="display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 16px; align-items: center;">
+        <div style="text-align: center;">
+          <div class="num-tab" style="font-family: var(--serif); font-style: italic; font-size: 44px; color: var(--purple); line-height: 1;">01</div>
+          <p style="font-weight: 700; font-size: 15px; margin: 8px 0 4px;">대화 중 학습</p>
+          <p class="muted small">사용자 정보, 피드백<br>프로젝트 맥락 파악</p>
+        </div>
+        <span class="arrow">→</span>
+        <div style="text-align: center;">
+          <div class="num-tab" style="font-family: var(--serif); font-style: italic; font-size: 44px; color: var(--purple); line-height: 1;">02</div>
+          <p style="font-weight: 700; font-size: 15px; margin: 8px 0 4px;">파일로 저장</p>
+          <p class="muted small">memory/ 폴더에<br>마크다운 파일 생성</p>
+        </div>
+        <span class="arrow">→</span>
+        <div style="text-align: center;">
+          <div class="num-tab" style="font-family: var(--serif); font-style: italic; font-size: 44px; color: var(--purple); line-height: 1;">03</div>
+          <p style="font-weight: 700; font-size: 15px; margin: 8px 0 4px;">다음 세션에 활용</p>
+          <p class="muted small">MEMORY.md 인덱스로<br>관련 기억 자동 참조</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory types -->
+    <p class="label-row">4가지 메모리 유형</p>
+    <div class="grid-2 mb-24">
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span class="badge blue">user</span>
+          <span style="font-weight: 600;">사용자 프로필</span>
+        </div>
+        <p class="muted small">역할, 기술 수준, 선호하는 협업 방식</p>
+        <p class="tiny" style="color: var(--text-dim); margin-top: 8px; font-family: var(--mono);">“나는 데이터 사이언티스트야”</p>
+      </div>
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span class="badge green">feedback</span>
+          <span style="font-weight: 600;">작업 피드백</span>
+        </div>
+        <p class="muted small">교정, 확인된 접근법, 행동 지침</p>
+        <p class="tiny" style="color: var(--text-dim); margin-top: 8px; font-family: var(--mono);">“테스트에서 DB 목킹 하지 마”</p>
+      </div>
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span class="badge amber">project</span>
+          <span style="font-weight: 600;">프로젝트 상황</span>
+        </div>
+        <p class="muted small">진행 중인 작업, 마감일, 의사결정 배경</p>
+        <p class="tiny" style="color: var(--text-dim); margin-top: 8px; font-family: var(--mono);">“4/10부터 코드 프리즈”</p>
+      </div>
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span class="badge purple">reference</span>
+          <span style="font-weight: 600;">외부 참조</span>
+        </div>
+        <p class="muted small">외부 시스템 위치, 대시보드, 문서 링크</p>
+        <p class="tiny" style="color: var(--text-dim); margin-top: 8px; font-family: var(--mono);">“버그는 Linear INGEST 프로젝트에”</p>
+      </div>
+    </div>
+
+    <!-- File structure -->
+    <p class="label-row">저장 구조</p>
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">tree</span>
+        <span class="code-file">~/.claude/projects/&lt;project&gt;/memory/</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-comment"># 프로젝트별 메모리 폴더</span></div>
+        <div>├── <span class="code-string">MEMORY.md</span>           <span class="code-comment"># 인덱스 — 매 세션 자동 로드</span></div>
+        <div>├── <span class="code-cmd">user_role.md</span>          <span class="code-comment"># user: 데이터 사이언티스트</span></div>
+        <div>├── <span class="code-cmd">feedback_testing.md</span>   <span class="code-comment"># feedback: DB 목킹 금지</span></div>
+        <div>├── <span class="code-cmd">project_freeze.md</span>     <span class="code-comment"># project: 코드 프리즈 일정</span></div>
+        <div>└── <span class="code-cmd">reference_linear.md</span>   <span class="code-comment"># reference: Linear 프로젝트</span></div>
+      </div>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">메모리 파일 형식 보기</button>
+    <div class="toggle-content">
+      <div class="code-block" style="margin-top: 12px; margin-bottom: 16px;">
+        <div class="code-chrome">
+          <span class="code-lang">md</span>
+          <span class="code-file">feedback_testing.md</span>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+          <div><span class="code-comment">---</span></div>
+          <div><span class="code-cmd">name:</span> <span class="code-string">DB 목킹 금지</span></div>
+          <div><span class="code-cmd">description:</span> <span class="code-string">테스트에서 실제 DB 사용 필수</span></div>
+          <div><span class="code-cmd">type:</span> <span class="code-string">feedback</span></div>
+          <div><span class="code-comment">---</span></div>
+          <div>&nbsp;</div>
+          <div>통합 테스트에서 DB를 목킹하지 않는다.</div>
+          <div>&nbsp;</div>
+          <div><span class="code-cmd">**Why:**</span> 목킹 테스트가 통과했지만 프로덕션</div>
+          <div>마이그레이션에서 장애 발생한 전례</div>
+          <div>&nbsp;</div>
+          <div><span class="code-cmd">**How to apply:**</span> 테스트 작성 시</div>
+          <div>항상 실제 DB 연결 사용</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory in action -->
+    <p class="label-row">Memory가 동작하는 모습</p>
+    <div class="grid-2 mb-24">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+          <span class="terminal-title">Session 1</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="prompt-sign">❯</span> <span class="user-input">나는 Go 10년차인데 이 프로젝트 React 쪽은 처음이야</span></div>
+          <div class="tool-call">  ↳ Memory: user_expertise.md 저장</div>
+          <div class="success">  ✓ 기억했습니다 — Go 전문가, React 초보</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+          <span class="terminal-title">Session 2 · 다음 날</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="prompt-sign">❯</span> <span class="user-input">이 컴포넌트 구조 설명해줘</span></div>
+          <div class="tool-call">  ↳ Memory: user_expertise.md 참조</div>
+          <div class="ai-response" style="margin-top: 4px;">  React의 useEffect는 Go의 goroutine과 비슷하게</div>
+          <div class="ai-response">  비동기 사이드이펙트를 처리합니다...</div>
+          <div class="success" style="margin-top: 4px;">  ✓ 사용자 배경에 맞춘 설명 제공</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <p class="label-row">CLAUDE.md vs Memory</p>
+    <table class="info-table mb-24">
+      <thead>
+        <tr><th></th><th style="color: var(--blue);">CLAUDE.md</th><th style="color: var(--purple);">Memory</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="muted" style="font-weight: 600;">작성자</td><td>사용자가 직접</td><td>Claude가 자동으로</td></tr>
+        <tr><td class="muted" style="font-weight: 600;">공유 범위</td><td>git으로 팀 공유</td><td>로컬 개인 메모</td></tr>
+        <tr><td class="muted" style="font-weight: 600;">내용</td><td>프로젝트 규칙, 빌드 명령</td><td>사용자 선호, 피드백, 맥락</td></tr>
+        <tr><td class="muted" style="font-weight: 600;">관리</td><td>수동 편집</td><td>대화 중 자동 축적</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card accent-left">
+      <p style="font-weight: 600; margin-bottom: 8px; color: var(--purple);">핵심 인사이트</p>
+      <p class="muted">CLAUDE.md가 <strong style="color: var(--text);">프로젝트의 규칙</strong>이라면, Memory는 <strong style="color: var(--text);">사용자와의 관계</strong>입니다. 함께 일할수록 Claude는 당신의 스타일에 맞게 적응합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     06 · SKILLS
+     ======================================================== -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">06<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Customize</span>
+        <h2 class="section-title">Skills</h2>
+        <p class="section-lead">재사용 가능한 커스텀 <code style="color: var(--blue); font-family: var(--mono);">/명령어</code>.</p>
+      </div>
+    </div>
+
+    <p class="label-row">Skills의 두 가지 형태</p>
+    <div class="grid-2 mb-24">
+      <div>
+        <p style="font-weight: 600; color: var(--blue); margin-bottom: 10px; font-family: var(--mono); font-size: 13px;">① COMMANDS · 간단</p>
+        <div class="code-block">
+          <div class="code-chrome">
+            <span class="code-lang">tree</span>
+            <span class="code-file">.claude/commands/</span>
+          </div>
+          <div class="code-body">
+            <div><span class="code-comment"># 마크다운 파일 하나 = 커맨드 하나</span></div>
+            <div>├── <span class="code-cmd">commit.md</span></div>
+            <div>└── <span class="code-cmd">review.md</span></div>
+            <div>&nbsp;</div>
+            <div><span class="code-comment"># 실행: /commit, /review</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-weight: 600; color: var(--purple); margin-bottom: 10px; font-family: var(--mono); font-size: 13px;">② SKILLS · 고급</p>
+        <div class="code-block">
+          <div class="code-chrome">
+            <span class="code-lang">tree</span>
+            <span class="code-file">.claude/skills/</span>
+          </div>
+          <div class="code-body">
+            <div><span class="code-comment"># 폴더 + SKILL.md = 스킬 하나</span></div>
+            <div>├── <span class="code-cmd">my-reviewer/</span></div>
+            <div>│   ├── <span class="code-string">SKILL.md</span></div>
+            <div>│   └── checklist.md</div>
+            <div>└── <span class="code-cmd">deploy/</span></div>
+            <div>    └── <span class="code-string">SKILL.md</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="label-row">SKILL.md 예시</p>
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">md</span>
+        <span class="code-file">.claude/commands/commit.md</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-comment">---</span></div>
+        <div><span class="code-cmd">name:</span> <span class="code-string">commit</span></div>
+        <div><span class="code-cmd">description:</span> <span class="code-string">변경사항 분석 후 커밋 메시지 자동 생성</span></div>
+        <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash Grep Read</span></div>
+        <div><span class="code-cmd">context:</span> <span class="code-string">fork</span> <span class="code-comment"># 별도 서브에이전트에서 실행</span></div>
+        <div><span class="code-comment">---</span></div>
+        <div>staged changes를 분석하고 conventional commit 형식으로</div>
+        <div>커밋 메시지를 작성해주세요. <span class="code-cmd">$ARGUMENTS</span></div>
+      </div>
+    </div>
+
+    <p class="label-row">실행 예시</p>
+    <div class="terminal mb-24">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">~/my-project</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt-sign">❯</span> <span style="color: var(--blue); font-weight: 600;">/commit</span></div>
+        <div class="tool-call">  ↳ Bash: git diff --staged</div>
+        <div class="tool-call">  ↳ Analyzing changes...</div>
+        <div class="ai-response" style="margin-top: 4px;">  커밋 메시지를 생성했습니다:</div>
+        <div style="margin-top: 4px;"><span class="success">  feat: 사용자 인증 로직에 OAuth2 지원 추가</span></div>
+        <div class="muted" style="margin-top: 4px;">  커밋할까요? (y/n)</div>
+      </div>
+    </div>
+
+    <p class="label-row">Commands vs Skills 비교</p>
+    <table class="info-table mb-20">
+      <thead><tr><th></th><th>Commands</th><th>Skills</th></tr></thead>
+      <tbody>
+        <tr><td class="muted">위치</td><td><code style="color: var(--blue);">.claude/commands/*.md</code></td><td><code style="color: var(--blue);">.claude/skills/*/SKILL.md</code></td></tr>
+        <tr><td class="muted">구조</td><td>마크다운 파일 1개</td><td>폴더 (SKILL.md + 보조 파일)</td></tr>
+        <tr><td class="muted">설정</td><td>frontmatter 선택</td><td>frontmatter 필수 (name, description 등)</td></tr>
+        <tr><td class="muted">적합</td><td>간단한 프롬프트 템플릿</td><td>복잡한 워크플로우, 참조 파일 필요 시</td></tr>
+      </tbody>
+    </table>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">커뮤니티 스킬이란?</button>
+    <div class="toggle-content">
+      <div class="card accent-left" style="margin-top: 12px;">
+        <p class="mb-8">마켓플레이스에서 다른 사용자가 만든 스킬을 검색하고 설치 가능.</p>
+        <p class="muted small">예: /commit-smart, /review-pr, /debug 등 바로 사용 가능한 워크플로우</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     07 · MCP
+     ======================================================== -->
+<section id="mcp" class="alt">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">07<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Extend</span>
+        <h2 class="section-title">MCP</h2>
+        <p class="section-lead">AI가 외부 서비스를 연결하는 표준 프로토콜.</p>
+      </div>
+    </div>
+
+    <!-- Flow -->
+    <div class="flex-row mb-32" style="flex-wrap: nowrap;">
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--blue);">
+        <p style="font-weight: 700;">Claude Code</p>
+        <p class="muted small">에이전트</p>
+      </div>
+      <span class="arrow">↔</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--amber);">
+        <p style="font-weight: 700;">MCP Server</p>
+        <p class="muted small">프로토콜 변환</p>
+      </div>
+      <span class="arrow">↔</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--purple);">
+        <p style="font-weight: 700;">외부 서비스</p>
+        <p class="muted small">GitHub, DB, Slack…</p>
+      </div>
+    </div>
+
+    <!-- Hub + spokes as SVG for cleaner diagram -->
+    <div class="diagram-frame mb-12">
+      <svg viewBox="0 0 560 320" width="100%" style="display:block;max-width:560px;margin:0 auto;" aria-label="MCP 허브와 스포크">
+        <defs>
+          <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <!-- spokes -->
+        <g stroke="#334155" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="280" y1="160" x2="480" y2="160"/>
+          <line x1="280" y1="160" x2="80"  y2="160"/>
+          <line x1="280" y1="160" x2="280" y2="40"/>
+          <line x1="280" y1="160" x2="280" y2="280"/>
+          <line x1="280" y1="160" x2="440" y2="70"/>
+          <line x1="280" y1="160" x2="120" y2="70"/>
+          <line x1="280" y1="160" x2="440" y2="250"/>
+          <line x1="280" y1="160" x2="120" y2="250"/>
+        </g>
+        <!-- hub glow -->
+        <circle cx="280" cy="160" r="60" fill="url(#hubGlow)"/>
+        <circle cx="280" cy="160" r="38" fill="#060913" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="280" y="156" text-anchor="middle" fill="#60a5fa" font-family="Pretendard" font-weight="700" font-size="12">Claude</text>
+        <text x="280" y="170" text-anchor="middle" fill="#60a5fa" font-family="Pretendard" font-weight="700" font-size="12">Code</text>
+        <!-- nodes -->
+        <g font-family="JetBrains Mono" font-size="11" fill="#cbd5e1">
+          <g transform="translate(440,140)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#34d399"/><text x="40" y="22" text-anchor="middle">GitHub</text></g>
+          <g transform="translate(40,140)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#a78bfa"/><text x="40" y="22" text-anchor="middle">Slack</text></g>
+          <g transform="translate(240,16)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#60a5fa"/><text x="40" y="22" text-anchor="middle">Search</text></g>
+          <g transform="translate(240,268)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#fbbf24"/><text x="40" y="22" text-anchor="middle">Postgres</text></g>
+          <g transform="translate(400,44)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#475569"/><text x="40" y="22" text-anchor="middle">Sentry</text></g>
+          <g transform="translate(80,44)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#475569"/><text x="40" y="22" text-anchor="middle">Figma</text></g>
+          <g transform="translate(400,234)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#475569"/><text x="40" y="22" text-anchor="middle">Playwright</text></g>
+          <g transform="translate(80,234)"><rect width="80" height="36" rx="6" fill="#141c2e" stroke="#475569"/><text x="40" y="22" text-anchor="middle">Linear</text></g>
+        </g>
+      </svg>
+    </div>
+    <p class="muted small" style="text-align: center; margin-bottom: 28px;">MCP 서버를 통해 다양한 외부 서비스에 연결</p>
+
+    <!-- Config -->
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">bash</span>
+        <span class="code-file">mcp-add.sh</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-prompt">$</span> <span class="code-cmd">claude mcp add</span> <span class="code-string">github</span> <span class="code-cmd">--transport</span> <span class="code-string">http</span> <span class="code-cmd">--url</span> <span class="code-string">https://api.github.com/mcp</span></div>
+      </div>
+    </div>
+
+    <!-- Popular MCPs -->
+    <p class="label-row">인기 MCP 서버</p>
+    <div class="grid-2 mb-20">
+      <div class="card hover" style="padding: 14px 18px;">
+        <p style="font-weight: 600; margin-bottom: 4px;">Playwright</p>
+        <p class="muted small">브라우저 자동화/테스트</p>
+      </div>
+      <div class="card hover" style="padding: 14px 18px;">
+        <p style="font-weight: 600; margin-bottom: 4px;">PostgreSQL</p>
+        <p class="muted small">DB 조회/마이그레이션</p>
+      </div>
+      <div class="card hover" style="padding: 14px 18px;">
+        <p style="font-weight: 600; margin-bottom: 4px;">Slack</p>
+        <p class="muted small">메시지 전송/채널 관리</p>
+      </div>
+      <div class="card hover" style="padding: 14px 18px;">
+        <p style="font-weight: 600; margin-bottom: 4px;">Web Search</p>
+        <p class="muted small">웹 검색 결과 활용</p>
+      </div>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">연구자를 위한 활용 예시</button>
+    <div class="toggle-content">
+      <div class="card accent-left" style="margin-top: 12px;">
+        <p class="mb-8">• 논문 데이터베이스 조회 — PubMed, arXiv 검색 자동화</p>
+        <p class="mb-8">• 실험 결과 시각화 — matplotlib/plotly 그래프 자동 생성</p>
+        <p>• 서버 데이터 직접 접근 — SSH를 통한 원격 서버 조작</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     08 · HOOKS
+     ======================================================== -->
+<section id="hooks">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">08<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Automate</span>
+        <h2 class="section-title">Hooks</h2>
+        <p class="section-lead">이벤트 발생 시 자동 실행되는 명령. 도구 실행 앞뒤로 검증·포맷팅·알림을 꽂아넣습니다.</p>
+      </div>
+    </div>
+
+    <!-- PreToolUse / Tool / PostToolUse -->
+    <div class="flex-row mb-24" style="flex-wrap: nowrap;">
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--amber);">
+        <p style="font-weight: 600; margin-bottom: 6px;">PreToolUse</p>
+        <span class="badge amber">차단 가능</span>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--blue);">
+        <p style="font-weight: 600;">도구 실행</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="flex: 1; text-align: center; border-color: var(--green);">
+        <p style="font-weight: 600; margin-bottom: 6px;">PostToolUse</p>
+        <span class="badge green">후처리</span>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <p class="label-row">세션 라이프사이클에서 Hook 발동 시점</p>
+    <div class="timeline mb-24">
+      <div class="timeline-item hook-point">
+        <p style="font-weight: 600; color: var(--amber); font-size: 14px;">SessionStart</p>
+        <p class="muted small">환경 로드, 컨텍스트 주입</p>
+      </div>
+      <div class="timeline-item">
+        <p style="font-weight: 600;">사용자 프롬프트 입력</p>
+      </div>
+      <div class="timeline-item hook-point">
+        <p style="font-weight: 600; color: var(--amber); font-size: 14px;">PreToolUse</p>
+        <p class="muted small">도구 실행 전 검증 · 차단 가능</p>
+      </div>
+      <div class="timeline-item">
+        <p style="font-weight: 600;">도구 실행 (Read, Edit, Bash…)</p>
+      </div>
+      <div class="timeline-item hook-point">
+        <p style="font-weight: 600; color: var(--amber); font-size: 14px;">PostToolUse</p>
+        <p class="muted small">자동 포맷팅, 린트, 로깅</p>
+      </div>
+      <div class="timeline-item">
+        <p style="font-weight: 600;">Claude 응답 생성</p>
+      </div>
+      <div class="timeline-item hook-point">
+        <p style="font-weight: 600; color: var(--amber); font-size: 14px;">Notification</p>
+        <p class="muted small">입력 대기 시 데스크톱 알림</p>
+      </div>
+    </div>
+
+    <!-- Hook types -->
+    <table class="info-table mb-24">
+      <thead><tr><th>Hook</th><th>시점</th><th>활용 예시</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color: var(--amber);">PreToolUse</span></td><td>도구 실행 전</td><td>위험한 명령 차단</td></tr>
+        <tr><td><span style="color: var(--green);">PostToolUse</span></td><td>도구 실행 후</td><td>자동 포맷팅, 린트</td></tr>
+        <tr><td><span style="color: var(--blue);">Notification</span></td><td>입력 대기 시</td><td>데스크톱 알림</td></tr>
+        <tr><td><span style="color: var(--purple);">SessionStart</span></td><td>세션 시작 시</td><td>환경 변수 로드</td></tr>
+      </tbody>
+    </table>
+
+    <!-- JSON example -->
+    <div class="code-block mb-8">
+      <div class="code-chrome">
+        <span class="code-lang">json</span>
+        <span class="code-file">.claude/settings.json</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div>{</div>
+        <div>&nbsp; <span class="code-cmd">"hooks"</span>: {</div>
+        <div>&nbsp;&nbsp;&nbsp; <span class="code-cmd">"PostToolUse"</span>: [{</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-cmd">"matcher"</span>: <span class="code-string">"Edit|Write"</span>,</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-cmd">"hooks"</span>: [{ <span class="code-cmd">"type"</span>: <span class="code-string">"command"</span>, <span class="code-cmd">"command"</span>: <span class="code-string">"prettier --write $FILE"</span> }]</div>
+        <div>&nbsp;&nbsp;&nbsp; }]</div>
+        <div>&nbsp; }</div>
+        <div>}</div>
+      </div>
+    </div>
+    <p class="muted tiny" style="margin-bottom: 28px;">설정 위치: <code>~/.claude/settings.json</code> 또는 <code>.claude/settings.json</code></p>
+
+    <!-- Real examples -->
+    <p class="label-row">실제 사용 예시 (현재 설정에서 발췌)</p>
+
+    <div class="terminal mb-12">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">예시 1 · 위험 명령 차단기</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt-sign">❯</span> <span class="user-input">node_modules 다 지워줘</span></div>
+        <div class="tool-call">  ↳ Bash: rm -rf node_modules/</div>
+        <div style="color: var(--rose); font-weight: 600; margin-top: 6px;">  🛑 BLOCKED: Critical path protection!</div>
+        <div class="muted tiny" style="margin-top: 2px;">  Protected resource: Node.js dependencies</div>
+        <div class="muted tiny">  This path contains critical project files.</div>
+      </div>
+    </div>
+    <div class="card accent-left mb-24" style="padding: 14px 18px;">
+      <p class="small" style="margin-bottom: 4px;"><strong>Hook:</strong> PreToolUse → Bash 명령 감지 → <code>dangerous-command-blocker.py</code> 실행</p>
+      <p class="muted small">rm -rf /, .git, .claude, .env 등 위험 경로를 패턴 매칭으로 자동 차단 (exit 2 = 차단)</p>
+    </div>
+
+    <div class="terminal mb-12">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">예시 2 · 시크릿 유출 방지</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt-sign">❯</span> <span class="user-input">변경사항 커밋해줘</span></div>
+        <div class="tool-call">  ↳ Bash: git add -A &amp;&amp; git commit -m "feat: add API"</div>
+        <div style="color: var(--rose); font-weight: 600; margin-top: 6px;">  🚨 SECRET SCANNER: Potential secrets detected!</div>
+        <div class="muted tiny" style="margin-top: 2px;">  🟠 Anthropic API Key</div>
+        <div class="muted tiny">     File: config.py:12</div>
+        <div class="muted tiny">     Match: sk-ant-api03-...</div>
+        <div style="color: var(--rose); font-size: 11px; margin-top: 4px;">  ❌ COMMIT BLOCKED: Remove secrets before committing</div>
+      </div>
+    </div>
+    <div class="card accent-left" style="padding: 14px 18px;">
+      <p class="small" style="margin-bottom: 4px;"><strong>Hook:</strong> PreToolUse → git commit 감지 → <code>secret-scanner.py</code> 실행</p>
+      <p class="muted small">AWS, OpenAI, Stripe, GitHub 등 40개+ API 키 패턴을 정규식으로 스캔, 발견 시 커밋 차단</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     09 · AGENT
+     ======================================================== -->
+<section id="agent" class="alt">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">09<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Orchestrate</span>
+        <h2 class="section-title">Agent &amp; Multi-Agent</h2>
+        <p class="section-lead">Claude가 하위 에이전트를 만들어 병렬 작업.</p>
+      </div>
+    </div>
+
+    <p class="label-row">커스텀 에이전트 만들기</p>
+    <div class="grid-2 mb-24">
+      <div>
+        <p style="font-weight: 600; color: var(--blue); margin-bottom: 10px; font-family: var(--mono); font-size: 13px;">폴더 구조</p>
+        <div class="code-block">
+          <div class="code-chrome">
+            <span class="code-lang">tree</span>
+            <span class="code-file">.claude/agents/</span>
+          </div>
+          <div class="code-body">
+            <div>├── <span class="code-cmd">code-reviewer.md</span></div>
+            <div>├── <span class="code-cmd">debugger.md</span></div>
+            <div>└── <span class="code-cmd">test-automator.md</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-weight: 600; color: var(--purple); margin-bottom: 10px; font-family: var(--mono); font-size: 13px;">AGENT.md 예시</p>
+        <div class="code-block">
+          <div class="code-chrome">
+            <span class="code-lang">md</span>
+            <span class="code-file">code-reviewer.md</span>
+          </div>
+          <div class="code-body">
+            <div><span class="code-comment">---</span></div>
+            <div><span class="code-cmd">name:</span> <span class="code-string">code-reviewer</span></div>
+            <div><span class="code-cmd">description:</span> <span class="code-string">코드 리뷰 전문가</span></div>
+            <div><span class="code-cmd">tools:</span> <span class="code-string">Read Grep Bash</span></div>
+            <div><span class="code-cmd">model:</span> <span class="code-string">opus</span></div>
+            <div><span class="code-comment">---</span></div>
+            <div>보안, 성능, 유지보수성을</div>
+            <div>종합적으로 검토하세요.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card accent-left mb-24" style="padding: 14px 18px;">
+      <p class="small"><strong>자동 위임:</strong> Claude가 요청 내용과 에이전트의 description을 매칭하여 자동으로 적합한 에이전트에게 작업을 위임합니다.</p>
+    </div>
+
+    <!-- Worktree diagram -->
+    <p class="label-row">Worktree로 병렬 에이전트 돌리기</p>
+    <div class="diagram-frame mb-24">
+      <div class="worktree">
+        <div class="branch-node" style="border-color: var(--line-2);">main branch</div>
+        <svg width="320" height="28" viewBox="0 0 320 28" aria-hidden="true">
+          <path d="M160 0 L60 28" stroke="#475569" stroke-width="1" fill="none"/>
+          <path d="M160 0 L260 28" stroke="#475569" stroke-width="1" fill="none"/>
+        </svg>
+        <div class="branch-pair">
+          <div class="card" style="border-color: var(--green); text-align: center;">
+            <p style="font-weight: 700; margin-bottom: 4px;">Worktree A</p>
+            <p class="muted small">Agent 1 · 프론트엔드</p>
+          </div>
+          <div class="card" style="border-color: var(--blue); text-align: center;">
+            <p style="font-weight: 700; margin-bottom: 4px;">Worktree B</p>
+            <p class="muted small">Agent 2 · 백엔드</p>
+          </div>
+        </div>
+        <span class="arrow" style="font-size: 20px;">↓</span>
+        <div class="branch-node" style="border-color: var(--amber);">결과 병합</div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <table class="info-table mb-20">
+      <thead><tr><th>항목</th><th>Subagent</th><th>Agent Teams</th></tr></thead>
+      <tbody>
+        <tr><td class="muted">컨텍스트</td><td>자체 윈도우, 요약 반환</td><td>완전 독립 세션</td></tr>
+        <tr><td class="muted">통신</td><td>호출자에게만 보고</td><td>에이전트 간 직접 메시지</td></tr>
+        <tr><td class="muted">조율</td><td>메인 에이전트가 관리</td><td>공유 태스크 리스트</td></tr>
+        <tr><td class="muted">적합</td><td>집중된 단일 작업</td><td>복잡한 다각도 작업</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card accent-left mb-20" style="padding: 16px 18px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <p style="font-weight: 600; margin: 0;">Agent Teams</p>
+        <span class="badge amber">Experimental</span>
+      </div>
+      <p class="mb-8">• 환경변수 <code style="color: var(--blue);">CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 로 활성화</p>
+      <p class="mb-8">• 여러 Claude 인스턴스가 팀으로 협업</p>
+      <p>• tmux/iTerm2에서 분할 패널로 동시 관찰 가능</p>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">Headless / SDK 활용</button>
+    <div class="toggle-content">
+      <div class="card accent-left" style="margin-top: 12px;">
+        <p class="mb-8">• <code style="color: var(--blue);">claude -p "프롬프트"</code>: 비대화형 실행 (스크립트, CI 파이프라인용)</p>
+        <p class="mb-8">• Claude Agent SDK: 커스텀 에이전트 애플리케이션 구축</p>
+        <p>• 출력 포맷: <code style="color: var(--amber);">--output-format text|json|stream-json</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     10 · PLUGINS
+     ======================================================== -->
+<section id="plugins">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">10<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Extend</span>
+        <h2 class="section-title">Plugins</h2>
+        <p class="section-lead">Skills, Hooks, MCP, Agent를 패키지로 묶어 설치하고 공유.</p>
+      </div>
+    </div>
+
+    <div class="card accent-left mb-24">
+      <p style="font-weight: 600; margin-bottom: 8px;">Plugin = 확장 패키지</p>
+      <p class="muted">Skills, Hooks, Agent, MCP 서버를 하나로 묶은 재사용 가능한 패키지. 마켓플레이스를 통해 설치하고 팀 간 공유할 수 있습니다.</p>
+    </div>
+
+    <table class="info-table mb-24">
+      <thead><tr><th>구성 요소</th><th>범위</th><th>공유 방식</th></tr></thead>
+      <tbody>
+        <tr><td style="color: var(--amber); font-weight: 600;">Plugin</td><td>여러 기능을 하나로 묶음</td><td>마켓플레이스로 배포</td></tr>
+        <tr><td>Skill</td><td>단일 커스텀 명령어</td><td><code>.claude/commands/</code> (프로젝트별)</td></tr>
+        <tr><td>MCP</td><td>외부 서비스 연결</td><td>settings.json 설정</td></tr>
+        <tr><td>Hook</td><td>이벤트 자동화</td><td>settings.json 설정</td></tr>
+      </tbody>
+    </table>
+
+    <p class="label-row">설치 방법</p>
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">bash</span>
+        <span class="code-file">plugin.sh</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-comment"># 마켓플레이스 추가</span></div>
+        <div><span class="code-prompt">$</span> <span class="code-cmd">/plugin marketplace add</span> <span class="code-string">source</span></div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment"># 플러그인 설치</span></div>
+        <div><span class="code-prompt">$</span> <span class="code-cmd">/plugin install</span> <span class="code-string">name@marketplace</span></div>
+        <div>&nbsp;</div>
+        <div><span class="code-comment"># 플러그인 관리 UI</span></div>
+        <div><span class="code-prompt">$</span> <span class="code-cmd">/plugin</span></div>
+      </div>
+    </div>
+
+    <p class="label-row">공식 마켓플레이스 주요 플러그인</p>
+    <div class="grid-2 mb-24">
+      <div class="card hover">
+        <p style="font-weight: 600; margin-bottom: 4px;">Code Intelligence</p>
+        <p class="muted small">Python, TypeScript, Go 등 LSP 기반 코드 분석</p>
+      </div>
+      <div class="card hover">
+        <p style="font-weight: 600; margin-bottom: 4px;">GitHub / GitLab</p>
+        <p class="muted small">PR, 이슈, CI/CD 통합</p>
+      </div>
+      <div class="card hover">
+        <p style="font-weight: 600; margin-bottom: 4px;">Figma / Slack / Sentry</p>
+        <p class="muted small">디자인, 커뮤니케이션, 모니터링 연동</p>
+      </div>
+      <div class="card hover">
+        <p style="font-weight: 600; margin-bottom: 4px;">커뮤니티 플러그인</p>
+        <p class="muted small">superpowers, octopus 등 워크플로우 확장</p>
+      </div>
+    </div>
+
+    <button class="toggle-btn" onclick="toggleSection(this)">settings.json 설정 예시</button>
+    <div class="toggle-content">
+      <div class="code-block" style="margin-top: 12px;">
+        <div class="code-chrome">
+          <span class="code-lang">json</span>
+          <span class="code-file">settings.json</span>
+          <button class="code-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <div class="code-body">
+          <div>{</div>
+          <div>&nbsp;&nbsp;<span class="code-cmd">"enabledPlugins"</span>: {</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"code-intel@official"</span>: <span class="code-kw">true</span>,</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">"github@official"</span>: <span class="code-kw">true</span></div>
+          <div>&nbsp;&nbsp;}</div>
+          <div>}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     11 · HARNESS (wide, the centerpiece)
+     ======================================================== -->
+<section id="harness" class="alt">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-index">11<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Putting it all together</span>
+        <h2 class="section-title">하네스 엔지니어링.</h2>
+        <p class="section-lead">코드를 쓰는 것이 아니라, AI가 코드를 잘 쓰도록 <em style="color: var(--green); font-style: normal;">환경을 설계</em>하는 것.</p>
+      </div>
+    </div>
+
+    <div class="card accent-left mb-32">
+      <p style="font-weight: 600; margin-bottom: 8px;">하네스(Harness)란?</p>
+      <p class="muted">Claude Code를 둘러싼 모든 설정의 총체입니다. CLAUDE.md, Skills, MCP, Hooks, Agents, Plugins — 이것들을 조합하여 AI가 <strong style="color: var(--text);">내 프로젝트에 맞게</strong> 동작하도록 설계하는 것이 하네스 엔지니어링입니다.</p>
+    </div>
+
+    <!-- Harness composition -->
+    <p class="label-row">하네스 구성 요소</p>
+    <div class="diagram-frame mb-32">
+      <div class="chip-row">
+        <div class="harness-chip" style="--chip-color: var(--blue);"><div class="name">CLAUDE.md</div><div class="role">지침</div></div>
+        <span class="chip-plus">+</span>
+        <div class="harness-chip" style="--chip-color: var(--blue);"><div class="name">Skills</div><div class="role">워크플로우</div></div>
+        <span class="chip-plus">+</span>
+        <div class="harness-chip" style="--chip-color: var(--amber);"><div class="name">MCP</div><div class="role">외부 연결</div></div>
+        <span class="chip-plus">+</span>
+        <div class="harness-chip" style="--chip-color: var(--amber);"><div class="name">Hooks</div><div class="role">자동화</div></div>
+        <span class="chip-plus">+</span>
+        <div class="harness-chip" style="--chip-color: var(--purple);"><div class="name">Agents</div><div class="role">위임</div></div>
+        <span class="chip-plus">+</span>
+        <div class="harness-chip" style="--chip-color: var(--purple);"><div class="name">Plugins</div><div class="role">패키지</div></div>
+        <span class="chip-plus">=</span>
+        <div class="harness-chip" style="--chip-color: var(--green); border-width: 2px;"><div class="name" style="font-size: 15px;">Harness</div><div class="role">나만의 AI 환경</div></div>
+      </div>
+    </div>
+
+    <!-- Paradigm shift -->
+    <p class="label-row">패러다임의 전환</p>
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; margin-bottom: 24px;">
+      <div class="card" style="text-align: center; border-color: var(--line-2);">
+        <p class="tiny muted" style="margin-bottom: 4px; font-family: var(--mono); letter-spacing: 0.12em; text-transform: uppercase;">과거</p>
+        <p style="font-weight: 700; font-size: 16px;">"내가 코드를<br/>직접 쓰는 것"</p>
+        <p class="muted small" style="margin-top: 8px;">문법, 프레임워크<br/>디버깅 스킬</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="text-align: center; border-color: var(--amber);">
+        <p class="tiny" style="color: var(--amber); margin-bottom: 4px; font-family: var(--mono); letter-spacing: 0.12em; text-transform: uppercase;">현재</p>
+        <p style="font-weight: 700; font-size: 16px;">"AI에게 잘<br/>지시하는 것"</p>
+        <p class="muted small" style="margin-top: 8px;">프롬프트 엔지니어링<br/>컨텍스트 설계</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="card" style="text-align: center; border-color: var(--green);">
+        <p class="tiny" style="color: var(--green); margin-bottom: 4px; font-family: var(--mono); letter-spacing: 0.12em; text-transform: uppercase;">다음</p>
+        <p style="font-weight: 700; font-size: 16px;">"AI가 잘 작동하는<br/>환경을 설계하는 것"</p>
+        <p class="muted small" style="margin-top: 8px;">하네스 엔지니어링<br/>자동화, 도구, 안전장치</p>
+      </div>
+    </div>
+
+    <div class="card accent-left mb-32" style="padding: 16px 20px;">
+      <p class="muted"><strong style="color: var(--amber);">프롬프트 엔지니어링</strong>은 "이번 대화에서 어떻게 지시할까"에 집중합니다. <strong style="color: var(--green);">하네스 엔지니어링</strong>은 한 단계 더 나아가, 매번 좋은 프롬프트를 치지 않아도 AI가 알아서 잘 동작하도록 <strong style="color: var(--text);">환경 자체를 설계</strong>합니다.</p>
+    </div>
+
+    <!-- 3 principles -->
+    <p class="label-row">좋은 하네스의 3원칙</p>
+    <div class="grid-3 mb-32">
+      <div class="card hover" style="text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">1</div>
+        <p style="font-weight: 700; color: var(--blue); margin-bottom: 6px;">반복 제거</p>
+        <p class="muted small">매번 같은 지시를 반복하지 않도록<br/>CLAUDE.md와 Skills로 고정</p>
+      </div>
+      <div class="card hover" style="text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--amber-soft); color: var(--amber); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">2</div>
+        <p style="font-weight: 700; color: var(--amber); margin-bottom: 6px;">안전장치</p>
+        <p class="muted small">위험한 명령 차단, 시크릿 유출 방지<br/>Hooks로 자동화된 가드레일</p>
+      </div>
+      <div class="card hover" style="text-align: center;">
+        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--purple-soft); color: var(--purple); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">3</div>
+        <p style="font-weight: 700; color: var(--purple); margin-bottom: 6px;">팀 공유</p>
+        <p class="muted small">프로젝트 .claude/ 폴더를 git에 커밋<br/>팀 전체가 같은 하네스 사용</p>
+      </div>
+    </div>
+
+    <!-- File tree -->
+    <p class="label-row">실제 하네스 구성 예시</p>
+    <div class="code-block mb-24">
+      <div class="code-chrome">
+        <span class="code-lang">tree</span>
+        <span class="code-file">project/.claude/</span>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="code-body">
+        <div><span class="code-comment"># 프로젝트 루트의 .claude/ 폴더</span></div>
+        <div>├── <span class="code-string">CLAUDE.md</span>          <span class="code-comment"># 프로젝트 규칙, 빌드 명령</span></div>
+        <div>├── <span class="code-string">settings.json</span>      <span class="code-comment"># hooks, MCP 서버 설정</span></div>
+        <div>├── commands/              <span class="code-comment"># 커스텀 슬래시 커맨드</span></div>
+        <div>│   ├── <span class="code-cmd">commit.md</span></div>
+        <div>│   └── <span class="code-cmd">review.md</span></div>
+        <div>├── skills/                <span class="code-comment"># 고급 스킬</span></div>
+        <div>│   └── deploy/</div>
+        <div>│       └── <span class="code-cmd">SKILL.md</span></div>
+        <div>└── agents/                <span class="code-comment"># 커스텀 에이전트</span></div>
+        <div>    ├── <span class="code-cmd">code-reviewer.md</span></div>
+        <div>    └── <span class="code-cmd">debugger.md</span></div>
+      </div>
+    </div>
+
+    <p class="label-row">하네스가 동작하는 모습</p>
+    <div class="terminal mb-24">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">~/my-research-project</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="code-prompt">$</span> <span class="code-cmd">claude</span></div>
+        <div class="muted tiny">  Reading CLAUDE.md...                  <span class="code-comment">← 프로젝트 규칙 로드</span></div>
+        <div class="muted tiny">  Loading 3 MCP servers...              <span class="code-comment">← 외부 도구 연결</span></div>
+        <div class="muted tiny">  Loading 2 custom agents...            <span class="code-comment">← 에이전트 준비</span></div>
+        <div class="muted tiny">  SessionStart hooks executed...         <span class="code-comment">← 자동화 실행</span></div>
+        <div style="margin-top: 8px;"><span class="prompt-sign">❯</span> <span class="user-input">실험 데이터 분석하고 결과 시각화해줘</span></div>
+        <div class="tool-call">  ↳ MCP: PostgreSQL 쿼리로 데이터 조회</div>
+        <div class="tool-call">  ↳ Agent: code-reviewer가 분석 코드 검증</div>
+        <div class="tool-call">  ↳ Write: plot.py 생성</div>
+        <div class="tool-call">  ↳ Bash: python plot.py</div>
+        <div class="tool-call">  ↳ Hook: PostToolUse → 코드 포맷팅 자동 실행</div>
+        <div class="success" style="margin-top: 4px;">  ✓ results/ 폴더에 분석 결과 + 시각화 저장 완료</div>
+        <div style="margin-top: 8px;"><span class="prompt-sign">❯</span> <span style="color: var(--blue); font-weight: 600;">/commit</span></div>
+        <div class="tool-call">  ↳ Skill: 변경사항 분석 → 커밋 메시지 생성</div>
+        <div class="tool-call">  ↳ Hook: PreToolUse → 시크릿 스캔 통과 ✓</div>
+        <div class="success">  ✓ feat: 실험 데이터 분석 및 시각화 추가</div>
+      </div>
+    </div>
+
+    <div class="card accent-left">
+      <p style="font-weight: 600; margin-bottom: 8px; color: var(--green);">핵심 인사이트</p>
+      <p class="muted mb-8">하네스 엔지니어링의 목표는 <strong style="color: var(--text);">"claude 하나만 치면 모든 것이 준비되는 환경"</strong>을 만드는 것입니다.</p>
+      <p class="muted">한 번 잘 설계해두면, AI는 매번 프로젝트 규칙을 알고, 안전장치 안에서 작동하며, 필요한 도구에 접근하고, 반복 작업을 자동으로 처리합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     12 · WRAP UP
+     ======================================================== -->
+<section id="wrapup">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-index">12<span class="slash">/</span><span class="total">12</span></div>
+      <div>
+        <span class="section-tag">Wrap up</span>
+        <h2 class="section-title">어디서부터 시작할까?</h2>
+        <p class="section-lead">한 단계씩 쌓아갑니다. 가장 큰 레버는 맨 아래에 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- Staircase -->
+    <div class="staircase mb-24" aria-label="학습 경로">
+      <div class="stair-bar" style="height: 56px; background: var(--green);"><span>바이브<br/>코딩</span></div>
+      <div class="stair-bar" style="height: 76px; background: var(--green);"><span>Claude<br/>Code</span></div>
+      <div class="stair-bar" style="height: 96px; background: var(--blue);"><span>설치</span></div>
+      <div class="stair-bar" style="height: 116px; background: var(--blue);"><span>CLAUDE<br/>.md</span></div>
+      <div class="stair-bar" style="height: 136px; background: var(--amber);"><span>Hooks</span></div>
+      <div class="stair-bar" style="height: 156px; background: var(--amber);"><span>Skills</span></div>
+      <div class="stair-bar" style="height: 176px; background: var(--purple);"><span>MCP</span></div>
+      <div class="stair-bar" style="height: 196px; background: var(--purple);"><span>Agent</span></div>
+    </div>
+
+    <div class="card accent-left mb-24">
+      <p style="font-weight: 700; margin-bottom: 12px;">첫 걸음: 내 프로젝트에서 Claude 실행하기</p>
+      <div class="code-block" style="margin: 0;">
+        <div class="code-body">
+          <div><span class="code-prompt">$</span> <span class="code-cmd">cd</span> <span class="code-string">~/my-project</span> &amp;&amp; <span class="code-cmd">claude</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-32">
+      <a href="https://docs.anthropic.com/claude-code" target="_blank" rel="noopener">
+        <div class="card hover">
+          <p style="font-weight: 600; margin-bottom: 4px;">공식 문서 <span class="muted small">↗</span></p>
+          <p class="muted small">docs.anthropic.com/claude-code</p>
+        </div>
+      </a>
+      <div class="card hover">
+        <p style="font-weight: 600; margin-bottom: 4px;">Claude Code Tips</p>
+        <p class="muted small">커뮤니티 팁 모음</p>
+      </div>
+    </div>
+
+    <p style="font-family: var(--serif); font-style: italic; font-size: 32px; color: var(--text-2); text-align: center; letter-spacing: -0.02em;">질문이 있으신가요?</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  Vibe Coding with Claude Code · Research Onboarding · ∞
+</footer>
+
+<!-- ========================================================
+     TWEAKS PANEL
+     ======================================================== -->
+<div id="tweaks" role="dialog" aria-label="Tweaks">
+  <header>
+    <span>Tweaks</span>
+    <button id="tw-close" aria-label="close" style="color: var(--text-sub); font-size: 16px;">×</button>
+  </header>
+  <div class="tw-body">
+    <div class="tw-row">
+      <div class="label">Variant</div>
+      <div class="seg" id="seg-variant">
+        <button data-v="refined">A · Refined</button>
+        <button data-v="editorial" class="active">B · Editorial</button>
+      </div>
+    </div>
+    <div class="tw-row">
+      <div class="label">Accent mix</div>
+      <div class="seg" id="seg-accent">
+        <button data-a="full" class="active">Full</button>
+        <button data-a="blue">Blue only</button>
+      </div>
+    </div>
+    <div class="tw-row">
+      <div class="label">Reading width</div>
+      <div class="seg" id="seg-width">
+        <button data-w="comfortable" class="active">Comfortable</button>
+        <button data-w="compact">Compact</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tweak-affecting runtime styles -->
+<style id="tweaks-style"></style>
+
+<script>
+// =========================================================
+//  TWEAK DEFAULTS (persisted via __edit_mode_set_keys)
+// =========================================================
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "variant": "editorial",
+  "accent": "full",
+  "width": "comfortable"
+}/*EDITMODE-END*/;
+
+let state = Object.assign({}, TWEAK_DEFAULTS);
+
+function applyState() {
+  document.body.setAttribute('data-variant', state.variant);
+  const s = document.getElementById('tweaks-style');
+  let css = '';
+  if (state.accent === 'blue') {
+    css += `
+      #intro, #claudemd, #skills, #wrapup { --accent: var(--blue); --accent-soft: var(--blue-soft); }
+      #about, #start, #memory, #mcp, #hooks, #agent, #plugins, #harness { --accent: var(--blue); --accent-soft: var(--blue-soft); }
+    `;
+  }
+  if (state.width === 'compact') {
+    css += `:root { --measure: 640px; --measure-wide: 860px; --measure-ultra: 1040px; }`;
+  }
+  s.textContent = css;
+
+  // Reflect in panel
+  document.querySelectorAll('#seg-variant button').forEach(b => b.classList.toggle('active', b.dataset.v === state.variant));
+  document.querySelectorAll('#seg-accent button').forEach(b => b.classList.toggle('active', b.dataset.a === state.accent));
+  document.querySelectorAll('#seg-width button').forEach(b => b.classList.toggle('active', b.dataset.w === state.width));
+}
+
+// Edit mode protocol
+window.addEventListener('message', (e) => {
+  const d = e.data || {};
+  if (d.type === '__activate_edit_mode') {
+    document.getElementById('tweaks').classList.add('visible');
+  } else if (d.type === '__deactivate_edit_mode') {
+    document.getElementById('tweaks').classList.remove('visible');
+  }
+});
+try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+
+function persist(partial) {
+  Object.assign(state, partial);
+  applyState();
+  try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: partial }, '*'); } catch (e) {}
+}
+
+document.getElementById('seg-variant').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  persist({ variant: b.dataset.v });
+});
+document.getElementById('seg-accent').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  persist({ accent: b.dataset.a });
+});
+document.getElementById('seg-width').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  persist({ width: b.dataset.w });
+});
+document.getElementById('tw-close').addEventListener('click', () => {
+  document.getElementById('tweaks').classList.remove('visible');
+});
+
+applyState();
+
+// =========================================================
+//  PROGRESS BAR
+// =========================================================
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = total > 0 ? (scrolled / total) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}, { passive: true });
+
+// =========================================================
+//  SCROLL-SPY + VISITED MARK
+// =========================================================
+const navLinks = document.querySelectorAll('.nav-links a');
+const visited = new Set();
+
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) {
+      const id = en.target.getAttribute('id');
+      visited.add(id);
+      navLinks.forEach((l) => {
+        const href = l.getAttribute('href');
+        l.classList.toggle('active', href === '#' + id);
+        if (visited.has(href.slice(1))) l.classList.add('visited');
+      });
+    }
+  });
+}, { root: null, rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+
+document.querySelectorAll('section[id]').forEach((s) => obs.observe(s));
+
+// =========================================================
+//  MOBILE NAV DRAWER
+// =========================================================
+const navToggle = document.getElementById('nav-toggle');
+const navUl = document.getElementById('nav-links');
+navToggle.addEventListener('click', () => {
+  const open = navUl.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+navUl.addEventListener('click', (e) => {
+  if (e.target.tagName === 'A') navUl.classList.remove('open');
+});
+
+// =========================================================
+//  TOGGLE (expandable cards)
+// =========================================================
+function toggleSection(btn) {
+  const content = btn.nextElementSibling;
+  const open = content.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+// =========================================================
+//  COPY BUTTONS
+// =========================================================
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const text = block.querySelector('.code-body').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => {});
+}
+
+// =========================================================
+//  SCROLL-REVEAL
+// =========================================================
+const reveal = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    if (en.isIntersecting) {
+      en.target.classList.add('in');
+      reveal.unobserve(en.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('section .card, section .terminal, section .code-block, section .diagram-frame, section table.info-table')
+  .forEach((el) => { el.classList.add('reveal'); reveal.observe(el); });
+</script>
+
+</body>
+</html>
