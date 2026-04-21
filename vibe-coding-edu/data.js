@@ -261,6 +261,46 @@ $ claude
         {
           heading: "Memory — Claude가 스스로 쌓는 기억",
           body: "CLAUDE.md가 '사용자가 작성하는 규칙'이라면, Memory는 'Claude가 스스로 쌓아가는 기억'이다. 대화 중 파악한 사용자 역할, 선호도, 프로젝트 맥락을 파일로 저장하여 다음 세션에서도 기억한다.",
+          compare: {
+            before: {
+              label: "CLAUDE.md (사용자 작성)",
+              lines: [
+                "• 작성자: 사용자가 직접",
+                "• 공유: git으로 팀 공유",
+                "• 내용: 프로젝트 규칙, 빌드 명령",
+                "• 관리: 수동 편집",
+              ],
+            },
+            after: {
+              label: "Memory (Claude 자동 축적)",
+              lines: [
+                "• 작성자: Claude가 자동으로",
+                "• 공유: 로컬 개인 메모",
+                "• 내용: 사용자 선호, 피드백, 맥락",
+                "• 관리: 대화 중 자동 축적",
+              ],
+            },
+          },
+          code: `# 프로젝트별 메모리 폴더
+~/.claude/projects/<project>/memory/
+├── MEMORY.md              # 인덱스 — 매 세션 자동 로드
+├── user_role.md           # user: 데이터 사이언티스트
+├── feedback_testing.md    # feedback: DB 목킹 금지
+├── project_freeze.md      # project: 코드 프리즈 일정
+└── reference_linear.md    # reference: Linear 프로젝트
+
+# 메모리 파일 형식 — feedback_testing.md
+---
+name: DB 목킹 금지
+description: 테스트에서 실제 DB 사용 필수
+type: feedback
+---
+통합 테스트에서 DB를 목킹하지 않는다.
+
+**Why:** 목킹 테스트가 통과했지만 프로덕션
+마이그레이션에서 장애 발생한 전례
+
+**How to apply:** 테스트 작성 시 항상 실제 DB 연결 사용`,
           patterns: [
             { name: "user", body: "사용자 프로필 — 역할, 기술 수준, 선호하는 협업 방식. 예) '나는 데이터 사이언티스트야'" },
             { name: "feedback", body: "작업 피드백 — 교정, 확인된 접근법, 행동 지침. 예) '테스트에서 DB 목킹 하지 마'" },
@@ -269,8 +309,43 @@ $ claude
           ],
         },
         {
+          heading: "Memory가 동작하는 모습",
+          body: "어제 한 말이 오늘 세션에 살아있다. 이 작은 연속성이 Claude를 도구가 아니라 협업자로 바꾼다.",
+          code: `# Session 1 — 월요일
+❯ 나는 Go 10년차인데 이 프로젝트 React 쪽은 처음이야
+  ↳ Memory: user_expertise.md 저장
+  ✓ 기억했습니다 — Go 전문가, React 초보
+
+# Session 2 — 다음 날
+❯ 이 컴포넌트 구조 설명해줘
+  ↳ Memory: user_expertise.md 참조
+  React의 useEffect는 Go의 goroutine과 비슷하게
+  비동기 사이드이펙트를 처리합니다...
+  ✓ 사용자 배경에 맞춘 설명 제공`,
+        },
+        {
           heading: "Skills — 재사용 가능한 /명령어",
-          body: "Skills는 두 가지 형태가 있다. 간단한 Commands (마크다운 파일 하나 = 커맨드 하나)와 고급 Skills (폴더 + SKILL.md, 보조 파일 포함).",
+          body: "Skills는 두 가지 형태가 있다. 간단한 Commands (마크다운 파일 하나 = 커맨드 하나)와 고급 Skills (폴더 + SKILL.md, 보조 파일 포함). 같은 프롬프트를 3번 이상 친다면 Skill로 굳혀라.",
+          compare: {
+            before: {
+              label: "Commands · 가벼움",
+              lines: [
+                "위치: .claude/commands/*.md",
+                "구조: 마크다운 파일 1개",
+                "frontmatter: 선택",
+                "적합: 짧은 프롬프트 템플릿",
+              ],
+            },
+            after: {
+              label: "Skills · 정교함",
+              lines: [
+                "위치: .claude/skills/*/SKILL.md",
+                "구조: 폴더 + 보조 파일",
+                "frontmatter: 필수",
+                "적합: 멀티스텝 워크플로우",
+              ],
+            },
+          },
           code: `# Commands — .claude/commands/*.md
 .claude/commands/commit.md      → /commit
 .claude/commands/review.md      → /review
@@ -288,9 +363,14 @@ $ claude
 name: commit
 description: 변경사항 분석 후 커밋 메시지 자동 생성
 allowed-tools: Bash Grep Read
+context: fork    # 별도 서브에이전트 컨텍스트에서 실행 (옵션)
 ---
 staged changes를 분석하고 conventional commit
-형식으로 커밋 메시지를 작성해주세요.`,
+형식으로 커밋 메시지를 작성해주세요. $ARGUMENTS
+
+# context: fork 의 의미
+#   메인 대화의 토큰을 안 먹고 깨끗한 컨텍스트로 실행 →
+#   긴 분석/리서치형 스킬에 유리. 결과만 메인으로 돌아옴.`,
         },
         {
           heading: "MCP — 외부 서비스 연결 프로토콜",
@@ -326,8 +406,55 @@ staged changes를 분석하고 conventional commit
 }`,
         },
         {
+          heading: "Hooks 실전 — 두 가지 가드레일",
+          body: "auto 모드를 안심하고 쓰려면 PreToolUse 훅이 필수다. 실제 운영 중인 두 사례 — 위험 명령 차단기와 시크릿 스캐너.",
+          code: `# 사례 1 — dangerous-command-blocker.py
+❯ node_modules 다 지워줘
+  ↳ Bash: rm -rf node_modules/
+  🛑 BLOCKED: Critical path protection!
+     Protected resource: Node.js dependencies
+     This path contains critical project files.
+
+  Hook: PreToolUse → Bash 명령 감지
+       → rm -rf /, .git, .claude, .env 등
+         위험 경로 패턴 매칭으로 차단 (exit 2)
+
+# 사례 2 — secret-scanner.py
+❯ 변경사항 커밋해줘
+  ↳ Bash: git add -A && git commit -m "feat: add API"
+  🚨 SECRET SCANNER: Potential secrets detected!
+     🟠 Anthropic API Key
+        File: config.py:12
+        Match: sk-ant-api03-...
+  ❌ COMMIT BLOCKED: Remove secrets before committing
+
+  Hook: PreToolUse → git commit 감지
+       → AWS, Anthropic, OpenAI, Stripe, GitHub 등
+         40개+ API 키 패턴을 정규식으로 스캔`,
+        },
+        {
           heading: "Agents — 하위 에이전트로 병렬 작업",
           body: "Claude가 스스로 하위 에이전트를 만들어 집중된 작업을 위임한다. .claude/agents/ 에 정의하면 description을 매칭해 자동 위임이 일어난다.",
+          compare: {
+            before: {
+              label: "Subagent · 안정",
+              lines: [
+                "컨텍스트: 자체 윈도우, 요약 반환",
+                "통신: 호출자에게만 보고",
+                "조율: 메인 에이전트가 관리",
+                "적합: 집중된 단일 작업",
+              ],
+            },
+            after: {
+              label: "Agent Teams · 실험적",
+              lines: [
+                "컨텍스트: 완전 독립 세션",
+                "통신: 에이전트 간 직접 메시지",
+                "조율: 공유 태스크 리스트",
+                "적합: 복잡한 다각도 작업",
+              ],
+            },
+          },
           code: `# .claude/agents/code-reviewer.md
 ---
 name: code-reviewer
@@ -339,7 +466,36 @@ model: opus
 
 # 자동 위임:
 # Claude가 요청 내용과 에이전트의 description을
-# 매칭하여 자동으로 적합한 에이전트에게 작업 위임`,
+# 매칭하여 자동으로 적합한 에이전트에게 작업 위임
+
+# Agent Teams (실험 기능) — 활성화
+$ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+# 여러 Claude 인스턴스가 팀으로 협업,
+# tmux 분할 패널에서 동시 관찰 가능`,
+        },
+        {
+          heading: "Worktree와 Headless 실행",
+          body: "에이전트를 진짜 병렬로 돌리려면 작업 공간 자체를 분리해야 한다. git worktree로 분기 작업, headless 모드로 CI/스크립트 통합. 두 패턴 모두 '사람이 한 세션을 보지 않아도' 일이 굴러가도록 만든다.",
+          code: `# 1. git worktree로 병렬 분기 작업
+$ git worktree add .worktrees/feat-frontend feat/frontend
+$ git worktree add .worktrees/feat-backend  feat/backend
+
+#   Agent A는 .worktrees/feat-frontend 에서
+#   Agent B는 .worktrees/feat-backend 에서
+#   각각 독립 워킹트리 → 충돌 없이 동시 작업 → 결과 병합
+
+# 2. Headless / SDK — 비대화형 실행
+$ claude -p "src/ 코드를 리뷰하고 마크다운으로 요약"
+
+#   --output-format text       사람용 (기본)
+#   --output-format json       프로그램용 (한 번에)
+#   --output-format stream-json 스트리밍 파싱
+
+# 3. CI 파이프라인에서 사용
+- name: AI Code Review
+  run: |
+    claude -p "이 PR diff를 리뷰" \\
+      --output-format json > review.json`,
         },
         {
           heading: "좋은 하네스의 3원칙",
@@ -493,6 +649,134 @@ SessionStart hooks executed   ← 자동화 실행
     {
       id: "07",
       num: "07",
+      kicker: "Extend",
+      title: "Plugins — 묶어서 배포하기",
+      titleEn: "Plugins & Distribution",
+      summary: "Skills · Hooks · MCP · Agents를 한 패키지로 묶어 설치/공유. superpowers · octopus 같은 실제 플러그인 사례.",
+      readTime: "9 min",
+      tag: "Ecosystem",
+      sections: [
+        {
+          heading: "Plugin = 확장 패키지",
+          body: "지금까지 배운 Skills, Hooks, MCP, Agents — 이 네 가지를 한 폴더로 묶어 마켓플레이스를 통해 설치하고 공유할 수 있게 만든 것이 Plugin이다. 회사·팀이 자기 워크플로우를 표준화하는 단위. 한 사람이 만든 하네스를 팀 전체가 한 줄로 받아 쓰는 구조.",
+          compare: {
+            before: {
+              label: "Plugin 없이",
+              lines: [
+                "팀원 A — .claude/ 폴더 따로 설정",
+                "팀원 B — 비슷하지만 미묘하게 다른 설정",
+                "신규 입사 — README 보고 손으로 따라하기",
+                "→ 표류, 버전 드리프트",
+              ],
+            },
+            after: {
+              label: "Plugin 도입 후",
+              lines: [
+                "사내 마켓플레이스에 1개 plugin 등록",
+                "$ /plugin install our-team@internal",
+                "→ Skills+Hooks+MCP+Agents 한 번에",
+                "→ 업데이트도 한 명령어로",
+              ],
+            },
+          },
+        },
+        {
+          heading: "설치 흐름",
+          body: "마켓플레이스를 등록한 뒤 plugin 단위로 설치한다. 활성화 상태는 settings.json의 enabledPlugins 로 관리.",
+          code: `# 1. 마켓플레이스 추가
+$ /plugin marketplace add anthropics/official
+$ /plugin marketplace add github:obra/superpowers
+
+# 2. 플러그인 검색·설치
+$ /plugin install superpowers@obra
+$ /plugin install code-intel@official
+
+# 3. 관리 UI
+$ /plugin
+
+# 4. settings.json 으로 활성화 고정
+{
+  "enabledPlugins": {
+    "superpowers@obra": true,
+    "code-intel@official": true,
+    "github@official": false
+  }
+}`,
+        },
+        {
+          heading: "구성 요소와의 관계",
+          body: "Plugin은 새로운 개념이 아니라 '묶음 단위'다. 안에 들어가는 건 이미 배운 그 네 가지.",
+          patterns: [
+            { name: "Skills", body: "/명령어와 워크플로우. plugin-name:skill-name 으로 네임스페이스가 붙는다 (예: superpowers:debugging)." },
+            { name: "Hooks", body: "PreToolUse · PostToolUse · SessionStart 등. plugin이 자동으로 settings.json에 훅을 등록." },
+            { name: "MCP Servers", body: "외부 서비스 연결. plugin 설치 시 MCP 서버 정의도 같이 따라옴." },
+            { name: "Agents", body: "서브에이전트 정의. plugin-name:agent-name 으로 호출 (예: octo:droids:octo-debugger)." },
+          ],
+        },
+        {
+          heading: "실제 플러그인 사례",
+          body: "사내·커뮤니티에서 이미 운용 중인 플러그인들. 같은 '묶음'이지만 강조점이 다르다.",
+          patterns: [
+            { name: "superpowers (obra)", body: "Claude를 '훈련된 동료'처럼 만드는 메타 스킬셋. brainstorming · debugging · TDD 같은 작업 절차를 skill로 박아놓고, 'red flag 사고가 떠오르면 즉시 skill 호출' 같은 디시플린을 강제. 코드 품질이 아니라 '일하는 방식'을 제어하는 plugin." },
+            { name: "octopus", body: "30+ 페르소나·드로이드 서브에이전트 모음 (octo:personas:backend-architect, octo:droids:octo-security-auditor 등). 작업별 전문 에이전트에 바로 위임. principles 라이브러리(보안·성능·유지보수)도 함께 제공." },
+            { name: "telegram", body: "Telegram Bot API와 연결되는 MCP. 긴 학습이 끝나면 폰으로 알림 받기, 외부에서 채팅으로 명령 내리기 같은 패턴. 액세스는 /telegram:access 스킬로 관리." },
+            { name: "notion", body: "Notion 워크스페이스 직접 조작. notion-search · notion-fetch · notion-update-page 등으로 회의록·PRD·DB를 컨텍스트에 가져오거나 업데이트." },
+            { name: "claude-design (Anthropic Labs)", body: "디자인 캔버스로 변형(variant) 시안을 받아 그대로 코드/HTML 번들로 추출. 이 vibe-coding-edu 페이지도 design 캔버스에서 받은 핸드오프 번들을 옮긴 결과." },
+          ],
+        },
+        {
+          heading: "내 plugin 만들기 — 폴더 구조",
+          body: "결국 '관습 폴더 구조 + plugin.json'. 만들고 git repo로 올리면 그게 곧 마켓플레이스 소스가 된다.",
+          code: `my-team-plugin/
+├── plugin.json              # 메타데이터 (name, version, description)
+├── README.md
+├── skills/
+│   ├── deploy/
+│   │   └── SKILL.md
+│   └── pr-review/
+│       └── SKILL.md
+├── agents/
+│   └── reviewer.md
+├── hooks/
+│   └── settings.json        # PreToolUse 훅 등
+└── mcp/
+    └── servers.json         # MCP 서버 정의
+
+# plugin.json
+{
+  "name": "my-team-plugin",
+  "version": "0.1.0",
+  "description": "사내 표준 워크플로우",
+  "skills": ["./skills/deploy", "./skills/pr-review"],
+  "agents": ["./agents/reviewer.md"],
+  "hooks": "./hooks/settings.json",
+  "mcpServers": "./mcp/servers.json"
+}
+
+# 배포 — git push 한 번이면 끝
+$ git push origin main
+# 팀원: /plugin marketplace add github:our-org/my-team-plugin
+#       /plugin install my-team-plugin@our-org`,
+        },
+        {
+          heading: "어떨 때 plugin으로 묶어야 하나",
+          bullets: [
+            "팀이 같은 .claude/ 설정을 복붙하고 있을 때 — 한 plugin으로 표준화",
+            "새 팀원 온보딩에 30분 넘게 환경 세팅을 시키고 있을 때",
+            "특정 워크플로우(예: 논문 리뷰, 데이터 검수)가 여러 프로젝트에서 반복될 때",
+            "외부에 자기 방법론을 공유하고 싶을 때 — 글 한 편보다 plugin 한 개가 강함",
+            "반대로: 한 프로젝트에만 쓰는 한두 개 스킬이라면 plugin으로 묶지 말고 .claude/ 그대로 두기",
+          ],
+        },
+      ],
+      links: [
+        { label: "obra/superpowers — Skill Discipline", url: "https://github.com/obra/superpowers" },
+        { label: "Anthropic — Claude Code Plugins", url: "https://docs.anthropic.com/claude-code/plugins" },
+      ],
+    },
+    {
+      id: "08",
+      num: "08",
       kicker: "Reference",
       title: "FAQ & Resources",
       titleEn: "FAQ & Resources",

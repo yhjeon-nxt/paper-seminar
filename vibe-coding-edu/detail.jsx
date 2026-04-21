@@ -68,7 +68,7 @@ const DetailPage = () => {
         <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', display: 'flex', gap: 16 }}>
           <span>{step.kicker.toUpperCase()}</span>
           <span>·</span>
-          <span>CH. {step.num} / 07</span>
+          <span>CH. {step.num} / 08</span>
         </div>
       </nav>
 

@@ -66,7 +66,7 @@
     .hero h2 {
       font-family: var(--serif);
       font-weight: 400;
-      font-size: 96px;
+      font-size: 84px;
       line-height: 0.95;
       letter-spacing: -0.035em;
       margin: 0;
@@ -198,7 +198,7 @@
     @media (max-width: 760px) {
       .masthead, .hero, .toc, .footer { padding-left: 24px; padding-right: 24px; }
       .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 56px; padding-bottom: 56px; }
-      .hero h2 { font-size: 56px; }
+      .hero h2 { font-size: 50px; }
       .ch-row {
         grid-template-columns: 64px 1fr;
         gap: 18px;
@@ -224,7 +224,7 @@
   <section class="hero">
     <h2>코드를 <em style="font-style: italic; color: var(--accent-ink);">쓰는</em> 게 아니라 <br/>지시하는 방식.</h2>
     <div class="lede">
-      <p>2025–26, AI 연구의 병목은 <strong>코드 작성</strong>에서 <strong>실험 설계와 해석</strong>으로 옮겨갔습니다. 이 가이드는 연구팀이 Claude Code를 도구가 아닌 협업 환경으로 받아들이도록 8개 챕터로 정리한 사내용 자료입니다.</p>
+      <p>2025–26, AI 연구의 병목은 <strong>코드 작성</strong>에서 <strong>실험 설계와 해석</strong>으로 옮겨갔습니다. 이 가이드는 연구팀이 Claude Code를 도구가 아닌 협업 환경으로 받아들이도록 9개 챕터로 정리한 사내용 자료입니다.</p>
       <p>각 챕터는 5–18분 분량. 아래에서 시작하세요.</p>
     </div>
   </section>
@@ -249,7 +249,7 @@
 
       document.getElementById('masthead-meta').textContent = `${meta.issue} · ${meta.org}`;
       document.getElementById('footer-org').textContent = `${meta.org} · ${meta.issue}`;
-      document.getElementById('ch-count').textContent = `${steps.length} chapters · 약 90분`;
+      document.getElementById('ch-count').textContent = `${steps.length} chapters · 약 100분`;
 
       const list = document.getElementById('ch-list');
       const frag = document.createDocumentFragment();
