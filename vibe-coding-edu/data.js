@@ -19,19 +19,19 @@ window.VIBE_DATA = {
       sections: [
         {
           heading: "여러분은 요즘 LLM이 어디까지 왔는지 알고 계신가요?",
-          body: "질문을 드리는 이유는 — 이 장을 여는 많은 연구자들이 머릿속에 가지고 있는 LLM의 이미지가, 대체로 2년 전에 멈춰 있기 때문입니다. 그때의 LLM은 '말 잘하는 챗봇'이었습니다. 지난 2년 동안 그 실체는 두어 번쯤 완전히 바뀌었고, 바뀌는 속도도 한 번 더 빨라졌습니다. 이 장은 그 2년의 이야기이고, 동시에 오늘부터의 이야기입니다.",
+          body: "많은 사람의 머릿속 LLM — 대체로 2년 전에 멈춰 있음. 그때의 정의 — '말 잘하는 챗봇'. 지난 2년, 실체는 두어 번 바뀌고 속도는 또 한 번 빨라짐. 이 장은 그 2년, 그리고 오늘부터의 이야기.",
         },
         {
           heading: "요즘 커뮤니티는 이렇게 말합니다",
-          body: "2026년의 LLM을 '챗봇'이라고 부르는 사람은 거의 없습니다. 대신 학계와 실무 커뮤니티에서 반복해서 도는 문장들은 이렇습니다.",
+          body: "2026 — '챗봇'이라는 단어는 거의 안 씀. 대신 반복되는 문장들:",
           bullets: [
-            "“LLM은 이제 agent다” — tool calling과 자율 실행 루프가 chat UI 밖, CLI·IDE 안에서 돌아간다",
-            "“LLM은 이제 collaborator다” — 단발 응답이 아니라, 수십 분짜리 과제를 스스로 쪼개서 끝낸다",
+            "“LLM은 이제 agent” — tool calling · 자율 실행 루프가 chat UI 밖, CLI·IDE 안에서",
+            "“LLM은 이제 collaborator” — 단발 응답이 아니라 수십 분짜리 과제를 쪼개서 끝냄",
           ],
         },
         {
           heading: "벤치마크도 세대교체 중입니다",
-          body: "지난 시대의 지표는 대부분 포화됐습니다. 이제 연구자와 엔지니어가 실제로 쳐다보는 숫자는 전혀 다른 종류입니다.",
+          body: "예전 지표 — 거의 포화. 지금 쳐다보는 숫자는 전혀 다른 종류.",
           compare: {
             before: {
               label: "수렴해버린 벤치마크",
@@ -67,46 +67,64 @@ window.VIBE_DATA = {
         },
         {
           heading: "그리고, 속도가 너무 빠릅니다",
-          body: "아래는 두 벤치마크의 궤적입니다 — SWE-bench Verified(실제 GitHub 이슈 500개를 패치로 풀게 하는 코딩 벤치)와 HLE(Humanity's Last Exam, 박사급 종합 시험). 세로축은 점수(%), 가로축은 출시 시점. 세모(△)는 Anthropic, 원(○)은 OpenAI, 다이아(◇)는 Google 모델입니다.",
+          body: "세 벤치마크 궤적 — MMLU(종합 지식, 거의 포화), SWE-bench Verified(GitHub 이슈 패치, 코딩), HLE(박사급 종합). 세로축 점수(%), 가로축 출시 시점. 세모(△) Anthropic, 원(○) OpenAI, 다이아(◇) Google.",
           chart: {
             kicker: "▸ FIG. 01 · CHART",
-            title: "두 벤치마크, 같은 상승곡선",
-            subtitle: "SWE-bench Verified (코딩) · HLE (박사급 종합) — 출시 시점 기준 공개 스코어 (%)",
+            title: "세 벤치마크, 다른 궤적",
+            subtitle: "MMLU · SWE-bench Verified · HLE — 출시 시점 기준 공개 스코어 (%)",
             yMax: 100,
             series: [
+              {
+                name: "MMLU (5-shot)",
+                color: "var(--ink-4)",
+                dashed: true,
+                points: [
+                  { date: "2023-03-14", y: 86.4, label: "MMLU 86 (GPT-4)", provider: "openai",    labelDY: -14 },
+                  { date: "2024-03-04", y: 86.8, label: "Claude 3 Opus",  provider: "anthropic", hideLabel: true },
+                  { date: "2025-08-07", y: 91.2, label: "GPT-5",          provider: "openai",    hideLabel: true },
+                  { date: "2025-11-18", y: 92.0, label: "Gemini 3 Pro",   provider: "google",    hideLabel: true },
+                  { date: "2026-04-16", y: 92.5, label: "MMLU 92 (Opus 4.7)", provider: "anthropic", labelDY: -14, labelDX: 12, labelAnchor: "start" }
+                ]
+              },
               {
                 name: "SWE-bench Verified",
                 color: "var(--accent-ink)",
                 points: [
-                  { date: "2023-03-14", y: 2,  label: "GPT-4",          provider: "openai",    labelDY: -14 },
-                  { date: "2024-03-04", y: 11, label: "Claude 3 Opus",   provider: "anthropic", labelDY: 18 },
-                  { date: "2024-06-20", y: 33, label: "3.5 Sonnet",      provider: "anthropic", labelDY: 18 },
-                  { date: "2024-10-22", y: 49, label: "3.5 Sonnet v2",   provider: "anthropic", labelDY: 18 },
-                  { date: "2025-02-24", y: 63, label: "Claude 3.7",      provider: "anthropic", labelDY: -14 },
-                  { date: "2025-08-07", y: 74, label: "GPT-5",           provider: "openai",    labelDY: -14, labelDX: -4, labelAnchor: "end" },
-                  { date: "2025-09-29", y: 77, label: "Sonnet 4.5",      provider: "anthropic", labelDY: -14 },
-                  { date: "2025-11-18", y: 76, label: "Gemini 3 Pro",    provider: "google",    labelDY: 22 },
-                  { date: "2025-11-24", y: 80, label: "Opus 4.5",        provider: "anthropic", labelDY: -14, labelDX: 10 }
+                  { date: "2023-03-14", y: 2,    label: "GPT-4",          provider: "openai",    labelDY: 20 },
+                  { date: "2024-03-04", y: 11,   label: "Claude 3 Opus",  provider: "anthropic", labelDY: 20 },
+                  { date: "2024-06-20", y: 33,   label: "3.5 Sonnet",     provider: "anthropic", labelDY: 20 },
+                  { date: "2024-10-22", y: 49,   label: "3.5 Sonnet v2",  provider: "anthropic", labelDY: 20 },
+                  { date: "2025-02-24", y: 63,   label: "Claude 3.7",     provider: "anthropic", labelDY: -14 },
+                  { date: "2025-08-07", y: 74,   label: "GPT-5",          provider: "openai",    labelDY: 22, labelDX: -4, labelAnchor: "end" },
+                  { date: "2025-09-29", y: 77,   label: "Sonnet 4.5",     provider: "anthropic", labelDY: -14, labelDX: -6, labelAnchor: "end" },
+                  { date: "2025-11-18", y: 76,   label: "Gemini 3 Pro",   provider: "google",    labelDY: 24 },
+                  { date: "2025-11-24", y: 80,   label: "Opus 4.5",       provider: "anthropic", labelDY: -16, labelDX: 10 },
+                  { date: "2026-02-05", y: 80.8, label: "Opus 4.6",       provider: "anthropic", labelDY: 24, labelDX: -4, labelAnchor: "end" },
+                  { date: "2026-02-19", y: 80.6, label: "Gemini 3.1 Pro", provider: "google",    labelDY: -32, labelDX: 4, labelAnchor: "start" },
+                  { date: "2026-04-07", y: 93.9, label: "Mythos Preview", provider: "openai",    labelDY: -14, labelDX: -8, labelAnchor: "end" },
+                  { date: "2026-04-16", y: 87.6, label: "Opus 4.7",       provider: "anthropic", labelDY: 24, labelDX: 10 }
                 ]
               },
               {
                 name: "HLE (Humanity's Last Exam)",
                 color: "var(--ink-3)",
                 points: [
-                  { date: "2025-02-24", y: 9,  label: "Claude 3.7",    provider: "anthropic", labelDY: 18 },
-                  { date: "2025-08-07", y: 25, label: "GPT-5",         provider: "openai",    labelDY: -12, labelDX: -4, labelAnchor: "end" },
-                  { date: "2025-09-29", y: 19, label: "Sonnet 4.5",    provider: "anthropic", labelDY: 18 },
-                  { date: "2025-11-18", y: 37, label: "Gemini 3 Pro",  provider: "google",    labelDY: -14 },
-                  { date: "2025-11-24", y: 30, label: "Opus 4.5",      provider: "anthropic", labelDY: 20, labelDX: 10 }
+                  { date: "2025-02-24", y: 9,  label: "Claude 3.7",     provider: "anthropic", labelDY: 18 },
+                  { date: "2025-08-07", y: 25, label: "GPT-5",          provider: "openai",    labelDY: -12, labelDX: -4, labelAnchor: "end" },
+                  { date: "2025-09-29", y: 19, label: "Sonnet 4.5",     provider: "anthropic", labelDY: 18 },
+                  { date: "2025-11-18", y: 37, label: "Gemini 3 Pro",   provider: "google",    labelDY: -14 },
+                  { date: "2025-11-24", y: 30, label: "Opus 4.5",       provider: "anthropic", labelDY: 20, labelDX: 10 },
+                  { date: "2026-04-07", y: 48, label: "Mythos Preview", provider: "openai",    labelDY: -14, labelDX: -4, labelAnchor: "end" },
+                  { date: "2026-04-16", y: 42, label: "Opus 4.7",       provider: "anthropic", labelDY: 20, labelDX: 10 }
                 ]
               }
             ],
-            caption: "2년 전 한 자릿수였던 SWE-bench은 이제 80% 선. 같은 기간 MMLU가 몇 점 오르내리는 사이에, 실제 코드 작업 해결률은 40배가 뛰었습니다. 그럼에도 HLE처럼 더 어려운 종합 시험에선 아직 절반도 못 미칩니다 — 포화까지는 한참 남았습니다."
+            caption: "MMLU — 3년 동안 6점 남짓, 위쪽 천장에 붙어 평탄. SWE-bench — 2% → 93%로 MMLU 선을 위로 가로지름 (2026년 4월 Mythos Preview). HLE — 아직 절반 선, 포화까지 한참."
           },
         },
         {
           heading: "필자가 기억하는 '똑똑한 구글' 시절",
-          body: "저는 GPT-4o가 막 풀렸을 무렵 LLM을 처음 진지하게 쓰기 시작했습니다. 그때의 사용법은 지금 돌아보면 귀엽다고 할 만큼 단순했습니다. 브라우저 탭을 하나 더 띄워두는 것. 코드 조각을 복사해서 물어보고, 에러 스택트레이스를 통째로 긁어다 붙이고, 돌아온 답을 다시 복사해서 에디터로 옮기는 — 딱 거기까지였습니다.",
+          body: "내가 LLM을 진지하게 쓰기 시작한 때 — GPT-4o. 사용법은 단순 — 브라우저 탭 하나 더. 코드 복붙 → 물어봄 → 스택트레이스 붙여넣음 → 답 복붙 → 에디터. 딱 거기까지.",
           dialog: {
             kicker: "▸ SCENE · CHATGPT TAB, CIRCA 2024",
             note: "— REPLAY",
@@ -125,11 +143,11 @@ window.VIBE_DATA = {
               }
             ],
           },
-          note: "이게 그때는 충분히 혁신이었습니다. Stack Overflow를 15분 뒤져야 풀리던 문제가 2분 만에 해결됐으니까요. 하지만 여전히 'AI가 물건을 만들지는 않는다'는 전제가 깔려 있었습니다 — 운전대는 내가 잡고 있었고, AI는 조수석에서 책을 읽어주는 동승자였습니다.",
+          note: "그때는 이것도 혁신. 15분짜리 Stack Overflow → 2분짜리 복붙. 그래도 전제는 그대로 — 운전대는 나, AI는 조수석 동승자.",
         },
         {
           heading: "심상치 않다고 느낀 2025년 11월의 12일",
-          body: "변곡점은 조용하지 않게 왔습니다. 2025년 11월 12일부터 24일까지, 딱 12일 사이에 OpenAI·Google·Anthropic의 세 주력 모델이 연달아 떨어졌고, 각자의 출시 노트에는 이상할 정도로 비슷한 단어들이 반복됐습니다 — long-horizon agent, autonomous task completion, multi-file reasoning, 30-minute unattended work. 개별 모델의 점프라기보다, 업계 전체가 같은 방향으로 정렬된 2주였습니다.",
+          body: "2025.11.12 → 11.24, 딱 12일. OpenAI·Google·Anthropic 세 주력이 연달아. 출시 노트에 반복된 단어 — long-horizon agent · autonomous task completion · multi-file reasoning · 30-minute unattended work. 한 모델의 점프가 아니라, 업계 전체의 정렬.",
           timeline: {
             kicker: "▸ NOV 12 → NOV 24, 2025",
             note: "3 MODELS · 12 DAYS · SAME DIRECTION",
@@ -151,11 +169,11 @@ window.VIBE_DATA = {
               }
             ],
           },
-          note: "어느 하나가 단독으로 떨어졌다면 '또 새 모델이네' 정도로 넘어갔을 겁니다. 세 개가 2주에 걸쳐 쏟아지고, 전부 같은 말을 하고 있었다는 게 체감상 심상치 않았습니다.",
+          note: "한 개였으면 '또 새 모델이네'. 세 개가 2주에 걸쳐 같은 말을 하니 — 체감이 달라짐.",
         },
         {
           heading: "그렇게 코딩 에이전트의 시대가 시작됐습니다",
-          body: "코딩 에이전트는 사실 그 전부터 있었습니다. 다만 '신기한 장난감'이었던 것이 '실제 연구 생산성을 바꾸는 도구'로 바뀐 순간이 바로 이때입니다. 품질은 일부 구간에서 시니어 엔지니어의 속도와 정확도를 따라잡거나 넘어섰고, 툴·워크플로우의 다양성은 한 해 만에 폭발했습니다. 다음 장부터는 그 도구들 중 연구자의 일과에 가장 잘 녹아드는 하나 — Claude Code — 를 중심으로, '바이브 코딩'이라는 단어가 실제로 무엇을 가리키는지 이야기합니다.",
+          body: "코딩 에이전트 — 그 전부터 있었음. 바뀐 건 역할. '신기한 장난감' → '연구 생산성을 바꾸는 도구'. 품질은 일부 구간에서 시니어 엔지니어를 따라잡고, 툴·워크플로우는 한 해 만에 폭발. 다음 장부터 — Claude Code 중심으로 '바이브 코딩'이 실제로 뭘 가리키는지.",
         },
       ],
       links: [
