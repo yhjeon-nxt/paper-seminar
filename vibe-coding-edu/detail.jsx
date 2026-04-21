@@ -441,30 +441,65 @@ const SectionBody = ({ sec, isFirst }) => (
 );
 
 // ──────────────────────────────────────────────
-// BenchmarkChart — SVG scatter/line chart for model benchmark progression
+// BenchmarkChart — time-axis scatter with shape-by-provider + multi-series
+// x = date, y = score. △ = Anthropic, ○ = OpenAI, ◇ = Google.
+// Accepts either { series: [{ name, color, points }] } or legacy { points }.
 // ──────────────────────────────────────────────
 const BenchmarkChart = ({ chart }) => {
-  const { kicker = '▸ FIG · CHART', title, subtitle, yMax = 100, points = [], caption } = chart;
-  const W = 820, H = 440;
-  const pad = { t: 32, r: 28, b: 76, l: 58 };
+  const {
+    kicker = '▸ FIG · CHART', title, subtitle,
+    yMax = 100, series, points, caption,
+  } = chart;
+
+  const seriesList = series && series.length
+    ? series
+    : [{ name: 'Score', color: 'var(--accent-ink)', points: points || [] }];
+  const allPoints = seriesList.flatMap(s => s.points);
+  if (!allPoints.length) return null;
+
+  const times = allPoints.map(p => new Date(p.date).getTime());
+  const xMin = Math.min(...times);
+  const xMax = Math.max(...times);
+  const xPad = (xMax - xMin) * 0.04 || 30 * 24 * 3600 * 1000;
+  const xStart = xMin - xPad;
+  const xEnd = xMax + xPad * 2.2;
+
+  const W = 880, H = 480;
+  const pad = { t: 28, r: 36, b: 58, l: 54 };
   const plotW = W - pad.l - pad.r;
   const plotH = H - pad.t - pad.b;
-  const n = points.length;
-  const xFor = (i) => pad.l + (n > 1 ? (plotW * i) / (n - 1) : plotW / 2);
-  const yFor = (v) => pad.t + plotH - (plotH * v) / yMax;
-  const ticks = 4;
-  const gridYs = Array.from({ length: ticks + 1 }, (_, i) => Math.round((yMax * i) / ticks));
 
-  const linePts = points.map((p, i) => `${xFor(i)},${yFor(p.y)}`).join(' ');
-  const areaPts = `${xFor(0)},${yFor(0)} ${linePts} ${xFor(n - 1)},${yFor(0)}`;
+  const xFor = (d) => pad.l + ((new Date(d).getTime() - xStart) / (xEnd - xStart)) * plotW;
+  const yFor = (v) => pad.t + plotH - (plotH * v) / yMax;
+
+  const xTicks = [];
+  const startY = new Date(xStart).getFullYear();
+  const endY = new Date(xEnd).getFullYear();
+  for (let y = startY; y <= endY; y++) {
+    for (let m = 0; m < 12; m += 6) {
+      const t = new Date(y, m, 1).getTime();
+      if (t >= xStart && t <= xEnd) xTicks.push({ t, label: m === 0 ? `'${String(y).slice(2)}` : 'H2' });
+    }
+  }
+
+  const gridCount = 4;
+  const gridYs = Array.from({ length: gridCount + 1 }, (_, i) => Math.round((yMax * i) / gridCount));
+
+  const shape = (provider, cx, cy, color, size = 6) => {
+    if (provider === 'anthropic') {
+      return <polygon points={`${cx},${cy - size} ${cx - size * 0.95},${cy + size * 0.72} ${cx + size * 0.95},${cy + size * 0.72}`} fill={color} />;
+    }
+    if (provider === 'google') {
+      return <polygon points={`${cx},${cy - size} ${cx + size},${cy} ${cx},${cy + size} ${cx - size},${cy}`} fill={color} />;
+    }
+    return <circle cx={cx} cy={cy} r={size - 0.5} fill={color} />;
+  };
 
   return (
     <figure style={{
       margin: '28px 0 32px', border: '1px solid var(--ink)', background: 'var(--paper)',
     }}>
-      <div style={{
-        padding: '14px 18px', borderBottom: '1px solid var(--line)',
-      }}>
+      <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
         <div className="mono" style={{
           fontSize: 10, letterSpacing: '0.14em', color: 'var(--ink-4)', marginBottom: 4,
         }}>{kicker}</div>
@@ -476,26 +511,61 @@ const BenchmarkChart = ({ chart }) => {
         )}
       </div>
 
-      <div style={{ padding: '20px 20px 10px' }}>
-        <svg
-          viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet"
-          role="img"
-          style={{ display: 'block', overflow: 'visible' }}
-        >
+      {/* Legend */}
+      <div style={{
+        padding: '10px 18px', borderBottom: '1px solid var(--line)',
+        display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'center',
+        fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-2)',
+      }}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ color: 'var(--ink-4)', letterSpacing: '0.1em' }}>PROVIDER</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="14" style={{ display: 'inline-block' }}>
+              <polygon points="7,2 1,12 13,12" fill="var(--ink)" />
+            </svg> Anthropic
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="14" style={{ display: 'inline-block' }}>
+              <circle cx="7" cy="7" r="5" fill="var(--ink)" />
+            </svg> OpenAI
+          </span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="14" style={{ display: 'inline-block' }}>
+              <polygon points="7,1 13,7 7,13 1,7" fill="var(--ink)" />
+            </svg> Google
+          </span>
+        </div>
+        {seriesList.length > 1 && (
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--ink-4)', letterSpacing: '0.1em' }}>BENCHMARK</span>
+            {seriesList.map((s, i) => (
+              <span key={i} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, color: s.color,
+              }}>
+                <svg width="18" height="6" style={{ display: 'inline-block' }}>
+                  <line x1="0" y1="3" x2="18" y2="3" stroke={s.color} strokeWidth="1.4" strokeDasharray="4 3" />
+                </svg>
+                {s.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: '20px 16px 12px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="xMidYMid meet"
+          role="img" style={{ display: 'block', overflow: 'visible' }}>
           <title>{title}</title>
           <desc>{subtitle || caption || title}</desc>
-          {/* gridlines */}
+
+          {/* horizontal gridlines + y labels */}
           {gridYs.map(g => (
             <g key={g}>
-              <line
-                x1={pad.l} x2={W - pad.r} y1={yFor(g)} y2={yFor(g)}
+              <line x1={pad.l} x2={W - pad.r} y1={yFor(g)} y2={yFor(g)}
                 stroke="var(--line-2)" strokeWidth="1"
-                strokeDasharray={g === 0 ? undefined : '3 4'}
-              />
-              <text
-                x={pad.l - 10} y={yFor(g) + 4} textAnchor="end"
-                fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)"
-              >{g}</text>
+                strokeDasharray={g === 0 ? undefined : '3 4'} />
+              <text x={pad.l - 10} y={yFor(g) + 4} textAnchor="end"
+                fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">{g}</text>
             </g>
           ))}
 
@@ -505,45 +575,61 @@ const BenchmarkChart = ({ chart }) => {
           <line x1={pad.l} x2={W - pad.r} y1={H - pad.b} y2={H - pad.b}
             stroke="var(--ink)" strokeWidth="1" />
 
-          {/* axis labels */}
-          <text x={pad.l - 48} y={pad.t - 14}
-            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">해결률 (%)</text>
-          <text x={W - pad.r} y={H - 10} textAnchor="end"
-            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">출시 시점 →</text>
-
-          {/* shaded area under curve */}
-          <polygon points={areaPts} fill="var(--accent-ink)" opacity="0.08" />
-
-          {/* trend line */}
-          <polyline points={linePts}
-            fill="none" stroke="var(--accent-ink)" strokeWidth="2" />
-
-          {/* data points */}
-          {points.map((p, i) => {
-            const cx = xFor(i), cy = yFor(p.y);
-            const prev = i > 0 ? points[i - 1].y : p.y;
-            const next = i < n - 1 ? points[i + 1].y : p.y;
-            const above = p.y >= prev && p.y >= next;
-            const labelY = above ? cy - 14 : cy + 18;
+          {/* x-axis year ticks */}
+          {xTicks.map(t => {
+            const x = pad.l + ((t.t - xStart) / (xEnd - xStart)) * plotW;
+            const isYear = t.label.startsWith("'");
             return (
-              <g key={i}>
-                <circle cx={cx} cy={cy} r="5.5"
-                  fill="var(--paper)" stroke="var(--accent-ink)" strokeWidth="2" />
-                <text x={cx} y={labelY} textAnchor="middle"
-                  fontFamily="var(--mono)" fontSize="11" fontWeight="600" fill="var(--ink)">
-                  {p.y}
-                </text>
-                <text x={cx} y={H - pad.b + 18} textAnchor="middle"
-                  fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">
-                  {p.date}
-                </text>
-                <text x={cx} y={H - pad.b + 34} textAnchor="middle"
-                  fontFamily="var(--sans)" fontSize="10.5" fill="var(--ink-2)">
-                  {p.label}
-                </text>
+              <g key={t.t}>
+                <line x1={x} x2={x} y1={H - pad.b} y2={H - pad.b + (isYear ? 6 : 3)}
+                  stroke="var(--ink-3)" strokeWidth="1" />
+                {isYear && (
+                  <text x={x} y={H - pad.b + 20} textAnchor="middle"
+                    fontFamily="var(--mono)" fontSize="11" fill="var(--ink-3)">{t.label}</text>
+                )}
               </g>
             );
           })}
+
+          {/* axis labels */}
+          <text x={pad.l - 40} y={pad.t - 12}
+            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">점수 (%)</text>
+          <text x={W - pad.r} y={H - pad.b + 44} textAnchor="end"
+            fontFamily="var(--mono)" fontSize="10" fill="var(--ink-3)">출시 시점 →</text>
+
+          {/* connecting trend lines per series */}
+          {seriesList.map((s, si) => {
+            const sorted = [...s.points].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const pts = sorted.map(p => `${xFor(p.date)},${yFor(p.y)}`).join(' ');
+            return (
+              <polyline key={`line-${si}`} points={pts} fill="none"
+                stroke={s.color} strokeWidth="1.4" strokeDasharray="4 3" opacity="0.45" />
+            );
+          })}
+
+          {/* points + labels */}
+          {seriesList.map((s, si) => (
+            <g key={`pts-${si}`}>
+              {s.points.map((p, pi) => {
+                const cx = xFor(p.date);
+                const cy = yFor(p.y);
+                const defaultDX = p.labelDX != null ? p.labelDX : 9;
+                const defaultDY = p.labelDY != null
+                  ? p.labelDY
+                  : (si === 0 ? (pi % 2 === 0 ? -10 : -22) : (pi % 2 === 0 ? 16 : 28));
+                const anchor = p.labelAnchor || 'start';
+                return (
+                  <g key={pi}>
+                    {shape(p.provider, cx, cy, s.color)}
+                    <text x={cx + defaultDX} y={cy + defaultDY}
+                      textAnchor={anchor}
+                      fontFamily="var(--sans)" fontSize="10.5" fontWeight="500"
+                      fill="var(--ink-2)">{p.label}</text>
+                  </g>
+                );
+              })}
+            </g>
+          ))}
         </svg>
       </div>
 

@@ -13,7 +13,7 @@ window.VIBE_DATA = {
       kicker: "Context",
       title: "LLM의 최근 트렌드",
       titleEn: "Recent Trends in LLMs",
-      summary: "'챗봇'이던 LLM이 reasoner·agent·reader가 된 2년. 수렴한 벤치마크, 쏟아지는 새 숫자, 그리고 심상치 않았던 어느 2주.",
+      summary: "'챗봇'이던 LLM이 agent·collaborator가 된 2년. 수렴한 벤치마크, 쏟아지는 새 숫자, 그리고 심상치 않았던 11월의 12일.",
       readTime: "9 min",
       tag: "Landscape",
       sections: [
@@ -25,9 +25,7 @@ window.VIBE_DATA = {
           heading: "요즘 커뮤니티는 이렇게 말합니다",
           body: "2026년의 LLM을 '챗봇'이라고 부르는 사람은 거의 없습니다. 대신 학계와 실무 커뮤니티에서 반복해서 도는 문장들은 이렇습니다.",
           bullets: [
-            "“LLM은 이제 reasoner다” — chain-of-thought가 모델 내부에 내재화된 reasoning 모델이 기본선이 됐다",
             "“LLM은 이제 agent다” — tool calling과 자율 실행 루프가 chat UI 밖, CLI·IDE 안에서 돌아간다",
-            "“LLM은 이제 reader다” — 1M 토큰 컨텍스트로 논문 한 편이 아니라 코드베이스 한 덩어리를 통째 삼킨다",
             "“LLM은 이제 collaborator다” — 단발 응답이 아니라, 수십 분짜리 과제를 스스로 쪼개서 끝낸다",
           ],
         },
@@ -52,6 +50,9 @@ window.VIBE_DATA = {
               label: "지금 쓰는 벤치마크",
               lines: [
                 "▸ SWE-bench Verified — 실제 GitHub 이슈 수리",
+                "▸ τ-bench — 멀티턴 툴 호출·에이전트",
+                "▸ HLE — 박사급 종합 시험 (Humanity's",
+                "  Last Exam)",
                 "▸ Aider Polyglot — 멀티파일·다국어 편집",
                 "▸ Terminal-Bench — 터미널 자율 작업",
                 "▸ METR Long-Horizon — 장시간 자율성",
@@ -66,23 +67,41 @@ window.VIBE_DATA = {
         },
         {
           heading: "그리고, 속도가 너무 빠릅니다",
-          body: "아래는 SWE-bench Verified 해결률입니다. 실제 GitHub 이슈 500개를 모델에게 주고 패치를 만들게 한 뒤, 숨겨진 테스트를 돌려 통과하는지 측정하는 벤치마크. 세로축은 해결률(%), 가로축은 출시 시점입니다.",
+          body: "아래는 두 벤치마크의 궤적입니다 — SWE-bench Verified(실제 GitHub 이슈 500개를 패치로 풀게 하는 코딩 벤치)와 HLE(Humanity's Last Exam, 박사급 종합 시험). 세로축은 점수(%), 가로축은 출시 시점. 세모(△)는 Anthropic, 원(○)은 OpenAI, 다이아(◇)는 Google 모델입니다.",
           chart: {
             kicker: "▸ FIG. 01 · CHART",
-            title: "SWE-bench Verified — 실제 이슈 해결률",
-            subtitle: "각 모델 출시 시점의 대표 스코어 (공개 발표 기준, %)",
+            title: "두 벤치마크, 같은 상승곡선",
+            subtitle: "SWE-bench Verified (코딩) · HLE (박사급 종합) — 출시 시점 기준 공개 스코어 (%)",
             yMax: 100,
-            points: [
-              { date: "'23.03", y: 2,  label: "GPT-4" },
-              { date: "'24.03", y: 11, label: "Claude 3 Opus" },
-              { date: "'24.06", y: 33, label: "3.5 Sonnet" },
-              { date: "'24.10", y: 49, label: "3.5 Sonnet v2" },
-              { date: "'25.02", y: 63, label: "Claude 3.7" },
-              { date: "'25.08", y: 74, label: "GPT-5" },
-              { date: "'25.09", y: 77, label: "Sonnet 4.5" },
-              { date: "'25.11", y: 80, label: "Opus 4.5" }
+            series: [
+              {
+                name: "SWE-bench Verified",
+                color: "var(--accent-ink)",
+                points: [
+                  { date: "2023-03-14", y: 2,  label: "GPT-4",          provider: "openai",    labelDY: -14 },
+                  { date: "2024-03-04", y: 11, label: "Claude 3 Opus",   provider: "anthropic", labelDY: 18 },
+                  { date: "2024-06-20", y: 33, label: "3.5 Sonnet",      provider: "anthropic", labelDY: 18 },
+                  { date: "2024-10-22", y: 49, label: "3.5 Sonnet v2",   provider: "anthropic", labelDY: 18 },
+                  { date: "2025-02-24", y: 63, label: "Claude 3.7",      provider: "anthropic", labelDY: -14 },
+                  { date: "2025-08-07", y: 74, label: "GPT-5",           provider: "openai",    labelDY: -14, labelDX: -4, labelAnchor: "end" },
+                  { date: "2025-09-29", y: 77, label: "Sonnet 4.5",      provider: "anthropic", labelDY: -14 },
+                  { date: "2025-11-18", y: 76, label: "Gemini 3 Pro",    provider: "google",    labelDY: 22 },
+                  { date: "2025-11-24", y: 80, label: "Opus 4.5",        provider: "anthropic", labelDY: -14, labelDX: 10 }
+                ]
+              },
+              {
+                name: "HLE (Humanity's Last Exam)",
+                color: "var(--ink-3)",
+                points: [
+                  { date: "2025-02-24", y: 9,  label: "Claude 3.7",    provider: "anthropic", labelDY: 18 },
+                  { date: "2025-08-07", y: 25, label: "GPT-5",         provider: "openai",    labelDY: -12, labelDX: -4, labelAnchor: "end" },
+                  { date: "2025-09-29", y: 19, label: "Sonnet 4.5",    provider: "anthropic", labelDY: 18 },
+                  { date: "2025-11-18", y: 37, label: "Gemini 3 Pro",  provider: "google",    labelDY: -14 },
+                  { date: "2025-11-24", y: 30, label: "Opus 4.5",      provider: "anthropic", labelDY: 20, labelDX: 10 }
+                ]
+              }
             ],
-            caption: "2년 전 2% 근처였던 것이 이제 80%를 넘깁니다. 같은 기간 MMLU가 몇 점 오르내리는 사이에, 실제 코드 작업 해결률은 40배가 뛰었습니다."
+            caption: "2년 전 한 자릿수였던 SWE-bench은 이제 80% 선. 같은 기간 MMLU가 몇 점 오르내리는 사이에, 실제 코드 작업 해결률은 40배가 뛰었습니다. 그럼에도 HLE처럼 더 어려운 종합 시험에선 아직 절반도 못 미칩니다 — 포화까지는 한참 남았습니다."
           },
         },
         {
@@ -109,26 +128,26 @@ window.VIBE_DATA = {
           note: "이게 그때는 충분히 혁신이었습니다. Stack Overflow를 15분 뒤져야 풀리던 문제가 2분 만에 해결됐으니까요. 하지만 여전히 'AI가 물건을 만들지는 않는다'는 전제가 깔려 있었습니다 — 운전대는 내가 잡고 있었고, AI는 조수석에서 책을 읽어주는 동승자였습니다.",
         },
         {
-          heading: "심상치 않다고 느낀 어느 2주",
-          body: "변곡점은 조용하지 않게 왔습니다. 약 2주 사이에 세 모델이 연달아 떨어졌고, 각자의 출시 노트에는 이상할 정도로 비슷한 단어들이 반복됐습니다 — long-horizon agent, autonomous task completion, multi-file reasoning, 30-minute unattended work. 개별 모델의 점프라기보다, 업계 전체가 같은 방향으로 정렬된 한 주였습니다.",
+          heading: "심상치 않다고 느낀 2025년 11월의 12일",
+          body: "변곡점은 조용하지 않게 왔습니다. 2025년 11월 12일부터 24일까지, 딱 12일 사이에 OpenAI·Google·Anthropic의 세 주력 모델이 연달아 떨어졌고, 각자의 출시 노트에는 이상할 정도로 비슷한 단어들이 반복됐습니다 — long-horizon agent, autonomous task completion, multi-file reasoning, 30-minute unattended work. 개별 모델의 점프라기보다, 업계 전체가 같은 방향으로 정렬된 2주였습니다.",
           timeline: {
-            kicker: "▸ ~ 2 WEEKS",
-            note: "3 MODELS · SAME DIRECTION",
+            kicker: "▸ NOV 12 → NOV 24, 2025",
+            note: "3 MODELS · 12 DAYS · SAME DIRECTION",
             items: [
               {
-                when: "Day 1",
+                when: "NOV 12",
+                model: "GPT-5.1",
+                note: "thinking 모드가 기본으로 내재화. Instant / Thinking 두 축으로 응답 속도·스타일을 세팅하고, 툴 호출 안정성과 장시간 자율 작업이 확 올라옴."
+              },
+              {
+                when: "NOV 18",
                 model: "Gemini 3 Pro",
-                note: "멀티모달·긴 컨텍스트·추론이 동시에 한 단계. 노트북 한 권 분량을 한 컨텍스트에서 돌려버림."
+                note: "멀티모달·긴 컨텍스트·추론이 동시에 한 단계. 노트북 한 권 분량을 한 컨텍스트에서 돌려버림. 출시와 동시에 Search·Workspace·AI Studio에 바로 투입."
               },
               {
-                when: "Day 4",
-                model: "GPT-5",
-                note: "thinking 모드가 기본으로 내재화. 툴 호출 안정성과 장시간 자율 작업이 확 올라옴."
-              },
-              {
-                when: "Day 13",
+                when: "NOV 24",
                 model: "Claude Opus 4.5",
-                note: "에이전트 루프 신뢰성에 초점. 30분 넘는 자율 코딩 과제를 끊지 않고 끝내기 시작."
+                note: "에이전트 루프 신뢰성에 초점. 30분 넘는 자율 코딩 과제를 끊지 않고 끝내기 시작. 그러면서 전세대 대비 가격은 2/3 인하."
               }
             ],
           },
