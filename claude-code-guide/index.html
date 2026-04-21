@@ -1434,10 +1434,15 @@
     letter-spacing: -0.02em; color: var(--text); max-width: 20ch; margin: 0 auto;
   }
 
-  /* Hide main top nav when in chapter browser (not in detail view) */
-  body[data-layout="chapters"]:not([data-view="detail"]) nav.topnav { display: none; }
+  /* Hide legacy 12-section top nav whenever chapters layout is active.
+     New detail bar (#ch-detail-bar) handles navigation in detail view. */
+  body[data-layout="chapters"] nav.topnav { display: none; }
   body[data-layout="chapters"]:not([data-view="detail"]) #progress-bar { display: none; }
   body[data-layout="chapters"]:not([data-view="detail"]) #chapters { padding-top: 0; }
+  /* Detail bar floats at top (topnav is hidden) — align it to the viewport top and
+     reduce main padding so the first section clears it cleanly. */
+  body[data-layout="chapters"][data-view="detail"] #ch-detail-bar { top: 0; }
+  body[data-layout="chapters"][data-view="detail"] main { padding-top: 72px; }
 
   /* =========================================================
      FOOTER
