@@ -1836,11 +1836,13 @@
         <div class="ch-card-tag">Claude-native</div>
       </div>
       <div class="ch-card-title">Claude만의 기능들</div>
-      <p class="ch-card-sub">Agent Teams · Telegram channels · ultrathink · ultraplan — 다른 CLI에는 없는 Claude Code 특유의 장치들.</p>
+      <p class="ch-card-sub">Agent Teams · Auto mode · bypassPermissions · Channels · ultrathink — 다른 CLI에는 없는 Claude Code 특유의 장치들.</p>
       <ul class="ch-card-list">
         <li><span class="n">A1</span><span>Agent Teams (기존 Agent 섹션)</span><span class="arr">→</span></li>
-        <li><span class="n">A2</span><span>Channels — Telegram 원격 실행 <em style="opacity:.6;">· Coming</em></span><span class="arr">→</span></li>
-        <li><span class="n">A3</span><span>ultrathink / ultraplan <em style="opacity:.6;">· Coming</em></span><span class="arr">→</span></li>
+        <li><span class="n">A2</span><span>Auto Mode — classifier가 승인/차단</span><span class="arr">→</span></li>
+        <li><span class="n">A3</span><span>bypassPermissions — 격리 환경 전용</span><span class="arr">→</span></li>
+        <li><span class="n">A4</span><span>Channels — Telegram 원격 실행 <em style="opacity:.6;">· Coming</em></span><span class="arr">→</span></li>
+        <li><span class="n">A5</span><span>ultrathink / ultraplan <em style="opacity:.6;">· Coming</em></span><span class="arr">→</span></li>
       </ul>
     </button>
 
@@ -3938,29 +3940,57 @@
         <p class="section-lead">Claude Code가 다른 CLI·에이전트와 구별되는 고유 장치들. 이미 본편 Ch 02 Agent 섹션에 일부 있으며, 여기선 <em>심화</em> 관점에서 정리.</p>
       </div>
     </div>
-    <div class="grid-2 mb-24">
+    <div class="grid-2 mb-16">
       <div class="card accent-left" style="border-left-color: var(--rose);">
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose); margin-bottom: 8px;">A1 · 기존 콘텐츠 재참조</p>
         <p style="font-weight: 600; margin-bottom: 6px;">Agent Teams · Subagent · Worktree</p>
         <p class="muted small">본편 Ch 02 → Agent 섹션에서 다뤘습니다. 이 Pick은 Teams를 언제 쓰면 좋은지, 실전 조합 패턴 중심으로 확장 예정.</p>
       </div>
+      <div class="card accent-left" style="border-left-color: var(--green);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 8px;">A2 · Auto Mode</p>
+        <p style="font-weight: 600; margin-bottom: 6px;">⏵⏵ auto accept — 분류기가 대신 판단</p>
+        <p class="muted small" style="line-height: 1.65; margin-bottom: 10px;">
+          별도 Sonnet 4.6 기반 <em>classifier</em>가 매 도구 호출을 검사. 작업 디렉터리 내 편집·lockfile 의존성 설치·read-only HTTP는 자동 승인, <code style="color: var(--rose);">curl | bash</code>·프로덕션 배포·force push·IAM 변경은 차단.
+        </p>
+        <p class="muted small" style="line-height: 1.65;">
+          <strong>활성화:</strong> <code>claude --permission-mode auto</code> 또는 <code>defaultMode</code> 설정. <span class="muted">Max·Team·Enterprise·API 한정 (Pro 불가), Sonnet 4.6 / Opus 4.6+ 필요. v2.1.83+.</span>
+        </p>
+      </div>
+      <div class="card accent-left" style="border-left-color: var(--rose);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose); margin-bottom: 8px;">A3 · bypassPermissions</p>
+        <p style="font-weight: 600; margin-bottom: 6px;">⏵⏵ bypass on — 안전판까지 해제</p>
+        <p class="muted small" style="line-height: 1.65; margin-bottom: 10px;">
+          권한 프롬프트도 분류기도 끔. <code>.git · .claude · .bashrc</code> 등 보호 경로 쓰기만 여전히 확인. <em>프롬프트 인젝션 대응 없음</em> — 호스트를 오염시킬 수 없는 환경에서만.
+        </p>
+        <p class="muted small" style="line-height: 1.65;">
+          <strong>활성화:</strong> <code>claude --permission-mode bypassPermissions</code> 또는 <code>--dangerously-skip-permissions</code>로 세션 시작. <span class="muted">도커 컨테이너·VM·devcontainer 같은 격리 환경에서만 권장.</span>
+        </p>
+      </div>
+      <div class="card accent-left" style="border-left-color: var(--blue);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px;">Shift+Tab Cycle</p>
+        <p style="font-weight: 600; margin-bottom: 6px;">모드 순환 — 상태표시줄로 확인</p>
+        <p class="muted small" style="line-height: 1.65; margin-bottom: 10px;">
+          기본 사이클: <code>default → acceptEdits → plan</code>. <code>auto</code>는 계정 조건 충족 시, <code>bypassPermissions</code>는 활성화 플래그로 시작한 세션에서만 합류.
+        </p>
+        <p class="muted small" style="line-height: 1.65;">
+          상태표시줄 라벨: <code>⏵⏵ accept edits on</code> · <code>auto mode on</code> · <code>bypass on</code>. 어떤 모드든 <code>.git · .claude · .bashrc</code> 등 보호 경로 쓰기는 자동 승인되지 않음.
+        </p>
+      </div>
       <div class="card accent-left" style="border-left-color: var(--rose); border-style: dashed;">
-        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px;">A2 · Coming</p>
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px;">A4 · Coming</p>
         <p style="font-weight: 600; margin-bottom: 6px;">Channels — Telegram 원격 실행</p>
         <p class="muted small">텔레그램 봇으로 Claude Code에 원격 명령을 내리고 결과를 받는 루트. 하루 종일 데스크 앞에 없어도 됨.</p>
       </div>
       <div class="card accent-left" style="border-left-color: var(--rose); border-style: dashed;">
-        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px;">A3 · Coming</p>
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px;">A5 · Coming</p>
         <p style="font-weight: 600; margin-bottom: 6px;">ultrathink · ultraplan</p>
         <p class="muted small">더 깊게 사고하고 · 더 촘촘한 계획을 세우게 하는 매직 키워드. 언제 쓰고, 언제 안 쓰는 게 나은가.</p>
       </div>
-      <div class="card accent-left" style="border-left-color: var(--rose); border-style: dashed;">
-        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px;">A4 · Open</p>
-        <p style="font-weight: 600; margin-bottom: 6px;">추가 후보</p>
-        <p class="muted small">컨텍스트 자동 압축 · 세션 재개 · 워크트리 자동화 등 — 필요에 따라 추가.</p>
-      </div>
     </div>
-    <p class="muted small" style="font-style: italic; max-width: 62ch;">이 Pick은 스텁입니다. 각 카드가 짧은 가이드 하나로 확장될 예정입니다.</p>
+    <div class="card accent-left mb-16" style="padding: 12px 16px; border-left-color: var(--amber);">
+      <p class="small"><strong>Auto Mode 폴백:</strong> 분류기가 3회 연속·또는 20회 누적 차단하면 자동으로 default로 떨어져 다시 프롬프트 시작. 차단된 액션은 <code>/permissions</code> → Recently denied 탭에서 <kbd>r</kbd>로 재시도 가능. 세션 중에 <code>"push 하지 마"</code> 같이 말로 건 경계선은 분류기가 매 체크마다 트랜스크립트에서 다시 읽으므로 컨텍스트 압축에 지워질 수 있음 — 확실하려면 <code>permissions.deny</code> 규칙으로.</p>
+    </div>
+    <p class="muted small" style="font-style: italic; max-width: 62ch;">A1·A2·A3은 실사용 가능한 장치, A4·A5는 스텁으로 확장 예정.</p>
   </div>
 </section>
 
