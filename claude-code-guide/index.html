@@ -499,6 +499,18 @@
   .label-row::before {
     content: ""; width: 18px; height: 1px; background: var(--accent); opacity: 0.9;
   }
+  /* Ch 00·01·03 — 한 섹션 안에 여러 subsection이 쌓이므로
+     label-row(구분선) 기준으로 subsection 간 간격을 키워 경계를 명확히 한다. */
+  [data-chapter="0"] .label-row,
+  [data-chapter="1"] .label-row,
+  [data-chapter="3"] .label-row {
+    margin-top: 60px;
+  }
+  [data-chapter="0"] .section-head + .label-row,
+  [data-chapter="1"] .section-head + .label-row,
+  [data-chapter="3"] .section-head + .label-row {
+    margin-top: 36px;
+  }
 
   .muted { color: var(--text-sub); }
   .small { font-size: 13px; }
