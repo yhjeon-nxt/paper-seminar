@@ -3780,47 +3780,245 @@
       <p class="muted"><strong style="color: var(--amber);">프롬프트 엔지니어링</strong>은 "이번 대화에서 어떻게 지시할까"에 집중합니다. <strong style="color: var(--green);">하네스 엔지니어링</strong>은 한 단계 더 나아가, 매번 좋은 프롬프트를 치지 않아도 AI가 알아서 잘 동작하도록 <strong style="color: var(--text);">환경 자체를 설계</strong>합니다.</p>
     </div>
 
-    <!-- 3 principles -->
-    <p class="label-row">좋은 하네스의 3원칙</p>
-    <div class="grid-3 mb-32">
-      <div class="card hover" style="text-align: center;">
-        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">1</div>
-        <p style="font-weight: 700; color: var(--blue); margin-bottom: 6px;">반복 제거</p>
-        <p class="muted small">매번 같은 지시를 반복하지 않도록<br/>CLAUDE.md와 Skills로 고정</p>
+    <!-- Maturity ladder -->
+    <p class="label-row">하네스 maturity — 내 위치 확인</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      맨몸부터 팀 공유까지 4단계. 내 프로젝트가 어디쯤인지 먼저 확인하고 다음 단계를 설계.
+    </p>
+    <div class="grid-4 mb-32">
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">Level 0</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">맨몸 · Vanilla</p>
+        <div style="display: flex; height: 4px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 10px;">
+          <div style="flex: 5; background: var(--text-sub);"></div>
+          <div style="flex: 95;"></div>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 8px;">
+          Claude Code 기본만. <code>.claude/</code> 폴더 없음.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 6px; color: var(--text-sub);">
+          # 일단 써보는 중
+        </p>
       </div>
-      <div class="card hover" style="text-align: center;">
-        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--amber-soft); color: var(--amber); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">2</div>
-        <p style="font-weight: 700; color: var(--amber); margin-bottom: 6px;">안전장치</p>
-        <p class="muted small">위험한 명령 차단, 시크릿 유출 방지<br/>Hooks로 자동화된 가드레일</p>
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px;">Level 1</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">최소 · Minimal</p>
+        <div style="display: flex; height: 4px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 10px;">
+          <div style="flex: 30; background: var(--blue);"></div>
+          <div style="flex: 70;"></div>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 8px;">
+          <code>CLAUDE.md</code> + slash 커맨드 1-2개.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 6px; color: var(--text-sub);">
+          # 프로젝트 규칙 고정
+        </p>
       </div>
-      <div class="card hover" style="text-align: center;">
-        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--purple-soft); color: var(--purple); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 22px; margin-bottom: 10px;">3</div>
-        <p style="font-weight: 700; color: var(--purple); margin-bottom: 6px;">팀 공유</p>
-        <p class="muted small">프로젝트 .claude/ 폴더를 git에 커밋<br/>팀 전체가 같은 하네스 사용</p>
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px;">Level 2</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">실무 · Working</p>
+        <div style="display: flex; height: 4px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 10px;">
+          <div style="flex: 65; background: var(--amber);"></div>
+          <div style="flex: 35;"></div>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 8px;">
+          L1 + <strong style="color: var(--text);">Skills</strong> + 기본 <strong style="color: var(--text);">Hooks</strong>.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 6px; color: var(--text-sub);">
+          # 자동화 + 가드레일
+        </p>
+      </div>
+      <div class="card accent-left" style="border-left-color: var(--green);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 6px;">Level 3</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">팀 공유 · Shared</p>
+        <div style="display: flex; height: 4px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 10px;">
+          <div style="flex: 100; background: var(--green);"></div>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 8px;">
+          L2 + <strong style="color: var(--text);">MCP</strong> + <strong style="color: var(--text);">Agents</strong> · git 커밋 · plugin 배포.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 6px; color: var(--text-sub);">
+          # 프로젝트 재현 가능
+        </p>
       </div>
     </div>
 
-    <!-- File tree -->
-    <p class="label-row">실제 하네스 구성 예시</p>
-    <div class="code-block mb-24">
+    <!-- Build order -->
+    <p class="label-row">설계 순서 — 뭐부터 쌓을까</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      모든 도구를 한꺼번에 쓰려 하지 말고 순차적으로. 각 단계엔 <strong style="color: var(--text);">"이런 시그널 오면 다음 단계로"</strong> 기준이 붙는다.
+    </p>
+    <div class="mb-32" style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="card" style="padding: 14px 20px;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--blue); line-height: 1;">01</span>
+          <span style="font-weight: 700; font-size: 15px;">반복 지침 고정</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--blue); border: 1px solid color-mix(in oklab, var(--blue) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">CLAUDE.md</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> 매번 같은 지시(빌드 명령 · 규칙 · 용어)를 복붙 중.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: "Hydra config는 conf/*.yaml · seed 42 고정 · wandb project=exp-arc"
+        </p>
+      </div>
+      <div class="card" style="padding: 14px 20px;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--blue); line-height: 1;">02</span>
+          <span style="font-weight: 700; font-size: 15px;">반복 워크플로우</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--blue); border: 1px solid color-mix(in oklab, var(--blue) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">Skills</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> 멀티-스텝 절차를 세 번 이상 반복.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: /experiment-conventions · /submit-job · /paper-figure
+        </p>
+      </div>
+      <div class="card" style="padding: 14px 20px;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--amber); line-height: 1;">03</span>
+          <span style="font-weight: 700; font-size: 15px;">안전장치</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--amber); border: 1px solid color-mix(in oklab, var(--amber) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">Hooks</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> 위험 명령(rm -rf · 프로덕션 DB · .env 접근)이 실수 여지.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: PreToolUse hook으로 <code>.env</code>·<code>~/.ssh/</code> 차단 + commit 전 시크릿 스캔
+        </p>
+      </div>
+      <div class="card" style="padding: 14px 20px;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--amber); line-height: 1;">04</span>
+          <span style="font-weight: 700; font-size: 15px;">외부 연결</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--amber); border: 1px solid color-mix(in oklab, var(--amber) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">MCP</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> Claude가 외부 데이터(실험 로그 · DB · HF Hub)를 봐야 답 가능한 질문이 생김.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: mcp-wandb로 과거 run 조회 · mcp-postgres로 벤치마크 테이블 질의
+        </p>
+      </div>
+      <div class="card" style="padding: 14px 20px;">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--purple); line-height: 1;">05</span>
+          <span style="font-weight: 700; font-size: 15px;">특수 역할</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--purple); border: 1px solid color-mix(in oklab, var(--purple) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">Agents</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> 긴 자율 작업 중 컨텍스트 오염, 또는 특정 전문 관점(리뷰 · 디버깅) 필요.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: experiment-reviewer agent — diff + config 기반 실험 계획 리뷰
+        </p>
+      </div>
+      <div class="card accent-left" style="padding: 14px 20px; border-left-color: var(--green);">
+        <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px;">
+          <span style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--green); line-height: 1;">06</span>
+          <span style="font-weight: 700; font-size: 15px;">팀 배포</span>
+          <span style="font-family: var(--mono); font-size: 10.5px; color: var(--green); border: 1px solid color-mix(in oklab, var(--green) 40%, var(--line)); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em;">Plugin</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); margin-bottom: 3px;">
+          <strong style="color: var(--text);">시그널:</strong> 다른 팀원이 같은 하네스를 clone-and-run 으로 가져가야 함.
+        </p>
+        <p class="muted small" style="color: var(--text-sub); font-family: var(--mono);">
+          예: .claude/ 전체를 plugin으로 묶어 내부 레지스트리 배포
+        </p>
+      </div>
+    </div>
+
+    <!-- 3 principles -->
+    <p class="label-row">좋은 하네스의 3원칙</p>
+    <div class="grid-3 mb-32">
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 18px; flex-shrink: 0;">1</div>
+          <p style="font-weight: 700; color: var(--blue); margin: 0; font-size: 16px;">반복 제거</p>
+        </div>
+        <p class="muted small" style="margin-bottom: 12px;">같은 지시를 반복하지 않도록 CLAUDE.md와 Skills로 고정.</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 1.85; color: var(--text-2);">
+          <li>☐ 프로젝트 규칙이 CLAUDE.md에 있는가</li>
+          <li>☐ 반복 프롬프트가 Skill로 추출됐는가</li>
+          <li>☐ 빌드·테스트 명령이 CLAUDE.md에 박혀있는가</li>
+        </ul>
+      </div>
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--amber-soft); color: var(--amber); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 18px; flex-shrink: 0;">2</div>
+          <p style="font-weight: 700; color: var(--amber); margin: 0; font-size: 16px;">안전장치</p>
+        </div>
+        <p class="muted small" style="margin-bottom: 12px;">위험한 명령 차단, 시크릿 유출 방지. Hooks로 자동 가드레일.</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 1.85; color: var(--text-2);">
+          <li>☐ 위험 명령(rm -rf *, 프로덕션 DB) 차단 Hook</li>
+          <li>☐ 시크릿 스캔이 commit 전에 돈다</li>
+          <li>☐ 파괴적 작업은 <code>disable-model-invocation</code>으로 수동 확인</li>
+        </ul>
+      </div>
+      <div class="card hover">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--purple-soft); color: var(--purple); display: inline-grid; place-items: center; font-family: var(--serif); font-style: italic; font-size: 18px; flex-shrink: 0;">3</div>
+          <p style="font-weight: 700; color: var(--purple); margin: 0; font-size: 16px;">팀 공유</p>
+        </div>
+        <p class="muted small" style="margin-bottom: 12px;">프로젝트 <code>.claude/</code>를 git에 커밋, 팀 전체가 같은 하네스.</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; line-height: 1.85; color: var(--text-2);">
+          <li>☐ <code>.claude/</code>가 git에 커밋됐는가</li>
+          <li>☐ 개인 설정은 <code>~/.claude/</code>에 분리됐는가</li>
+          <li>☐ 신규 팀원이 clone만으로 같은 환경</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Research harness real example -->
+    <p class="label-row">연구자용 실전 하네스 · 전체 구성</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      ML 연구 프로젝트의 3개월 차 하네스. 각 요소가 어떤 문제를 풀었는지 주석으로 표시.
+    </p>
+    <div class="code-block mb-16">
       <div class="code-chrome">
         <span class="code-lang">tree</span>
-        <span class="code-file">project/.claude/</span>
+        <span class="code-file">~/experiments/arc-prior/</span>
         <button class="code-copy" onclick="copyCode(this)">Copy</button>
       </div>
       <div class="code-body">
-        <div><span class="code-comment"># 프로젝트 루트의 .claude/ 폴더</span></div>
-        <div>├── <span class="code-string">CLAUDE.md</span>          <span class="code-comment"># 프로젝트 규칙, 빌드 명령</span></div>
-        <div>├── <span class="code-string">settings.json</span>      <span class="code-comment"># hooks, MCP 서버 설정</span></div>
-        <div>├── commands/              <span class="code-comment"># 커스텀 슬래시 커맨드</span></div>
-        <div>│   ├── <span class="code-cmd">commit.md</span></div>
-        <div>│   └── <span class="code-cmd">review.md</span></div>
-        <div>├── skills/                <span class="code-comment"># 고급 스킬</span></div>
-        <div>│   └── deploy/</div>
-        <div>│       └── <span class="code-cmd">SKILL.md</span></div>
-        <div>└── agents/                <span class="code-comment"># 커스텀 에이전트</span></div>
-        <div>    ├── <span class="code-cmd">code-reviewer.md</span></div>
-        <div>    └── <span class="code-cmd">debugger.md</span></div>
+        <div><span class="code-comment"># ML 연구 프로젝트 · 3개월 차 하네스</span></div>
+        <div>├── <span class="code-string">CLAUDE.md</span>                 <span class="code-comment"># Hydra 규칙 · wandb project · seed 정책 · GPU 제약</span></div>
+        <div>├── <span class="code-string">.claude/</span></div>
+        <div>│&nbsp;&nbsp; ├── <span class="code-string">settings.json</span>         <span class="code-comment"># hooks · MCP 서버 설정</span></div>
+        <div>│&nbsp;&nbsp; ├── skills/</div>
+        <div>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="code-cmd">experiment-conventions/</span>   <span class="code-comment"># seed · W&amp;B · checkpoint 표준 (자동)</span></div>
+        <div>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="code-cmd">submit-job/</span>               <span class="code-comment"># SLURM 제출 (수동 · 비용 확인)</span></div>
+        <div>│&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="code-cmd">paper-figure/</span>             <span class="code-comment"># matplotlib 스타일 가이드 (자동)</span></div>
+        <div>│&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="code-cmd">reproduce-run/</span>            <span class="code-comment"># 과거 run 재현 (수동)</span></div>
+        <div>│&nbsp;&nbsp; ├── agents/</div>
+        <div>│&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="code-cmd">experiment-reviewer.md</span>    <span class="code-comment"># diff + config 기반 실험 계획 리뷰</span></div>
+        <div>│&nbsp;&nbsp; └── hooks/</div>
+        <div>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="code-cmd">pre-bash.sh</span>              <span class="code-comment"># .env · ~/.ssh/ 접근 차단</span></div>
+        <div>│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="code-cmd">post-edit.sh</span>             <span class="code-comment"># ruff format 자동 실행</span></div>
+        <div>├── conf/                        <span class="code-comment"># Hydra configs</span></div>
+        <div>├── src/                         <span class="code-comment"># 학습 코드</span></div>
+        <div>├── scripts/                     <span class="code-comment"># launch.slurm 등</span></div>
+        <div>└── notebooks/                   <span class="code-comment"># 분석 · 시각화</span></div>
+      </div>
+    </div>
+    <div class="grid-2 mb-24" style="gap: 12px;">
+      <div class="card" style="padding: 14px 18px;">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px;">MCP · 연결된 외부 서비스</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.75;">
+          ▸ <strong style="color: var(--text);">wandb</strong> — 과거 run 조회 · metric 비교<br/>
+          ▸ <strong style="color: var(--text);">huggingface</strong> — 모델 · 데이터셋 검색<br/>
+          ▸ <strong style="color: var(--text);">postgres</strong> — 내부 벤치마크 테이블
+        </p>
+      </div>
+      <div class="card accent-left" style="padding: 14px 18px; border-left-color: var(--green);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 6px;">효과 · 이 하네스가 주는 것</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.75;">
+          ▸ 새 실험 스크립트 = 규칙 자동 적용<br/>
+          ▸ SLURM 제출 = 비용 확인 단계 강제<br/>
+          ▸ paper figure = 스타일 가이드 자동 따름<br/>
+          ▸ 팀원은 <code>git clone</code>만으로 동일 환경
+        </p>
       </div>
     </div>
 
