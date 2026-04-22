@@ -2156,6 +2156,62 @@
       <figcaption class="muted small" style="font-family: var(--mono); letter-spacing: 0.06em;">— Andrej Karpathy, Feb 2025</figcaption>
     </figure>
 
+    <!-- B1: 바이브 코딩 스펙트럼 -->
+    <p class="label-row">바이브 코딩의 스펙트럼</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      넓게 보면 세 단계. 왼쪽일수록 사람이 키보드, 오른쪽일수록 AI가 실행. 이 책에서 말하는 바이브 코딩은 오른쪽 끝 — 에이전트 루프.
+    </p>
+    <div class="grid-3 mb-24">
+      <div class="card hover">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">Level 1</p>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">자동완성</p>
+        <p class="muted small" style="font-family: var(--mono); margin-bottom: 14px;">Copilot · Tabnine · Cursor Tab</p>
+        <div style="display: flex; height: 5px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 6px;">
+          <div style="flex: 85; background: var(--text-sub);"></div>
+          <div style="flex: 15; background: var(--blue);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-sub); margin-bottom: 12px;">
+          <span>Human 85%</span><span>AI 15%</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          다음 몇 줄 제안 → 사람이 수락·거부 반복. 파일 단위 설계는 전적으로 사람.
+        </p>
+      </div>
+      <div class="card hover">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">Level 2</p>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">페어 프로그래밍</p>
+        <p class="muted small" style="font-family: var(--mono); margin-bottom: 14px;">Cursor Composer · ChatGPT · Windsurf</p>
+        <div style="display: flex; height: 5px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 6px;">
+          <div style="flex: 50; background: var(--text-sub);"></div>
+          <div style="flex: 50; background: var(--blue);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-sub); margin-bottom: 12px;">
+          <span>Human 50%</span><span>AI 50%</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          대화로 블록 생성 → 사람이 검토·붙여넣기. 파일 몇 개 편집은 AI, 실행·검증은 사람.
+        </p>
+      </div>
+      <div class="card accent-left hover" style="border-left-color: var(--cyan);">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+          <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan);">Level 3</p>
+          <span style="font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); border: 1px solid color-mix(in oklab, var(--cyan) 40%, var(--line)); padding: 2px 6px; border-radius: 999px;">이 책</span>
+        </div>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">에이전트 루프</p>
+        <p class="muted small" style="font-family: var(--mono); margin-bottom: 14px;">Claude Code · Cursor Agent · Aider</p>
+        <div style="display: flex; height: 5px; border-radius: 999px; overflow: hidden; background: var(--line); margin-bottom: 6px;">
+          <div style="flex: 20; background: var(--text-sub);"></div>
+          <div style="flex: 80; background: var(--cyan);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-sub); margin-bottom: 12px;">
+          <span>Human 20%</span><span>AI 80%</span>
+        </div>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          목표·제약만 주면 스스로 파일 읽고·수정·실행·테스트. 사람은 방향 교정과 결과 검증.
+        </p>
+      </div>
+    </div>
+
     <!-- Before/after terminals -->
     <p class="label-row">비교: 기존 방식 vs 바이브 코딩</p>
     <div class="grid-2 mb-24">
@@ -2187,6 +2243,34 @@
       </div>
     </div>
 
+    <!-- B2: 운전석이 바뀜 -->
+    <p class="label-row">운전석이 바뀝니다</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      코드 쓰는 사람 → 의도를 전달하고 결과를 검증·통합하는 사람. 속도가 오른 게 아니라, 작업의 성격이 달라짐.
+    </p>
+    <div class="grid-2 mb-24">
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 12px;">Before · 코드 작성자</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 1.85; color: var(--text-2);">
+          <li>• 문법 · API 검색</li>
+          <li>• 함수 · 클래스 직접 작성</li>
+          <li>• 에러 디버깅</li>
+          <li>• Stack Overflow 스크롤</li>
+          <li>• 반복 타이핑</li>
+        </ul>
+      </div>
+      <div class="card accent-left" style="border-left-color: var(--amber);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 12px;">After · 감독 · QA · 통합</p>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 1.85; color: var(--text-2);">
+          <li>▸ 목표 · 제약 명세</li>
+          <li>▸ 맥락 공급 (어떤 파일 · 규칙 · 관행)</li>
+          <li>▸ 결과 읽고 방향 교정</li>
+          <li>▸ 테스트로 검증</li>
+          <li>▸ PR 수준에서 개입 · 결정</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- Why it matters -->
     <p class="label-row">왜 AI 연구원에게 중요한가?</p>
     <div class="grid-3 mb-24">
@@ -2201,6 +2285,44 @@
       <div class="card hover">
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">03</p>
         <p style="font-weight: 600; font-size: 15px;">반복 작업 스크립트화</p>
+      </div>
+    </div>
+
+    <!-- B3: 새로 익혀야 할 세 가지 -->
+    <p class="label-row">새로 익혀야 할 세 가지</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      바이브 코딩의 '바이브'는 감이 아니라 스킬. 세 축이 실제 아웃풋 품질을 가릅니다.
+    </p>
+    <div class="grid-3 mb-24">
+      <div class="card accent-left hover" style="border-left-color: var(--amber);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px;">01 · Prompt</p>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">프롬프트 엔지니어링</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.65; margin-bottom: 10px;">
+          의도를 오해 없이 전달. 작업 단위 · 출력 형식 · 성공 기준까지 함께 말하는 법.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 8px; color: var(--text-sub);">
+          예: "parse.py 스타일대로 parser.py 추가, pytest -q 통과까지"
+        </p>
+      </div>
+      <div class="card accent-left hover" style="border-left-color: var(--green);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 6px;">02 · Context</p>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">컨텍스트 엔지니어링</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.65; margin-bottom: 10px;">
+          모델이 봐야 할 것 · 보지 말아야 할 것. 파일 · 규칙 · 외부 데이터를 공급하는 법.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 8px; color: var(--text-sub);">
+          → CH 02 · CLAUDE.md · Skills · MCP
+        </p>
+      </div>
+      <div class="card accent-left hover" style="border-left-color: var(--blue);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px;">03 · Verify</p>
+        <p style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">검증 · 테스트</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.65; margin-bottom: 10px;">
+          AI의 결과를 믿는 근거. unit test · type check · 실제 실행 · diff 리뷰.
+        </p>
+        <p class="muted small" style="font-family: var(--mono); border-top: 1px dashed var(--line-soft); padding-top: 8px; color: var(--text-sub);">
+          → CH 03 · 하네스 엔지니어링
+        </p>
       </div>
     </div>
 
@@ -2279,12 +2401,12 @@
     <div class="grid-2 mb-24">
       <div class="card hover">
         <span class="badge blue mb-8">기본</span>
-        <p style="font-weight: 700; margin: 6px 0 4px;">Sonnet 4</p>
+        <p style="font-weight: 700; margin: 6px 0 4px;">Sonnet 4.5</p>
         <p class="muted small">빠르고 효율적 — 일반 코딩 작업</p>
       </div>
       <div class="card hover">
         <span class="badge purple mb-8">고급</span>
-        <p style="font-weight: 700; margin: 6px 0 4px;">Opus 4</p>
+        <p style="font-weight: 700; margin: 6px 0 4px;">Opus 4.7</p>
         <p class="muted small">깊은 추론 — 복잡한 아키텍처 설계</p>
       </div>
     </div>
