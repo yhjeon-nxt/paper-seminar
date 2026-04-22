@@ -2979,132 +2979,126 @@
       </div>
     </div>
 
-    <p class="label-row">SKILL.md 예시 4종</p>
+    <p class="label-row">자동 호출 — 어떻게 고르나</p>
+    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+      사용자 발화가 들어오면 Claude가 어떤 skill을 쓸지 결정하는 순서. <strong style="color: var(--text);">description이 매칭 키</strong> — 잘 쓰면 놓치지 않고, 막연히 쓰면 안 불린다.
+    </p>
+    <div class="grid-3 mb-16">
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 6px;">Step 01 · 세션 시작</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">등록</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          모든 <code>SKILL.md</code>의 <code>name</code> + <code>description</code>이 Claude 컨텍스트에 올라감. <strong style="color: var(--text);">본문은 아직 로드 X</strong> — token 절약.
+        </p>
+      </div>
+      <div class="card">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-sub); margin-bottom: 6px;">Step 02 · 발화 입력</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">의미 매칭</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          사용자 프롬프트 ↔ 각 skill의 description 의미 매칭. 적합하면 후보 선정, 여러 개면 가장 적합한 것.
+        </p>
+      </div>
+      <div class="card accent-left" style="border-left-color: var(--cyan);">
+        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); margin-bottom: 6px;">Step 03 · 호출</p>
+        <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">전체 로드 · 실행</p>
+        <p class="muted small" style="color: var(--text-2); line-height: 1.6;">
+          선정된 skill의 <code>SKILL.md</code> 전체가 컨텍스트에 들어오고 그 지시대로 실행. 세션 동안 유지.
+        </p>
+      </div>
+    </div>
+    <div class="terminal mb-24">
+      <div class="terminal-bar">
+        <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
+        <span class="terminal-title">auto-invoke · 예시 발화</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt-sign">❯</span> <span class="user-input">새 실험 스크립트 하나 만들어줘. CIFAR-10에 resnet18 돌리는 거</span></div>
+        <div class="muted" style="margin-top: 8px; font-family: var(--mono); font-size: 12px;">  ↳ <span style="color: var(--cyan);">[matched] /experiment-conventions</span></div>
+        <div class="muted" style="font-family: var(--mono); font-size: 12px;">  ↳ description: "PyTorch 실험 스크립트 규칙. 학습 코드 작성 시 사용 ..."</div>
+        <div class="ai-response" style="margin-top: 6px;">  → seed 고정 · W&amp;B 로깅 · checkpoint 2개 보관 규칙 적용해서 작성</div>
+      </div>
+    </div>
+
+    <p class="label-row">SKILL.md 예시 2종</p>
     <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
       모두 <code>~/.claude/skills/&lt;이름&gt;/SKILL.md</code>에 저장하면 <code>/&lt;이름&gt;</code>으로 호출됨. frontmatter가 invocation·도구·서브에이전트·인수를 제어.
     </p>
     <div class="grid-2 mb-24" style="gap: 14px;">
-      <!-- Example 1: 자동 호출 참조 -->
+      <!-- Example 1: 실험 컨벤션 (자동 호출) -->
       <div>
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px;">01 · 참조 · 자동 호출</p>
-        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">api-conventions</p>
-        <p class="muted small" style="margin-bottom: 10px;">컨벤션. Claude가 API 작업 중 알아서 참조.</p>
+        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">experiment-conventions</p>
+        <p class="muted small" style="margin-bottom: 10px;">PyTorch 실험 컨벤션. 학습 스크립트 작성 중 Claude가 알아서 참조.</p>
         <div class="code-block">
           <div class="code-chrome">
             <span class="code-lang">md</span>
-            <span class="code-file">skills/api-conventions/SKILL.md</span>
+            <span class="code-file">skills/experiment-conventions/SKILL.md</span>
             <button class="code-copy" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body">
             <div><span class="code-comment">---</span></div>
-            <div><span class="code-cmd">name:</span> <span class="code-string">api-conventions</span></div>
-            <div><span class="code-cmd">description:</span> <span class="code-string">API 설계 규칙 — RESTful 네이밍, 에러 포맷, 요청 검증</span></div>
+            <div><span class="code-cmd">name:</span> <span class="code-string">experiment-conventions</span></div>
+            <div><span class="code-cmd">description:</span> <span class="code-string">PyTorch 실험 스크립트 규칙 — 학습 코드 작성·수정·리뷰 시 사용. seed · W&amp;B · checkpoint · reproducibility 표준.</span></div>
             <div><span class="code-comment">---</span></div>
             <div>&nbsp;</div>
-            <div>엔드포인트 작성 시:</div>
-            <div>- RESTful 네이밍 (명사 · 복수형)</div>
-            <div>- 에러: <span class="code-cmd">{ error: { code, message } }</span></div>
-            <div>- 요청 검증은 middleware 단</div>
+            <div>실험 스크립트 작성 시:</div>
+            <div>- <strong>Seed 고정</strong>: <span class="code-cmd">seed_everything(cfg.seed)</span></div>
+            <div>&nbsp;&nbsp;(torch · numpy · random 모두)</div>
+            <div>- <strong>W&amp;B 로깅</strong>: <span class="code-cmd">wandb.init(project, config=cfg)</span></div>
+            <div>- <strong>Checkpoint</strong>: epoch별 + best metric 2개 보관</div>
+            <div>- <strong>Config</strong>: Hydra (<span class="code-cmd">conf/*.yaml</span>)</div>
+            <div>- <strong>Device</strong>: <span class="code-cmd">torch.device(cfg.device)</span>, autodetect 금지</div>
           </div>
         </div>
       </div>
 
-      <!-- Example 2: 수동 태스크 -->
+      <!-- Example 2: SLURM 잡 제출 (수동) -->
       <div>
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px;">02 · 태스크 · 수동 전용</p>
-        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">commit</p>
-        <p class="muted small" style="margin-bottom: 10px;">side effect. Claude 자동 invoke 금지.</p>
+        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">submit-job</p>
+        <p class="muted small" style="margin-bottom: 10px;">SLURM 잡 제출. Compute 비용 발생 — Claude 자동 invoke 금지.</p>
         <div class="code-block">
           <div class="code-chrome">
             <span class="code-lang">md</span>
-            <span class="code-file">skills/commit/SKILL.md</span>
+            <span class="code-file">skills/submit-job/SKILL.md</span>
             <button class="code-copy" onclick="copyCode(this)">Copy</button>
           </div>
           <div class="code-body">
             <div><span class="code-comment">---</span></div>
-            <div><span class="code-cmd">name:</span> <span class="code-string">commit</span></div>
-            <div><span class="code-cmd">description:</span> <span class="code-string">Conventional commit 자동 생성</span></div>
+            <div><span class="code-cmd">name:</span> <span class="code-string">submit-job</span></div>
+            <div><span class="code-cmd">description:</span> <span class="code-string">SLURM 잡 제출 — compute 비용 발생, 반드시 사람 확인</span></div>
             <div><span class="code-cmd">disable-model-invocation:</span> <span class="code-string">true</span></div>
-            <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash(git add *) Bash(git commit *)</span></div>
+            <div><span class="code-cmd">argument-hint:</span> <span class="code-string">[config-path]</span></div>
+            <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash(sbatch *) Bash(squeue *) Read</span></div>
             <div><span class="code-comment">---</span></div>
             <div>&nbsp;</div>
-            <div>staged changes 분석 후 커밋:</div>
-            <div>1. <span class="code-cmd">git diff --staged</span>로 변경 읽기</div>
-            <div>2. <span class="code-cmd">type(scope): summary</span> 형식 제안</div>
-            <div>3. 승인 시 커밋. <span class="code-cmd">$ARGUMENTS</span>는 추가 컨텍스트</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Example 3: 서브에이전트 fork -->
-      <div>
-        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--purple); margin-bottom: 4px;">03 · 서브에이전트 · fork</p>
-        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">deep-research</p>
-        <p class="muted small" style="margin-bottom: 10px;">별도 컨텍스트. 메인 세션 오염 방지.</p>
-        <div class="code-block">
-          <div class="code-chrome">
-            <span class="code-lang">md</span>
-            <span class="code-file">skills/deep-research/SKILL.md</span>
-            <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          </div>
-          <div class="code-body">
-            <div><span class="code-comment">---</span></div>
-            <div><span class="code-cmd">name:</span> <span class="code-string">deep-research</span></div>
-            <div><span class="code-cmd">description:</span> <span class="code-string">토픽을 코드베이스 전반으로 조사</span></div>
-            <div><span class="code-cmd">context:</span> <span class="code-string">fork</span>   <span class="code-comment"># 별도 서브에이전트</span></div>
-            <div><span class="code-cmd">agent:</span> <span class="code-string">Explore</span> <span class="code-comment"># read-only 탐색 툴</span></div>
-            <div><span class="code-comment">---</span></div>
-            <div>&nbsp;</div>
-            <div><span class="code-cmd">$ARGUMENTS</span>에 대해 조사:</div>
-            <div>1. Glob · Grep으로 관련 파일 찾기</div>
-            <div>2. 핵심 패턴 식별</div>
-            <div>3. 파일 참조 포함해 요약</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Example 4: 인수 받기 -->
-      <div>
-        <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 4px;">04 · 인수 · $ARGUMENTS</p>
-        <p style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">fix-issue</p>
-        <p class="muted small" style="margin-bottom: 10px;"><code>/fix-issue 123</code> 처럼 번호 받아 동작.</p>
-        <div class="code-block">
-          <div class="code-chrome">
-            <span class="code-lang">md</span>
-            <span class="code-file">skills/fix-issue/SKILL.md</span>
-            <button class="code-copy" onclick="copyCode(this)">Copy</button>
-          </div>
-          <div class="code-body">
-            <div><span class="code-comment">---</span></div>
-            <div><span class="code-cmd">name:</span> <span class="code-string">fix-issue</span></div>
-            <div><span class="code-cmd">description:</span> <span class="code-string">GitHub 이슈 수정 후 PR 제출</span></div>
-            <div><span class="code-cmd">argument-hint:</span> <span class="code-string">[issue-number]</span></div>
-            <div><span class="code-cmd">disable-model-invocation:</span> <span class="code-string">true</span></div>
-            <div><span class="code-cmd">allowed-tools:</span> <span class="code-string">Bash(gh *)</span></div>
-            <div><span class="code-comment">---</span></div>
-            <div>&nbsp;</div>
-            <div>GitHub 이슈 #<span class="code-cmd">$ARGUMENTS</span> 수정:</div>
-            <div>1. <span class="code-cmd">gh issue view $ARGUMENTS</span>로 이슈 읽기</div>
-            <div>2. 요구사항 → 구현 → 테스트</div>
-            <div>3. <span class="code-cmd">gh pr create</span>로 PR 제출</div>
+            <div>SLURM 잡 제출 절차:</div>
+            <div>1. <span class="code-cmd">$ARGUMENTS</span> config 읽어서 요약</div>
+            <div>&nbsp;&nbsp;(model · dataset · lr · bs · gpus)</div>
+            <div>2. 예상 runtime · GPU 시간 리포트</div>
+            <div>3. <strong>사용자 확인</strong> 받은 뒤 <span class="code-cmd">sbatch</span> 실행</div>
+            <div>4. <span class="code-cmd">squeue</span>로 job ID 반환</div>
           </div>
         </div>
       </div>
     </div>
 
-    <p class="label-row">실행 예시</p>
+    <p class="label-row">실행 예시 · /submit-job 수동 호출</p>
     <div class="terminal mb-24">
       <div class="terminal-bar">
         <div class="terminal-dot red"></div><div class="terminal-dot yellow"></div><div class="terminal-dot green"></div>
-        <span class="terminal-title">~/my-project</span>
+        <span class="terminal-title">~/experiments</span>
       </div>
       <div class="terminal-body">
-        <div><span class="prompt-sign">❯</span> <span style="color: var(--blue); font-weight: 600;">/commit</span></div>
-        <div class="tool-call">  ↳ Bash: git diff --staged</div>
-        <div class="tool-call">  ↳ Analyzing changes...</div>
-        <div class="ai-response" style="margin-top: 4px;">  커밋 메시지를 생성했습니다:</div>
-        <div style="margin-top: 4px;"><span class="success">  feat: 사용자 인증 로직에 OAuth2 지원 추가</span></div>
-        <div class="muted" style="margin-top: 4px;">  커밋할까요? (y/n)</div>
+        <div><span class="prompt-sign">❯</span> <span style="color: var(--blue); font-weight: 600;">/submit-job</span> conf/resnet18_cifar10.yaml</div>
+        <div class="tool-call">  ↳ Read: conf/resnet18_cifar10.yaml</div>
+        <div class="ai-response" style="margin-top: 4px;">  Config 요약:</div>
+        <div style="margin-top: 2px;">    model=resnet18 · dataset=CIFAR-10 · lr=1e-3 · bs=128 · gpus=2</div>
+        <div style="margin-top: 2px;">    예상 runtime: ~45분 · 2× A100 (GPU시간 1.5h)</div>
+        <div class="muted" style="margin-top: 6px;">  제출할까요? (y/n)</div>
+        <div><span class="prompt-sign">❯</span> <span class="user-input">y</span></div>
+        <div class="tool-call">  ↳ Bash: sbatch scripts/launch.slurm conf/resnet18_cifar10.yaml</div>
+        <div style="margin-top: 4px;"><span class="success">  ✓ Submitted batch job 831427</span></div>
       </div>
     </div>
 
