@@ -2545,28 +2545,28 @@
 
     <!-- Why write a CLAUDE.md -->
     <p class="label-row">왜 써야 하는가?</p>
-    <p class="mb-12" style="color: var(--text-2); max-width: 68ch;">
+    <p class="mb-12" style="max-width: 68ch;">
       매 세션 Claude는 아무것도 모르고 시작합니다. 지난 대화의 규칙, 프로젝트의 관습, 건드리면 안 되는 영역 — 전부 재설명해야 하죠. CLAUDE.md는 그 재설명을 파일로 못 박아 두는 장치입니다.
     </p>
     <div class="grid-3 mb-24">
       <div class="card accent-left hover" style="border-left-color: var(--blue);">
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px;">01 · Context</p>
         <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">매번 설명하지 않아도 됨</p>
-        <p class="muted small" style="color: var(--text-2); line-height: 1.65;">
+        <p class="muted small" style="line-height: 1.65;">
           빌드 명령·스택·폴더 구조·컨벤션을 세션마다 다시 가르칠 필요가 없습니다. 파일을 열자마자 Claude가 "이 프로젝트는 uv + Hydra"를 알고 시작.
         </p>
       </div>
       <div class="card accent-left hover" style="border-left-color: var(--amber);">
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px;">02 · Guardrail</p>
         <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">실수 방지 레일</p>
-        <p class="muted small" style="color: var(--text-2); line-height: 1.65;">
+        <p class="muted small" style="line-height: 1.65;">
           <code style="color: var(--amber);">pip 대신 uv</code>, <code style="color: var(--amber);">main에 직접 push 금지</code>, <code style="color: var(--amber);">raw 데이터 read-only</code> — 자율 모드에서도 지켜야 할 선을 코드로 못 박습니다.
         </p>
       </div>
       <div class="card accent-left hover" style="border-left-color: var(--green);">
         <p style="font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 6px;">03 · Reproducibility</p>
         <p style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">팀·미래의 나와 공유</p>
-        <p class="muted small" style="color: var(--text-2); line-height: 1.65;">
+        <p class="muted small" style="line-height: 1.65;">
           git에 커밋되므로 동료의 Claude도 같은 규칙을 따릅니다. 3개월 뒤 돌아와도 "왜 이렇게 짰지?"가 파일로 남아 있음.
         </p>
       </div>
@@ -2587,7 +2587,7 @@
 
     <!-- Example: advanced, real-world DL project -->
     <p class="label-row">실전 예시 — DL 연구 프로젝트</p>
-    <p class="muted small mb-12" style="color: var(--text-2); max-width: 68ch;">
+    <p class="muted small mb-12" style="max-width: 68ch;">
       p-tau217 혈장 바이오마커로 뇌 tau PET SUVR을 예측하는 멀티모달 딥러닝 파이프라인. 데이터 거버넌스·실험 재현성·팀 협업 규칙을 한 파일로.
     </p>
     <div class="code-block mb-16">
