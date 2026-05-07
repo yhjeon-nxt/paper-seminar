@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spreading Brain Atrophy Paper Seminar Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+      background-color: #2563eb; z-index: 9999; transition: width 0.1s linear;
+    }
+
+    nav {
+      position: fixed; top: 3px; left: 0; right: 0; height: 56px;
+      background-color: #ffffff; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; padding: 0 32px; z-index: 1000;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+    .nav-home { margin-right: 12px; color: #64748b; text-decoration: none; font-size: 0.875rem; font-weight: 500; flex-shrink: 0; transition: color 0.15s; }
+    .nav-home:hover { color: #2563eb; }
+    .nav-logo { font-size: 1.05rem; font-weight: 700; color: #2563eb; letter-spacing: -0.02em; margin-right: 32px; white-space: nowrap; flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; flex-wrap: wrap; }
+    .nav-links a {
+      display: inline-block; padding: 5px 12px; font-size: 0.85rem; font-weight: 500;
+      color: #64748b; text-decoration: none; border-radius: 6px; transition: color 0.15s, background-color 0.15s;
+    }
+    .nav-links a:hover { color: #1e293b; background-color: #f1f5f9; }
+    .nav-links a.active { color: #ffffff; background-color: #2563eb; }
+
+    main { padding-top: 80px; }
+    section { padding: 80px 0; }
+    section:nth-child(even) { background-color: #f1f5f9; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+    .section-header { margin-bottom: 40px; }
+    .section-title { font-size: 1.875rem; font-weight: 700; color: #1e293b; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .section-subtitle { font-size: 1rem; color: #64748b; font-weight: 400; }
+
+    .card {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 24px;
+    }
+    .card-title { font-size: 1rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+    .card-body { font-size: 0.9rem; color: #334155; line-height: 1.65; }
+
+    .overview-paper-label {
+      display: inline-block; background-color: #dbeafe; color: #1d4ed8;
+      font-size: 0.8rem; font-weight: 600; padding: 4px 10px;
+      border-radius: 4px; margin-bottom: 20px; letter-spacing: 0.01em;
+    }
+    .overview-paper-title {
+      font-size: 1.6rem; font-weight: 700; color: #1e293b;
+      letter-spacing: -0.03em; line-height: 1.35; margin-bottom: 16px; max-width: 880px;
+    }
+    .overview-authors { font-size: 0.95rem; color: #334155; margin-bottom: 6px; }
+    .overview-venue { font-size: 0.85rem; color: #64748b; margin-bottom: 32px; }
+
+    .contribution-card {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 24px;
+      border-top: 3px solid #2563eb;
+    }
+    .contribution-label {
+      display: inline-block; background-color: #dbeafe; color: #1d4ed8;
+      font-size: 0.75rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 4px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .highlight-box {
+      background-color: #dbeafe; border: 1px solid #93c5fd;
+      border-radius: 8px; padding: 20px 24px; margin-top: 28px;
+    }
+    .highlight-box-label {
+      font-size: 0.8rem; font-weight: 700; color: #1d4ed8;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+    }
+    .highlight-box-text { font-size: 0.95rem; color: #1e3a8a; font-weight: 500; }
+
+    .stat-card {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 20px 16px; text-align: center;
+    }
+    .stat-value {
+      font-size: 1.75rem; font-weight: 700; color: #2563eb;
+      letter-spacing: -0.03em; margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.8rem; color: #64748b; font-weight: 500; line-height: 1.5; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .mb-28 { margin-bottom: 28px; }
+
+    .limitation-card {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 24px;
+      border-top: 3px solid #f59e0b;
+    }
+    .limitation-card .card-title { color: #92400e; }
+
+    .info-card {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); padding: 24px;
+      margin-bottom: 28px; border-left: 4px solid #2563eb;
+    }
+    .info-card-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+    .info-card-body { font-size: 0.9rem; color: #334155; line-height: 1.65; }
+
+    .figure-container {
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;
+      margin: 28px 0;
+    }
+    .figure-container:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
+    .figure-container img { width: 100%; height: auto; display: block; background: #fafafa; }
+    figcaption {
+      padding: 16px 20px; font-size: 0.9rem; color: #475569;
+      border-top: 1px solid #f1f5f9; line-height: 1.65;
+    }
+    .figure-hint { display: inline-block; font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+
+    .subsection-title {
+      font-size: 1.2rem; font-weight: 700; color: #1e293b;
+      margin-bottom: 20px; margin-top: 40px;
+      padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;
+    }
+
+    .pipeline-container {
+      display: flex; align-items: stretch; gap: 0;
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      overflow: hidden; margin-bottom: 28px;
+    }
+    .pipeline-step { flex: 1; padding: 24px 20px; position: relative; }
+    .pipeline-step:not(:last-child) { border-right: 1px solid #f1f5f9; }
+    .pipeline-step-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; background-color: #2563eb; color: #ffffff;
+      font-size: 0.8rem; font-weight: 700; border-radius: 50%; margin-bottom: 12px;
+    }
+    .pipeline-step-title { font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+    .pipeline-step-body { font-size: 0.82rem; color: #64748b; line-height: 1.55; }
+
+    .highlights-list { list-style: none; padding: 0; }
+    .highlights-list li {
+      background: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 16px 20px; margin-bottom: 12px;
+      font-size: 0.9rem; color: #334155; line-height: 1.6;
+      border-left: 4px solid #2563eb;
+    }
+
+    /* LIGHTBOX */
+    #lightbox {
+      display: none; position: fixed; inset: 0;
+      background-color: rgba(0, 0, 0, 0.85); z-index: 9000;
+      align-items: center; justify-content: center; flex-direction: column;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox-close {
+      position: absolute; top: 20px; right: 28px; font-size: 2rem;
+      color: #ffffff; cursor: pointer; line-height: 1;
+      background: none; border: none; font-weight: 300; opacity: 0.8;
+    }
+    #lightbox-close:hover { opacity: 1; }
+    #lightbox-img { max-width: 90%; max-height: 80vh; object-fit: contain; border-radius: 4px; }
+    #lightbox-caption {
+      color: #cbd5e1; font-size: 0.875rem; margin-top: 14px;
+      max-width: 80%; text-align: center; line-height: 1.5;
+    }
+
+    /* TOGGLE BOX */
+    .toggle-box {
+      background: #ffffff; border: 1px solid #e2e8f0;
+      border-radius: 8px; margin-top: 20px; overflow: hidden;
+    }
+    .toggle-summary {
+      padding: 16px 20px; font-size: 0.95rem; font-weight: 600;
+      color: #2563eb; cursor: pointer; list-style: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toggle-summary::-webkit-details-marker { display: none; }
+    .toggle-summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; }
+    details[open] .toggle-summary::before { transform: rotate(90deg); }
+    .toggle-content { padding: 0 20px 20px; }
+
+    /* INTRO FLOW */
+    .intro-flow-nav {
+      position: static; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+      background-color: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 16px 20px; margin-bottom: 40px;
+    }
+    .intro-flow-step {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 6px;
+      color: #64748b; text-decoration: none;
+      font-size: 0.82rem; font-weight: 500;
+      transition: color 0.15s, background-color 0.15s; cursor: pointer;
+    }
+    .intro-flow-step:hover { color: #1e293b; background-color: #f1f5f9; }
+    .intro-flow-step.active { color: #ffffff; background-color: #2563eb; }
+    .intro-flow-step .intro-flow-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background-color: #dbeafe; color: #1d4ed8;
+      font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+    }
+    .intro-flow-step.active .intro-flow-num { background-color: #ffffff; color: #2563eb; }
+    .intro-flow-arrow { color: #cbd5e1; font-size: 0.9rem; user-select: none; }
+
+    .intro-step {
+      position: relative; margin-bottom: 72px; padding-top: 40px;
+      border-top: 2px solid #e2e8f0; scroll-margin-top: 80px;
+    }
+    .intro-step:first-of-type { border-top: none; padding-top: 8px; }
+    .intro-step:last-child { margin-bottom: 0; }
+    .intro-step-header { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+    .intro-step-number {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; border-radius: 50%;
+      background-color: #2563eb; color: #ffffff;
+      font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+    .intro-step-heading { flex: 1; min-width: 0; }
+    .intro-step-label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      color: #2563eb; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 4px;
+    }
+    .intro-step-title {
+      font-size: 1.4rem; font-weight: 700; color: #1e293b;
+      letter-spacing: -0.02em; margin: 0; line-height: 1.3;
+    }
+    .intro-step-terminal {
+      margin-top: 16px; padding: 12px 16px;
+      background-color: #f1f5f9; border-left: 3px solid #2563eb;
+      border-radius: 4px; font-size: 0.88rem; color: #334155; font-style: italic;
+    }
+
+    /* CONCEPT NETWORK SVG */
+    .concept-svg-wrap {
+      background: #ffffff; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      padding: 24px; margin: 24px 0;
+    }
+    .concept-svg-wrap svg { width: 100%; height: auto; max-width: 760px; display: block; margin: 0 auto; }
+
+    /* dual-disease compare */
+    .dx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .dx-card { background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08); padding:22px 22px 20px; border-top:4px solid; }
+    .dx-bvftd { border-color:#2563eb; }
+    .dx-svppa { border-color:#dc2626; }
+    .dx-tag { display:inline-block; font-size:0.72rem; font-weight:700; padding:3px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px; }
+    .dx-bvftd .dx-tag { background:#dbeafe; color:#1d4ed8; }
+    .dx-svppa .dx-tag { background:#fee2e2; color:#b91c1c; }
+    .dx-name { font-size:1.05rem; font-weight:700; color:#1e293b; margin-bottom:6px; }
+    .dx-area { font-size:0.78rem; color:#64748b; font-weight:500; margin-bottom:12px; }
+    .dx-body { font-size:0.88rem; color:#334155; line-height:1.6; }
+
+    /* 3-formula card */
+    .formula-card {
+      background:#0f172a; color:#e2e8f0; border-radius:8px; padding:22px 24px;
+      font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.95rem;
+    }
+    .formula-card .f-label { color:#fbbf24; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; font-family: 'Pretendard', sans-serif; font-weight:700; }
+    .formula-card .f-eq { font-size:1rem; line-height:1.8; color:#f1f5f9; }
+    .formula-card .f-eq .v { color:#60a5fa; }
+    .formula-card .f-eq .o { color:#f472b6; }
+    .formula-card .f-eq sub { font-size: 0.7em; color:#94a3b8; }
+    .formula-card .f-note { color:#94a3b8; font-size:0.82rem; margin-top:10px; font-family: 'Pretendard', sans-serif; line-height:1.55; }
+
+    /* metric grid */
+    .metric-row { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:16px; }
+    .metric-cell { background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:14px 16px; }
+    .metric-cell .mc-label { font-size:0.72rem; font-weight:700; color:#2563eb; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
+    .metric-cell .mc-val { font-size:0.95rem; color:#1e293b; font-weight:600; }
+    .metric-cell .mc-note { font-size:0.78rem; color:#64748b; margin-top:4px; line-height:1.5; }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .dx-grid { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+      .pipeline-container { flex-direction: column; }
+      .pipeline-step:not(:last-child) { border-right: none; border-bottom: 1px solid #f1f5f9; }
+      nav { padding: 0 16px; }
+      .nav-links a { padding: 4px 8px; font-size: 0.8rem; }
+      .container { padding: 0 16px; }
+      .overview-paper-title { font-size: 1.3rem; }
+      .section-title { font-size: 1.5rem; }
+      .intro-flow-nav { padding: 12px 14px; gap: 6px; }
+      .intro-flow-arrow { display: none; }
+      .intro-step { margin-bottom: 56px; padding-top: 32px; }
+      .intro-step-header { gap: 14px; margin-bottom: 20px; }
+      .intro-step-number { width: 40px; height: 40px; font-size: 1.05rem; }
+      .intro-step-title { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <nav>
+    <a href="../" class="nav-home">← Home</a>
+    <div class="nav-logo">spreading-atrophy</div>
+    <ul class="nav-links">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#background">Background</a></li>
+      <li><a href="#methods">Methods</a></li>
+      <li><a href="#results-1">Results I</a></li>
+      <li><a href="#results-2">Results II</a></li>
+      <li><a href="#results-3">Results III</a></li>
+      <li><a href="#discussion">Discussion</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ===== SECTION 1: OVERVIEW ===== -->
+    <section id="overview">
+      <div class="container">
+        <span class="overview-paper-label">Neuroscience / Frontotemporal Dementia</span>
+        <h1 class="overview-paper-title">Patient-Tailored, Connectivity-Based Forecasts of Spreading Brain Atrophy</h1>
+        <p class="overview-authors">Jesse A. Brown, Alex J. Lee, Lorenzo Pasquini, William W. Seeley, et al.</p>
+        <p class="overview-venue">Neuron · 부검 코호트 + 종단 sMRI · Network-based atrophy progression model</p>
+
+        <div class="grid-3 mb-28">
+          <div class="contribution-card">
+            <span class="contribution-label">FINDING</span>
+            <h3 class="card-title">개인별 epicenter 식별</h3>
+            <p class="card-body">bvFTD·svPPA 환자 각각에서 baseline atrophy 패턴과 healthy FC map의 spatial correlation으로 환자 개별 epicenter를 정의</p>
+          </div>
+          <div class="contribution-card">
+            <span class="contribution-label">MECHANISM</span>
+            <h3 class="card-title">Network-based 확산 모델</h3>
+            <p class="card-body">Shortest path to epicenter (SPE) + Nodal hazard 두 가지 그래프 지표로 향후 1년 atrophy 변화량을 예측</p>
+          </div>
+          <div class="contribution-card">
+            <span class="contribution-label">IMPLICATION</span>
+            <h3 class="card-title">환자 맞춤형 예후</h3>
+            <p class="card-body">집단 평균이 아닌 개별 환자의 connectome 기반 예측 → 임상에서 진행 위험 영역을 사전 식별</p>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <div class="highlight-box-label">핵심 결과</div>
+          <p class="highlight-box-text">FTD spectrum의 두 표현형(bvFTD, svPPA)에서 개인별 epicenter를 식별하고, healthy connectome 그래프 위에서의 거리·강도 지표(SPE, Nodal hazard)만으로 1년 후 voxel 단위 회백질 위축을 예측한다. 73%의 스캔에서 r &gt; 0.23, 평균 r ≈ 0.55의 within-scan 상관을 달성.</p>
+        </div>
+
+        <p style="margin-top:16px; margin-bottom:32px; font-size:0.95rem; color:#334155; line-height:1.65;">
+          <strong style="color:#1e293b;">왜 강한 임팩트를 가지는가:</strong> 신경퇴행이 connectome을 따라 "전파(spread)"한다는 가설을 환자 단위에서 정량화한 첫 사례 중 하나. 단순 두 가지 그래프 지표만으로 종단 위축의 어느 영역이 가장 빠르게 진행할지 예측 가능함을 보였다 — 향후 임상시험 endpoint 설계와 환자 stratification에 직접적 함의.
+        </p>
+
+        <figure class="figure-container" onclick="openLightbox(this)">
+          <img src="images/figure1.png" alt="Figure 1: epicenter identification pipeline" loading="lazy">
+          <figcaption>
+            Figure 1. <strong>(A)</strong> 환자별 회백질 위축 W map 산출 — 265명 HC1 코호트에서 age·sex·hand·edu 공변량 voxel-based morphometry GLM을 학습 → 환자 sMRI의 실제 GM과 예측 GM 차이를 표준화. <strong>(B)</strong> 75명 HC2 tf-fMRI에서 추출한 194개 후보 epicenter의 functional connectivity map과 환자 W map을 spatial correlate → r이 가장 큰 region을 환자 개별 epicenter로 선택 (예시: r=0.48). bvFTD n=42(124 sMRIs), svPPA n=30(111 sMRIs).
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 2: BACKGROUND ===== -->
+    <section id="background">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Background</h2>
+          <p class="section-subtitle">왜 connectome 기반 예측이 필요한가 — Introduction의 논리 흐름</p>
+        </div>
+
+        <nav class="intro-flow-nav" aria-label="Introduction 흐름">
+          <a href="#step-1" class="intro-flow-step" data-step="1"><span class="intro-flow-num">1</span>FTD 표현형</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-2" class="intro-flow-step" data-step="2"><span class="intro-flow-num">2</span>Network spread</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-3" class="intro-flow-step" data-step="3"><span class="intro-flow-num">3</span>집단 vs 개인</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-4" class="intro-flow-step" data-step="4"><span class="intro-flow-num">4</span>두 가지 갭</a>
+          <span class="intro-flow-arrow">→</span>
+          <a href="#step-5" class="intro-flow-step" data-step="5"><span class="intro-flow-num">5</span>이 연구</a>
+        </nav>
+
+        <!-- STEP 1 -->
+        <div id="step-1" class="intro-step">
+          <div class="intro-step-header">
+            <div class="intro-step-number">1</div>
+            <div class="intro-step-heading">
+              <span class="intro-step-label">STEP 1 · 질병 맥락</span>
+              <h3 class="intro-step-title">FTD spectrum: bvFTD와 svPPA</h3>
+            </div>
+          </div>
+
+          <div class="dx-grid">
+            <div class="dx-card dx-bvftd">
+              <span class="dx-tag">bvFTD</span>
+              <div class="dx-name">Behavioral variant FTD</div>
+              <div class="dx-area">전두엽 · 전측 측두엽 · insula · ACC</div>
+              <p class="dx-body">행동·인격·실행기능 장애로 시작. 위축은 anterior insula, ACC, 안와전두엽, 전측 측두엽을 중심으로 광범위하게 진행.</p>
+            </div>
+            <div class="dx-card dx-svppa">
+              <span class="dx-tag">svPPA</span>
+              <div class="dx-name">Semantic variant PPA</div>
+              <div class="dx-area">좌측 측두엽 전극 (anterior temporal lobe)</div>
+              <p class="dx-body">의미 기억 손상으로 시작. 위축은 좌측 측두엽 극부에서 시작하여 측두엽 전반과 변연계로 확산되는 비교적 좁은 시작점.</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <p class="info-card-body">
+              두 phenotype 모두 진단 시점부터 위축이 특정 영역에 <strong>국소화(focal)</strong>되어 시작된다는 점이 핵심이다. 시간이 지나면서 위축은 인접한 구조적 이웃이 아니라, <strong>기능적/구조적으로 연결된 distant 영역</strong>으로 번져 나간다. 이는 단순 nearest-neighbor 확산이 아닌 connectome-mediated spread를 시사한다.
+            </p>
+          </div>
+          <p class="intro-step-terminal">두 질병은 서로 다른 연결망을 따라가는가? — 이것이 첫 번째 단서.</p>
+        </div>
+
+        <!-- STEP 2 -->
+        <div id="step-2" class="intro-step">
+          <div class="intro-step-header">
+            <div class="intro-step-number">2</div>
+            <div class="intro-step-heading">
+              <span class="intro-step-label">STEP 2 · 핵심 가설</span>
+              <h3 class="intro-step-title">Network-based degeneration hypothesis</h3>
+            </div>
+          </div>
+          <div class="info-card">
+            <p class="info-card-body">
+              과거 십수 년의 연구들은 신경퇴행 질환의 위축 패턴이 healthy <strong>functional connectivity network</strong>와 잘 정렬된다는 것을 반복적으로 보여 왔다. AD는 default mode network, bvFTD는 salience network, svPPA는 좌측 anterior temporal language network를 따라 진행한다.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              이는 "<strong>tau·TDP-43 등 misfolded 단백질이 시냅스를 통해 trans-synaptic하게 전파된다</strong>"는 prion-like 가설과 부합한다. 위축의 시작점을 <strong>epicenter</strong>로 정의하고, epicenter와 강하게 연결된 영역일수록 빠르게 위축된다는 것이 핵심 예측이다.
+            </p>
+          </div>
+
+          <!-- concept network diagram -->
+          <div class="concept-svg-wrap">
+            <svg viewBox="0 0 760 280" role="img">
+              <title>Network spread concept</title>
+              <!-- edges -->
+              <g stroke="#cbd5e1" stroke-width="1.5">
+                <line x1="120" y1="140" x2="260" y2="80"/>
+                <line x1="120" y1="140" x2="260" y2="200"/>
+                <line x1="120" y1="140" x2="380" y2="140"/>
+                <line x1="260" y1="80" x2="380" y2="140"/>
+                <line x1="260" y1="200" x2="380" y2="140"/>
+                <line x1="380" y1="140" x2="500" y2="80"/>
+                <line x1="380" y1="140" x2="500" y2="200"/>
+                <line x1="500" y1="80" x2="640" y2="140"/>
+                <line x1="500" y1="200" x2="640" y2="140"/>
+              </g>
+              <!-- nodes -->
+              <g font-family="Pretendard, sans-serif" font-size="11" font-weight="600" text-anchor="middle">
+                <circle cx="120" cy="140" r="28" fill="#dc2626"/>
+                <text x="120" y="144" fill="#fff">Epi</text>
+                <circle cx="260" cy="80" r="22" fill="#f97316"/>
+                <text x="260" y="84" fill="#fff">N1</text>
+                <circle cx="260" cy="200" r="22" fill="#f97316"/>
+                <text x="260" y="204" fill="#fff">N2</text>
+                <circle cx="380" cy="140" r="20" fill="#fbbf24"/>
+                <text x="380" y="144" fill="#1e293b">N3</text>
+                <circle cx="500" cy="80" r="18" fill="#fde68a"/>
+                <text x="500" y="84" fill="#92400e">N4</text>
+                <circle cx="500" cy="200" r="18" fill="#fde68a"/>
+                <text x="500" y="204" fill="#92400e">N5</text>
+                <circle cx="640" cy="140" r="16" fill="#f1f5f9" stroke="#cbd5e1"/>
+                <text x="640" y="144" fill="#94a3b8">N6</text>
+              </g>
+              <!-- legend -->
+              <g font-family="Pretendard, sans-serif" font-size="11" fill="#475569">
+                <text x="380" y="252" text-anchor="middle">Epicenter에서 멀어질수록 (graph distance ↑) 위축 정도가 약해진다</text>
+                <text x="380" y="270" text-anchor="middle" font-style="italic" fill="#94a3b8">색이 진할수록 = 빠른 위축</text>
+              </g>
+            </svg>
+          </div>
+          <p class="intro-step-terminal">그렇다면 이 가설을 환자 단위에서 정량적으로 검증할 수 있는가?</p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div id="step-3" class="intro-step">
+          <div class="intro-step-header">
+            <div class="intro-step-number">3</div>
+            <div class="intro-step-heading">
+              <span class="intro-step-label">STEP 3 · 집단 vs 개인</span>
+              <h3 class="intro-step-title">집단 평균에서 개별 환자로</h3>
+            </div>
+          </div>
+          <div class="info-card">
+            <p class="info-card-body">
+              기존 network-degeneration 연구는 대부분 <strong>집단 평균 atrophy map과 집단 epicenter</strong> 수준에서 작동했다. 그러나 임상에서 마주하는 것은 한 명의 환자이며, 환자마다 epicenter의 위치와 atrophy 분포가 다르다 — 같은 bvFTD라도 우측 insula 우세형이 있고 좌측 frontal 우세형이 있다.
+            </p>
+            <p class="info-card-body" style="margin-top:12px;">
+              따라서 <strong>"이 환자의 1년 뒤"</strong>를 예측하려면 (1) 그 환자의 baseline atrophy로부터 epicenter를 추정하고, (2) 그 epicenter에서 출발하는 connectome 기반 확산 동역학을 모델링해야 한다. 이것이 patient-tailored forecasting의 의미다.
+            </p>
+          </div>
+          <p class="intro-step-terminal">개별 환자의 atrophy 패턴은 정말 다른가? PCA로 확인.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <div id="step-4" class="intro-step">
+          <div class="intro-step-header">
+            <div class="intro-step-number">4</div>
+            <div class="intro-step-heading">
+              <span class="intro-step-label">STEP 4 · 두 가지 갭</span>
+              <h3 class="intro-step-title">답하지 못한 두 질문</h3>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="limitation-card">
+              <h3 class="card-title">Gap A · 환자별 epicenter</h3>
+              <p class="card-body">
+                각 환자의 <strong>baseline 위축</strong>만으로 epicenter를 객관적으로 결정하는 표준 절차가 부족했다. group-level epicenter는 평균을 잡지만 임상에서는 개별 환자의 starting point가 더 중요하다.
+              </p>
+            </div>
+            <div class="limitation-card">
+              <h3 class="card-title">Gap B · 종단 예측 ★</h3>
+              <p class="card-body">
+                connectome 위에서 어떤 그래프 지표가 향후 위축을 가장 잘 설명하는지 — 단순 epicenter와의 거리(SPE)가 충분한가, 아니면 이미 위축된 이웃들의 누적 위험(Nodal hazard)을 합산해야 하는가 — 가 명확하지 않았다.
+              </p>
+            </div>
+          </div>
+          <p class="intro-step-terminal">두 가지 그래프 지표를 모두 정의하고 비교 검증하자.</p>
+        </div>
+
+        <!-- STEP 5 -->
+        <div id="step-5" class="intro-step">
+          <div class="intro-step-header">
+            <div class="intro-step-number">5</div>
+            <div class="intro-step-heading">
+              <span class="intro-step-label">STEP 5 · 이 연구의 접근</span>
+              <h3 class="intro-step-title">3가지 구체적 목표</h3>
+            </div>
+          </div>
+          <div class="grid-3 mb-28">
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 1</span>
+              <h3 class="card-title">개별 epicenter 식별</h3>
+              <p class="card-body">194개 후보 region 중 환자 W map과 spatial correlation이 가장 높은 region을 epicenter로 선택</p>
+            </div>
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 2</span>
+              <h3 class="card-title">두 그래프 지표 정의</h3>
+              <p class="card-body">SPE (epicenter까지 inverse-FC 가중 최단 경로) + Nodal hazard (모든 이웃 노드 severity × FC 합)</p>
+            </div>
+            <div class="contribution-card">
+              <span class="contribution-label">AIM 3</span>
+              <h3 class="card-title">종단 atrophy 예측</h3>
+              <p class="card-body">두 지표 + baseline atrophy 회귀로 ΔW/year를 voxel 단위로 예측. 73%의 스캔에서 r &gt; 0.23 달성</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 3: METHODS ===== -->
+    <section id="methods">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Methods</h2>
+          <p class="section-subtitle">두 코호트 + 두 그래프 지표 + 회귀 예측</p>
+        </div>
+
+        <div class="grid-4 mb-28">
+          <div class="stat-card"><div class="stat-value">265</div><div class="stat-label">HC1 (sMRI normative)<br>VBM GLM 학습</div></div>
+          <div class="stat-card"><div class="stat-value">75</div><div class="stat-label">HC2 (tf-fMRI)<br>FC graph 추출</div></div>
+          <div class="stat-card"><div class="stat-value">42</div><div class="stat-label">bvFTD 환자<br>124 sMRIs</div></div>
+          <div class="stat-card"><div class="stat-value">30</div><div class="stat-label">svPPA 환자<br>111 sMRIs</div></div>
+        </div>
+
+        <div class="info-card">
+          <h3 class="info-card-title">Cohort &amp; Imaging</h3>
+          <p class="info-card-body" style="margin-bottom:12px;">
+            두 개의 healthy control 코호트를 분리해서 활용한다. <strong>HC1 (n=265 sMRI)</strong>은 age·sex·handedness·education을 공변량으로 갖는 voxel-based morphometry GLM의 normative 모델 학습용. <strong>HC2 (n=75 tf-fMRI)</strong>는 194개 region 간 functional connectivity graph를 추출하여 모든 환자에게 공통으로 적용되는 healthy connectome을 구성한다.
+          </p>
+          <p class="info-card-body">
+            환자는 bvFTD 42명·svPPA 30명, 각각 평균 3회 가까운 종단 sMRI를 보유한다 (총 124 + 111 = 235 sMRIs).
+          </p>
+        </div>
+
+        <div class="pipeline-container">
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">1</div>
+            <div class="pipeline-step-title">VBM W-map 산출</div>
+            <div class="pipeline-step-body">HC1 GLM으로부터 환자별 GM_actual − GM_predicted를 잔차 표준편차로 나눈 W-score map.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">2</div>
+            <div class="pipeline-step-title">Epicenter 결정</div>
+            <div class="pipeline-step-body">194개 후보 seed의 HC2 FC map과 환자 W-map의 spatial correlation 최대값을 갖는 region 선택.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">3</div>
+            <div class="pipeline-step-title">SPE &amp; Nodal hazard</div>
+            <div class="pipeline-step-body">FC를 가중치로 하는 그래프에서 epicenter까지의 inverse-FC shortest path, 그리고 이웃 노드 severity × FC 가중합.</div>
+          </div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-number">4</div>
+            <div class="pipeline-step-title">종단 ΔW 예측</div>
+            <div class="pipeline-step-body">SPE + Nodal hazard + baseline W로 spline 회귀 → 다음 시점의 voxel-wise atrophy 변화 예측 및 spatial 상관 평가.</div>
+          </div>
+        </div>
+
+        <h3 class="subsection-title">두 가지 그래프 지표의 정의</h3>
+        <div class="formula-card">
+          <div class="f-label">Shortest Path to Epicenter (SPE)</div>
+          <div class="f-eq">SPE<sub>N</sub> = Σ<sub>e ∈ path(Epi → N)</sub> 1 / FC<sub>e</sub></div>
+          <div class="f-note">Healthy FC graph에서 edge 가중치를 1/FC로 두고 epicenter에서 노드 N까지의 dijkstra 최단 경로 길이. FC가 강한 길은 짧고, 약한 길은 멀게 측정된다 — connectome 위에서의 "기능적 거리".</div>
+          <div class="f-label" style="margin-top:18px;">Nodal Hazard</div>
+          <div class="f-eq">Hazard<sub>N</sub> = Σ<sub>i ∈ neighbors(N)</sub> S<sub>Ni</sub> · FC<sub>e(Ni, N)</sub></div>
+          <div class="f-note">노드 N의 모든 이웃 i에 대해, 그 이웃의 현재 atrophy severity S<sub>Ni</sub>와 N과의 FC 가중치를 곱한 값들의 합. <em>"내 이웃들이 얼마나 망가졌고, 나는 그들과 얼마나 강하게 연결돼 있는가"</em>의 누적 위험.</div>
+        </div>
+
+        <figure class="figure-container" onclick="openLightbox(this)" style="margin-top:32px;">
+          <img src="images/figure3.png" alt="Figure 3: SPE and Nodal Hazard" loading="lazy">
+          <figcaption>
+            Figure 3. <strong>(왼쪽)</strong> Shortest Path to Epicenter — 노드 N에서 epicenter Epi까지 가능한 모든 경로 중, edge 가중치 1/FC의 합이 최소인 경로 길이. 단일 청색 경로가 SPE를 시각화. <strong>(오른쪽)</strong> Nodal Hazard — 노드 N의 모든 이웃 (N1~N6)의 현재 severity (색)와 N과의 FC (edge 두께)의 곱을 합산. 같은 노드라도 이웃들이 더 망가질수록 hazard가 커진다.
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 4: RESULTS I ===== -->
+    <section id="results-1">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Results I: Atrophy 패턴의 개별성</h2>
+          <p class="section-subtitle">PCA로 본 bvFTD vs svPPA, 그리고 환자 내 시간적 일관성</p>
+        </div>
+
+        <div class="grid-2 mb-28">
+          <div class="card">
+            <h3 class="card-title">Phenotype 수준의 분리</h3>
+            <p class="card-body">Atrophy frequency map에서 bvFTD는 안와전두·ACC·insula 우세, svPPA는 좌측 anterior temporal pole 우세 — 두 표현형은 PCA 공간에서 PC1·PC2 모두에서 명확히 분리된다.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">환자 내 종단 trajectory</h3>
+            <p class="card-body">한 환자의 여러 시점 sMRI는 PCA 공간에서 거의 직선적으로 이동 — 즉 <strong>각 환자는 자기만의 atrophy 방향성</strong>을 갖고, 시간이 지나도 그 방향에서 이탈하지 않는다.</p>
+          </div>
+        </div>
+
+        <figure class="figure-container" onclick="openLightbox(this)">
+          <img src="images/figure2.png" alt="Figure 2: Atrophy frequency, PCA, epicenter distributions" loading="lazy">
+          <figcaption>
+            Figure 2. <strong>(좌·우 패널)</strong> bvFTD와 svPPA 각각의 atrophy frequency map (위 두 줄) 및 환자별 epicenter 분포 (아래 두 줄). bvFTD는 양측 frontal·insula·ACC에 광범위하게 frequency가 높은 반면, svPPA는 좌측 측두엽 극부에 집중된다. epicenter도 동일한 패턴 — bvFTD는 12명/region까지 분산, svPPA는 좌측 ATL에 집중되며 11명까지 동일 region. <strong>(가운데)</strong> 환자별 W-map의 PC1×PC2 PCA — bvFTD(파랑) vs svPPA(빨강) 두 군이 분리되며, 같은 환자의 종단 시점들은 선분으로 연결되어 시간적 trajectory를 보여준다.
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <details class="toggle-box" style="margin-bottom:28px;">
+          <summary class="toggle-summary">Figure 2 요약: 왜 개별 epicenter 정의가 정당한가?</summary>
+          <div class="toggle-content">
+            <p class="card-body">
+              bvFTD는 epicenter가 12개 region에 걸쳐 분산되어 있다 — 같은 진단명 안에서도 환자마다 시작점이 다르다는 직접 증거. 반면 svPPA는 좌측 anterior temporal lobe라는 비교적 좁은 영역에 epicenter가 모이지만, 정확한 hotspot은 환자마다 미세하게 다르다. PCA에서 환자별 trajectory가 분기 없이 직선이라는 점은, 한 번 결정된 epicenter가 환자의 종단 위축 방향을 안정적으로 결정함을 시사한다.
+            </p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 5: RESULTS II ===== -->
+    <section id="results-2">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Results II: 종단 위축 예측 성능</h2>
+          <p class="section-subtitle">SPE + Nodal hazard로 1년 뒤 voxel-wise ΔW를 어떻게 맞히는가</p>
+        </div>
+
+        <div class="grid-2 mb-28">
+          <div class="card">
+            <h3 class="card-title">Voxel-wise 예측 정확도</h3>
+            <p class="card-body">
+              모든 환자·모든 voxel을 합치면 estimated ΔW와 actual ΔW의 산점도가 양의 강한 상관을 보인다. 환자 개별 시점 별로 within-scan 상관을 계산하면 <strong>중앙값 r ≈ 0.55</strong>이며, <strong>73%의 스캔에서 r &gt; 0.23</strong> (Group 1), 27%는 r &lt; 0.23 (Group 2).
+            </p>
+            <div class="metric-row">
+              <div class="metric-cell"><div class="mc-label">Group 1</div><div class="mc-val">73% of scans</div><div class="mc-note">r &gt; 0.23 — 모델이 잘 작동</div></div>
+              <div class="metric-cell"><div class="mc-label">Group 2</div><div class="mc-val">27% of scans</div><div class="mc-note">r &lt; 0.23 — 후속 분석 필요</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="card-title">두 지표의 비선형 기여</h3>
+            <p class="card-body">
+              부분 회귀 곡선에서 <strong>SPE는 단조 감소</strong> — epicenter에서 멀수록 위축이 적다. <strong>Nodal hazard는 단조 증가</strong>이며 큰 hazard 영역에서 가속도가 붙는다. <strong>Baseline atrophy</strong>는 중간값에서 최대 — 이미 완전히 망가진 voxel은 추가 변화량이 0에 가깝고 (floor 효과), 완전히 정상인 voxel도 변화량이 작다.
+            </p>
+          </div>
+        </div>
+
+        <figure class="figure-container" onclick="openLightbox(this)">
+          <img src="images/figure4.png" alt="Figure 4: prediction accuracy and partial dependence" loading="lazy">
+          <figcaption>
+            Figure 4. <strong>(A)</strong> Voxel-level scatter — 가로 actual ΔW/year, 세로 estimated ΔW. 회색 = 모든 voxel, 파랑 = bvFTD 환자별 평균, 빨강 = svPPA 환자별 평균. 강한 양의 상관. <strong>(B)</strong> Within-scan r 분포 히스토그램 — 73%가 r &gt; 0.23 (녹색, Group 1), 27%가 그 미만 (빨강, Group 2). 분포의 mode는 r ≈ 0.6~0.7 부근. <strong>(C)</strong> SPE·Nodal hazard·Baseline atrophy 각각의 partial dependence 곡선. SPE: 4 부근에서 급강하. Nodal hazard: 1 이상에서 가속 상승. Baseline W: 2~3에서 최대인 inverted-U.
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 6: RESULTS III ===== -->
+    <section id="results-3">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Results III: 환자별 spatial 예측</h2>
+          <p class="section-subtitle">실제 변화와 모델 추정이 어디서 어떻게 일치하는가</p>
+        </div>
+
+        <div class="info-card">
+          <p class="info-card-body">
+            예측이 단지 "어떤 영역이 빠르게 망가질 것이다"가 아니라 <strong>해부학적 위치까지 맞아야</strong> 임상적으로 의미가 있다. 환자별 baseline atrophy, 1년 후 actual change, 모델 estimated change의 세 지도를 같은 색상 코드로 비교한다.
+          </p>
+        </div>
+
+        <h3 class="subsection-title">bvFTD &amp; svPPA — 두 표현형 모두에서 spatial 일치</h3>
+
+        <div class="grid-2 mb-28">
+          <div class="card">
+            <h3 class="card-title">bvFTD (Figure 5 좌측)</h3>
+            <p class="card-body">Baseline atrophy가 안와전두·ACC·insula에 집중되어 있고 (B), 1년 뒤 actual change는 medial frontal 외측·측두엽으로 확장 (C). Estimated change (D)는 동일 영역 — 분홍 = baseline & ΔW 공통, 주황 = 새 영역 — 을 정확히 예측. Healthy FC modules (A) 위에 매핑하면 frontoparietal·salience network 라인을 따라 전파.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">svPPA (Figure 5 우측)</h3>
+            <p class="card-body">Baseline atrophy는 좌측 anterior temporal pole에 집중 (F). Actual change는 측두엽 후방·반대편·변연계로 확산 (G), estimated 역시 같은 패턴 (H). Healthy FC modules (E) 기준 좌측 temporal language network에서 출발해 contralateral hemisphere로 이어지는 spread.</p>
+          </div>
+        </div>
+
+        <figure class="figure-container" onclick="openLightbox(this)">
+          <img src="images/figure5.png" alt="Figure 5: bvFTD/svPPA 환자 단위 spatial 예측 (덜 심한 케이스)" loading="lazy">
+          <figcaption>
+            Figure 5. 비교적 초기 단계 환자에서의 baseline → 1년 actual change → 모델 estimated change. <strong>(A·E)</strong> Healthy FC modules — DMN, salience, FPN, AT, PHC, HIP 등 12개 community. <strong>(B·F)</strong> baseline W &gt; 1.5인 영역 (red)과 epicenter (yellow). <strong>(C·G)</strong> 다음 시점 actual ΔW/year — 주황: 새로 ΔW만 큰 영역, 분홍: 기존 + 새 영역, 빨강: 기존만. <strong>(D·H)</strong> 모델 estimated change — C·G와 동일 색 체계. 좌측: bvFTD, 우측: svPPA. 두 환자 모두 모델이 actual change와 매우 유사한 공간 패턴을 재현.
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <h3 class="subsection-title">진행이 빠른 케이스 — Figure 6</h3>
+
+        <p class="card-body" style="margin-bottom:18px;">
+          더 진행된 환자(baseline W &gt; 3 in bvFTD, &gt; 2 in svPPA)에서도 모델은 작동한다. svPPA의 경우 좌측 측두엽 위축이 이미 심한 상태에서 시작했음에도, contralateral 측두엽과 변연계로의 확산을 estimated map이 정확히 잡아낸다. bvFTD는 양측 medial frontal·anterior temporal로의 광범위한 확장이 예측된다.
+        </p>
+
+        <figure class="figure-container" onclick="openLightbox(this)">
+          <img src="images/figure6.png" alt="Figure 6: 더 진행된 환자의 spatial 예측" loading="lazy">
+          <figcaption>
+            Figure 6. 더 진행된 환자에서의 spatial 예측. 색상 체계는 Figure 5와 동일. bvFTD: baseline W &gt; 3, ΔW/year &gt; 0.10. svPPA: baseline W &gt; 2, ΔW/year &gt; 0.20. 두 케이스 모두 actual과 estimated 패턴이 강하게 정렬되며, 특히 svPPA에서 좌측 시작 → contralateral 측두엽 진행이 잘 재현된다.
+            <span class="figure-hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <ul class="highlights-list">
+          <li><strong>모델 강점:</strong> 단 두 가지 그래프 지표 (SPE, Nodal hazard) + baseline 만으로 voxel 단위 spatial 예측이 가능 — black-box ML 없이 해석 가능</li>
+          <li><strong>Phenotype 일반화:</strong> bvFTD와 svPPA처럼 시작점·연결망이 다른 두 phenotype에 동일 모델을 적용하여 양쪽 모두 작동</li>
+          <li><strong>진행 단계 robust:</strong> baseline W가 작은 초기 환자(Figure 5)와 큰 후기 환자(Figure 6) 모두에서 비슷한 spatial 정확도 — saturation 영역을 inverted-U baseline 항이 자연스럽게 처리</li>
+          <li><strong>Group 2 (27%)의 의미:</strong> r &lt; 0.23인 스캔에서는 atrophy가 이미 평탄화되어 변화량 자체가 작거나, prion-like spread가 아닌 다른 메커니즘 (혈관성·미세출혈 등)이 우세할 가능성 — 추가 분석 대상</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== SECTION 7: DISCUSSION ===== -->
+    <section id="discussion">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Discussion</h2>
+          <p class="section-subtitle">임상·연구적 함의와 한계</p>
+        </div>
+
+        <div class="grid-2 mb-28">
+          <div class="card">
+            <h3 class="card-title">임상시험 stratification</h3>
+            <p class="card-body">개별 환자의 SPE·Nodal hazard 분포를 사용해 1년 후 가장 빠르게 위축될 영역을 사전 식별 → MRI endpoint 기반 임상시험에서 환자를 fast-progressor / slow-progressor로 stratify하거나 ROI를 환자별로 사전 정의 가능.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Trans-synaptic spread 가설의 정량 지지</h3>
+            <p class="card-body">Healthy connectome 그래프 위의 단순 거리·이웃 위험 합이 1년 변화량을 설명한다는 사실은, misfolded protein의 시냅스 매개 전파 가설이 환자 단위에서도 유효함을 강하게 시사.</p>
+          </div>
+        </div>
+
+        <div class="grid-2 mb-28">
+          <div class="card">
+            <h3 class="card-title">한계 1 — 단일 healthy connectome</h3>
+            <p class="card-body">모든 환자에게 75명 HC2 평균 FC graph를 적용했다. 환자 자신의 baseline rs-fMRI를 쓸 경우 예측이 더 좋아질 수 있지만, 진행된 환자에선 FC 자체가 왜곡돼 있어 절충이 필요하다.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">한계 2 — Group 2의 27%</h3>
+            <p class="card-body">예측이 잘 되지 않는 약 1/4의 스캔이 존재. 이들은 단순 noise일 수도 있고, prion-like spread 외의 병리 — vascular co-pathology, comorbid AD 등 — 가 작동하는 환자일 수도 있다. 추가 분류·종합 모델이 향후 과제.</p>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <div class="highlight-box-label">결론</div>
+          <p class="highlight-box-text">FTD spectrum의 두 표현형에서 환자별 atrophy epicenter를 baseline W-map만으로 식별하고, healthy connectome의 두 그래프 지표 (SPE, Nodal hazard)와 결합하여 1년 후 voxel-wise 위축을 예측할 수 있다. 단순하고 해석 가능한 모델이 신경퇴행의 network spread 가설을 환자 단위 정량 예측으로 환원시켰다는 점이 본 연구의 핵심 기여이다.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="lightbox">
+    <button id="lightbox-close" aria-label="닫기">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption"></div>
+  </div>
+
+  <script>
+    (function initProgressBar() {
+      var bar = document.getElementById('progress-bar');
+      function upd() {
+        var s = window.scrollY || document.documentElement.scrollTop;
+        var d = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        bar.style.width = (d > 0 ? (s/d)*100 : 0) + '%';
+      }
+      window.addEventListener('scroll', upd, { passive: true });
+      upd();
+    })();
+
+    (function initScrollSpy() {
+      var navLinks = document.querySelectorAll('.nav-links a');
+      function setActive(id) {
+        navLinks.forEach(function(l) {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+        });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    })();
+
+    (function initSmoothScroll() {
+      var navHeight = 59;
+      document.querySelectorAll('.nav-links a, .intro-flow-step').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            var target = document.querySelector(href);
+            if (target) {
+              var t = target.getBoundingClientRect().top + window.scrollY - navHeight;
+              window.scrollTo({ top: t, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    })();
+
+    (function initIntroFlowNav() {
+      var flowLinks = document.querySelectorAll('.intro-flow-step');
+      if (!flowLinks.length) return;
+      function setActive(id) {
+        flowLinks.forEach(function(l) {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+        });
+      }
+      var steps = document.querySelectorAll('.intro-step');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      steps.forEach(function(s) { obs.observe(s); });
+    })();
+
+    var lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightbox-img');
+    var lbCap = document.getElementById('lightbox-caption');
+    var lbClose = document.getElementById('lightbox-close');
+
+    function openLightbox(fig) {
+      var img = fig.querySelector('img');
+      var cap = fig.querySelector('figcaption');
+      if (!img) return;
+      lbImg.src = img.src; lbImg.alt = img.alt || '';
+      lbCap.textContent = cap ? cap.textContent.trim().replace('클릭하여 확대','').trim() : '';
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      lbClose.focus();
+    }
+    function closeLightbox() {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+      lbImg.src = '';
+    }
+    lbClose.addEventListener('click', closeLightbox);
+    lb.addEventListener('click', function(e) { if (e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lb.classList.contains('open')) closeLightbox();
+    });
+  </script>
+</body>
+</html>
