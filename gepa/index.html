@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEPA: Reflective Prompt Evolution · Paper Seminar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    :root {
+      --ink: #0a0a0b;
+      --body: #26262b;
+      --muted: #6b6b73;
+      --faint: #4b4b52;
+      --line: #d6d6db;
+      --line-soft: #e8e8ec;
+      --bg: #ffffff;
+      --bg-alt: #f3f4f6;
+      --accent: #1d4ed8;
+      --accent-soft: #e3ecff;
+    }
+    /* Ink & Paper: lift panels off the page */
+    .card, .stat-row, .flow, .anatomy, .cand-card, .merge-child, .formula,
+    .note, .tbl-wrap, details.pv, figure.fig, .tree {
+      box-shadow: 0 1px 2px rgba(15,15,20,.06), 0 3px 8px rgba(15,15,20,.05);
+    }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--body);
+      line-height: 1.72;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background-color: var(--accent); z-index: 9999; transition: width 0.1s linear;
+    }
+
+    nav {
+      position: fixed; top: 2px; left: 0; right: 0; height: 54px;
+      background-color: rgba(255,255,255,0.86); backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; padding: 0 32px; z-index: 1000;
+    }
+    .nav-home { margin-right: 14px; color: var(--muted); text-decoration: none; font-size: 0.8rem; font-weight: 500; flex-shrink: 0; transition: color 0.15s; }
+    .nav-home:hover { color: var(--ink); }
+    .nav-logo { font-size: 0.95rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-right: 30px; white-space: nowrap; flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; flex-wrap: wrap; }
+    .nav-links a {
+      display: inline-block; padding: 5px 11px; font-size: 0.8rem; font-weight: 500;
+      color: var(--faint); text-decoration: none; border-radius: 6px; transition: color 0.15s, background-color 0.15s;
+    }
+    .nav-links a:hover { color: var(--ink); background-color: var(--bg-alt); }
+    .nav-links a.active { color: var(--ink); background-color: var(--line-soft); }
+
+    main { padding-top: 54px; }
+    section { padding: 88px 0; border-top: 1px solid var(--line-soft); }
+    section:first-child { border-top: none; }
+    section:nth-child(even) { background-color: var(--bg-alt); }
+
+    .container { max-width: 940px; margin: 0 auto; padding: 0 32px; }
+
+    /* section headers */
+    .kicker {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-size: 0.74rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 18px;
+    }
+    .kicker .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid var(--line);
+      border-radius: 5px; font-size: 0.72rem; color: var(--faint); letter-spacing: 0;
+    }
+    .section-title { font-size: 1.7rem; font-weight: 700; color: var(--ink); letter-spacing: -0.03em; line-height: 1.25; margin-bottom: 10px; }
+    .section-lead { font-size: 1rem; color: var(--faint); max-width: 720px; }
+    .section-head { margin-bottom: 44px; }
+
+    p { margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--ink); font-weight: 600; }
+    .en { font-style: normal; }
+    code { font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.85em; background: var(--line-soft); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+    /* inline math — LaTeX-like serif italic, no box */
+    .m { font-family: 'Times New Roman', 'Cambria Math', Georgia, serif; font-style: italic; font-size: 1.08em; color: var(--ink); white-space: nowrap; }
+    .m sub { font-size: 0.7em; font-style: italic; }
+
+    .lead-text { font-size: 1.05rem; color: var(--body); max-width: 760px; }
+
+    /* overview */
+    .paper-kicker {
+      font-size: 0.76rem; font-weight: 600; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.11em; margin-bottom: 22px;
+    }
+    .paper-title {
+      font-size: 2.15rem; font-weight: 800; color: var(--ink);
+      letter-spacing: -0.035em; line-height: 1.2; margin-bottom: 22px; max-width: 860px;
+    }
+    .paper-authors { font-size: 0.92rem; color: var(--body); margin-bottom: 6px; line-height: 1.7; }
+    .paper-venue { font-size: 0.85rem; color: var(--muted); margin-bottom: 30px; }
+    .paper-venue .dot { margin: 0 8px; color: var(--line); }
+
+    /* cards */
+    .card {
+      background-color: var(--bg); border: 1px solid var(--line);
+      border-radius: 10px; padding: 24px 26px;
+    }
+    .card-title { font-size: 0.98rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.01em; }
+    .card-body { font-size: 0.9rem; color: var(--body); line-height: 1.68; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .mt-32 { margin-top: 32px; }
+    .mt-40 { margin-top: 40px; }
+
+    .contrib .card { border-top: 2px solid var(--ink); border-radius: 0 0 10px 10px; }
+    .contrib .idx { font-size: 0.76rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 10px; }
+
+    /* stat row */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .stat { padding: 22px 20px; text-align: center; border-right: 1px solid var(--line); }
+    .stat:last-child { border-right: none; }
+    .stat-value { font-size: 1.85rem; font-weight: 800; color: var(--ink); letter-spacing: -0.04em; margin-bottom: 5px; }
+    .stat-value .u { font-size: 1.05rem; font-weight: 700; color: var(--faint); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+    /* figure */
+    figure.fig {
+      border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+      cursor: zoom-in; margin: 32px 0; background: var(--bg); transition: border-color 0.2s;
+    }
+    figure.fig:hover { border-color: var(--muted); }
+    figure.fig img { width: 100%; height: auto; display: block; background: #fff; }
+    figure.fig.narrow img { max-width: 620px; margin: 0 auto; }
+    figcaption {
+      padding: 15px 20px; font-size: 0.85rem; color: var(--faint);
+      border-top: 1px solid var(--line-soft); line-height: 1.62;
+    }
+    figcaption .fnum { font-weight: 700; color: var(--ink); }
+    figcaption .hint { display: inline-block; font-size: 0.75rem; color: var(--muted); margin-left: 6px; }
+
+    /* formula */
+    .formula {
+      background: var(--bg-alt); border: 1px solid var(--line);
+      border-radius: 10px; padding: 22px 26px; margin: 28px 0;
+    }
+    .formula .flabel { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+    .formula .feq-img { text-align: center; overflow-x: auto; padding: 12px 0 6px; color: var(--ink); }
+    .formula .feq-img svg { max-width: 100%; height: auto; display: inline-block; vertical-align: middle; }
+    .formula .fnote { font-size: 0.83rem; color: var(--faint); margin-top: 14px; line-height: 1.6; }
+
+    /* pipeline */
+    .flow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 8px 0 4px; }
+    .flow-step { padding: 20px 16px; border-right: 1px solid var(--line-soft); position: relative; }
+    .flow-step:last-child { border-right: none; }
+    .flow-num { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.04em; }
+    .flow-title { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.3; }
+    .flow-body { font-size: 0.78rem; color: var(--faint); line-height: 1.5; }
+
+    /* callout */
+    .callout {
+      border-left: 2px solid var(--accent); padding: 4px 0 4px 20px; margin: 28px 0;
+    }
+    .callout .clabel { font-size: 0.72rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .callout p { font-size: 0.96rem; color: var(--ink); margin: 0; }
+
+    .note { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin: 28px 0; }
+    .note .card-body { font-size: 0.88rem; }
+
+    /* table */
+    .tbl-wrap { overflow-x: auto; margin: 28px 0; border: 1px solid var(--line); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 480px; }
+    thead th { text-align: right; padding: 13px 18px; font-weight: 700; color: var(--ink); background: var(--bg-alt); border-bottom: 2px solid var(--ink); font-size: 0.82rem; }
+    thead th:first-child { text-align: left; }
+    tbody td { text-align: right; padding: 12px 18px; color: var(--body); border-bottom: 1px solid var(--line); }
+    tbody td:first-child { text-align: left; font-weight: 500; color: var(--ink); }
+    tbody tr:nth-child(even):not(.hl) td { background: #f6f7f9; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr.hl td { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+    tbody tr.hl td:first-child { color: var(--accent); }
+    .pos { color: #15803d; font-weight: 600; }
+
+    /* list */
+    ul.clean { list-style: none; padding: 0; margin: 8px 0 0; }
+    ul.clean li { position: relative; padding-left: 22px; margin-bottom: 14px; font-size: 0.94rem; color: var(--body); line-height: 1.62; }
+    ul.clean li:last-child { margin-bottom: 0; }
+    ul.clean li::before { content: ''; position: absolute; left: 4px; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+    ul.clean li strong { color: var(--ink); }
+
+    .subhead { font-size: 1.08rem; font-weight: 700; color: var(--ink); margin: 40px 0 16px; letter-spacing: -0.01em; }
+    .subhead:first-child { margin-top: 0; }
+
+    /* module anatomy — I/O contract → evolving π pipeline */
+    .anatomy { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 24px 0; }
+    .anatomy-head { background: var(--bg-alt); padding: 14px 20px; font-size: 0.84rem; font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line); }
+    .anatomy-head .sub { font-weight: 500; color: var(--muted); }
+    .modx { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modx:last-child { border-bottom: none; }
+    .modx-head { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
+    .modx-name { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+    .modx-head .spacer { flex: 1; }
+    .modx-flow { display: grid; grid-template-columns: minmax(0,0.9fr) 28px minmax(0,1.7fr) 28px minmax(0,0.72fr); align-items: stretch; }
+    .io { border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; background: var(--bg-alt); display: flex; flex-direction: column; justify-content: center; }
+    .io-lbl { font-size: 0.7rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+    .io-lbl b { color: var(--ink); }
+    .io-fld { font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.75rem; color: var(--ink); line-height: 1.5; word-break: break-word; }
+    .io-arrow { align-self: center; justify-self: center; color: var(--faint); font-size: 1.05rem; font-weight: 600; }
+    .pi-box { border: 1.5px solid var(--accent); border-radius: 8px; padding: 10px 14px; background: var(--accent-soft); display: flex; flex-direction: column; gap: 6px; }
+    .pi-top { display: flex; align-items: center; gap: 8px; }
+    .pi-top .mono { font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.72rem; color: var(--accent); font-weight: 700; }
+    .pi-txt { font-size: 0.8rem; color: var(--ink); line-height: 1.5; }
+    .pi-txt em { color: var(--faint); font-style: normal; }
+    .anatomy-foot { padding: 12px 20px; background: var(--bg-alt); border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--faint); line-height: 1.55; }
+    .anatomy-foot b { color: var(--body); }
+    .tag { display: inline-block; font-size: 0.66rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; letter-spacing: 0.02em; }
+    .tag-evolve { background: var(--accent); color: #fff; }
+    .tag-frozen { background: var(--line-soft); color: var(--muted); }
+
+    /* merge crossover */
+    .merge { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 8px 0 0; }
+    .cand-card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .cand-title { padding: 12px 16px; font-size: 0.82rem; font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--line); }
+    .cand-title .sub { font-weight: 500; color: var(--muted); font-size: 0.92em; }
+    .cand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; font-size: 0.82rem; border-bottom: 1px solid var(--line); }
+    .cand-row:last-child { border-bottom: none; }
+    .cand-row .rn { color: var(--body); }
+    .cand-row .rn strong { color: var(--ink); }
+    .pill { font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+    .pill-p2 { background: #eff6ff; color: #2563eb; }
+    .pill-p3 { background: #ecfdf5; color: #059669; }
+    .pill-base { background: var(--line-soft); color: var(--muted); }
+    .merge-arrow { text-align: center; color: var(--faint); font-size: 0.82rem; font-weight: 600; margin: 16px 0 0; }
+    .merge-child { border: 1px solid var(--ink); border-radius: 10px; overflow: hidden; margin-top: 14px; }
+    .merge-child .cand-title { background: var(--bg-alt); }
+
+    .tree { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin: 24px 0; font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.82rem; line-height: 1.9; color: var(--body); overflow-x: auto; white-space: pre; }
+    .tree .r { color: #059669; font-weight: 700; }
+    .tree .x { color: #dc2626; font-weight: 700; }
+    .tree .n { color: var(--ink); font-weight: 700; }
+    .tree .c { color: var(--muted); }
+
+    /* prompt evolution toggles */
+    details.pv { border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; overflow: hidden; background: var(--bg); }
+    details.pv > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+    details.pv > summary::-webkit-details-marker { display: none; }
+    details.pv > summary::before { content: '▸'; color: var(--muted); font-size: 0.78rem; align-self: center; }
+    details.pv[open] > summary::before { content: '▾'; }
+    details.pv > summary .pv-node { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+    details.pv > summary .pv-score { font-size: 0.76rem; font-weight: 700; color: var(--accent); }
+    details.pv > summary .pv-what { font-size: 0.82rem; color: var(--faint); font-weight: 400; flex: 1; min-width: 200px; }
+    pre.prompt { margin: 0; padding: 18px 20px; border-top: 1px solid var(--line-soft); font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.75rem; line-height: 1.62; color: var(--body); white-space: pre-wrap; word-break: break-word; background: var(--bg-alt); max-height: 440px; overflow-y: auto; }
+    .pv-body { padding: 12px 18px 16px; font-size: 0.9rem; color: var(--body); line-height: 1.68; border-top: 1px solid var(--line-soft); background: var(--bg-alt); }
+    .pv-body p { margin: 0 0 10px; }
+    .pv-body p:last-child { margin-bottom: 0; }
+    .pv-body .mono { font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 0.82em; color: var(--ink); }
+    .pv-body b { color: var(--ink); font-weight: 700; }
+    .steps-lead { font-size: 0.92rem; color: var(--body); margin: 4px 0 14px; }
+
+    @media (max-width: 700px) {
+      .modx-flow { grid-template-columns: 1fr; gap: 8px; }
+      .modx-flow .io-arrow { transform: rotate(90deg); padding: 2px 0; }
+      .merge { grid-template-columns: 1fr; }
+    }
+
+    /* lightbox — pan & zoom viewer */
+    #lightbox { display: none; position: fixed; inset: 0; background: rgba(10,10,12,0.94); z-index: 9000; overflow: hidden; cursor: default; touch-action: none; }
+    #lightbox.open { display: block; }
+    #lightbox-close { position: fixed; top: 14px; right: 22px; font-size: 2.4rem; color: #fff; cursor: pointer; line-height: 1; background: none; border: none; font-weight: 200; opacity: 0.75; z-index: 9001; }
+    #lightbox-close:hover { opacity: 1; }
+    #lightbox-img { position: absolute; top: 0; left: 0; transform-origin: 0 0; max-width: none; max-height: none; background: #fff; box-shadow: 0 10px 50px rgba(0,0,0,0.55); cursor: zoom-in; user-select: none; -webkit-user-select: none; -webkit-user-drag: none; will-change: transform; }
+    #lightbox-img.smooth { transition: transform 0.16s ease-out; }
+    #lightbox.zoomed #lightbox-img { cursor: grab; }
+    #lightbox.grabbing #lightbox-img { cursor: grabbing; }
+    #lightbox-caption { display: none; }
+    #lightbox-hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.65); font-size: 0.78rem; z-index: 9001; pointer-events: none; background: rgba(0,0,0,0.35); padding: 5px 13px; border-radius: 999px; }
+    #lightbox.zoomed #lightbox-hint { opacity: 0.45; }
+
+    @media (max-width: 820px) {
+      .grid-2, .grid-3, .grid-4, .stat-row, .flow { grid-template-columns: 1fr; }
+      .stat, .flow-step { border-right: none; border-bottom: 1px solid var(--line-soft); }
+      .stat:last-child, .flow-step:last-child { border-bottom: none; }
+      nav { padding: 0 14px; }
+      .nav-links a { padding: 4px 8px; font-size: 0.76rem; }
+      .container { padding: 0 20px; }
+      .paper-title { font-size: 1.6rem; }
+      .section-title { font-size: 1.4rem; }
+      section { padding: 60px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <nav>
+    <a href="../" class="nav-home">← Home</a>
+    <div class="nav-logo">GEPA</div>
+    <ul class="nav-links">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#background">Background</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#reflection">Reflection</a></li>
+      <li><a href="#merge">Merge</a></li>
+      <li><a href="#pareto">Pareto</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#analysis">Analysis</a></li>
+      <li><a href="#applications">Applications</a></li>
+      <li><a href="#takeaways">Takeaways</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <!-- ===== 1. OVERVIEW ===== -->
+    <section id="overview">
+      <div class="container">
+        <div class="paper-kicker">Prompt Optimization · ICLR 2026</div>
+        <h1 class="paper-title">GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning</h1>
+        <p class="paper-authors">Lakshya A. Agrawal, Shangyin Tan, Dilara Soylu, Noah Ziems, Rishi Khare, Krista Opsahl-Ong, Arnav Singhvi, Herumb Shandilya, Michael J. Ryan, Meng Jiang, Christopher Potts, Koushik Sen, Alexandros G. Dimakis, Ion Stoica, Dan Klein, Matei Zaharia, Omar Khattab</p>
+        <p class="paper-venue">UC Berkeley<span class="dot">·</span>Stanford<span class="dot">·</span>Databricks<span class="dot">·</span>MIT<span class="dot">·</span>Notre Dame<span class="dot">·</span>BespokeLabs.ai</p>
+
+        <p class="lead-text">GEPA(<strong>Ge</strong>netic-<strong>Pa</strong>reto)는 compound AI system을 위한 <strong>reflective prompt optimizer</strong>다. 스칼라 reward로 policy gradient를 추정하는 RL(GRPO) 대신, rollout을 자연어 trace로 직렬화해 <strong>natural language reflection</strong>으로 high-level rule을 학습한다. 소수의 rollout만으로도 큰 품질 향상을 이끌어내며, 6개 task에서 GRPO를 평균 6pp(최대 19pp) 상회하면서 rollout은 최대 35× 적게 쓴다.</p>
+
+        <div class="stat-row mt-40">
+          <div class="stat">
+            <div class="stat-value">+6<span class="u">pp</span></div>
+            <div class="stat-label">GRPO 대비 평균<br>(6 tasks)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">19<span class="u">pp</span></div>
+            <div class="stat-label">단일 task<br>최대 격차</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">35<span class="u">×</span></div>
+            <div class="stat-label">더 적은<br>rollout</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">+13<span class="u">pp</span></div>
+            <div class="stat-label">MIPROv2 대비 aggregate<br>(MIPROv2 +5.6pp의 2배↑)</div>
+          </div>
+        </div>
+
+        <div class="grid-3 contrib mt-32">
+          <div class="card">
+            <div class="idx">기여 01</div>
+            <div class="card-title">Reflective Prompt Mutation</div>
+            <div class="card-body">execution·evaluation trace를 자연어로 반성(reflect)하여 실패/성공을 특정 module에 credit assignment하고 instruction을 targeted하게 수정한다.</div>
+          </div>
+          <div class="card">
+            <div class="idx">기여 02</div>
+            <div class="card-title">Pareto-based Selection</div>
+            <div class="card-body">global best만 진화시키는 greedy 전략의 local optima를 피하고, task별 최고 candidate들의 Pareto frontier에서 stochastic하게 탐색해 다양성을 유지한다.</div>
+          </div>
+          <div class="card">
+            <div class="idx">기여 03</div>
+            <div class="card-title">Sample Efficiency</div>
+            <div class="card-body">weight를 건드리지 않고 prompt만 진화시켜, GRPO(24k rollouts) 대비 최대 35× 적은 rollout으로 더 높은 성능에 도달한다.</div>
+          </div>
+        </div>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure1.png" alt="Figure 1: GEPA vs MIPROv2 vs GRPO learning behavior" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 1.</span> GEPA · MIPROv2(SOTA prompt optimizer) · GRPO(24k rollouts)의 학습 곡선 비교 (Qwen3 8B). rollout이 쌓일수록 prompt optimizer가 GRPO보다 훨씬 빠르게 학습하며, GEPA가 최종 점수에서 GRPO·MIPROv2를 크게 앞선다. ★ 마커는 held-out test-set 성능 격차를 나타낸다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== 2. BACKGROUND & PROBLEM ===== -->
+    <section id="background">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">02</span> Background &amp; Problem</div>
+          <h2 class="section-title">왜 RL이 아니라 language인가</h2>
+          <p class="section-lead">기존 RL 기반 최적화의 sample inefficiency와, GEPA가 푸는 budget 제약 최적화 문제 정의.</p>
+        </div>
+
+        <div class="subhead">RLVR / GRPO의 한계</div>
+        <p>LLM을 downstream task에 적응시키는 대표적 방법은 <strong>Reinforcement Learning with Verifiable Rewards (RLVR)</strong>, 특히 <strong class="en">GRPO(Group Relative Policy Optimization)</strong>다. GRPO는 성공 지표를 rollout 종료 시점의 <strong>스칼라 reward</strong>로 취급해 policy gradient를 추정한다. 효과적이지만 새 task를 학습하는 데 실무적으로 <strong>수만~수십만 회의 rollout</strong>이 필요하다.</p>
+        <p>이 sample inefficiency는 심각한 병목이 된다. 많은 downstream 응용은 비싼 tool call을 호출하거나, LLM 샘플링 budget이 제한적이거나, 애초에 가장 크고 성능 좋은 LLM의 weight를 finetune할 수 없다.</p>
+
+        <div class="callout">
+          <div class="clabel">Key Insight</div>
+          <p>rollout은 <strong>자연어 trace</strong>로 직렬화될 수 있다. 각 module의 instruction, reasoning chain, tool call, 그리고 스칼라 reward로 collapse되기 전의 reward 함수 내부(예: compiler error message)까지. LLM은 이 trajectory를 그대로 이해하므로, 이를 reflect하며 자연어로 학습하는 알고리즘이 sparse scalar reward보다 LLM의 language prior를 더 잘 활용한다.</p>
+        </div>
+
+        <div class="subhead">문제 정의 (Problem Formulation)</div>
+        <p>compound AI system <span class="m">Φ</span>의 학습 가능한 파라미터는 module prompt의 집합 <span class="m">Π</span>와 module weight의 집합 <span class="m">Θ</span>로 이뤄진다. 결정적으로, <strong>GEPA는 prompt <span class="m">Π</span>만 진화</strong>시키고 underlying LLM weight <span class="m">Θ</span>는 frozen 상태로 둔다. metric <span class="m">μ</span>가 출력 품질을 <span class="m">[0,1]</span>로 측정할 때, 목표는 rollout budget <span class="m">B</span>를 넘지 않으면서 held-out 성능을 최대화하는 파라미터를 찾는 것이다.</p>
+
+        <div class="formula">
+          <div class="flabel">Eq. (2) · Rollout-budget-constrained optimization</div>
+          <div class="feq-img" role="img" aria-label="Eq (2): argmax over prompts and weights of expected metric subject to rollout budget B"><svg style="vertical-align: -2.67ex;" xmlns="http://www.w3.org/2000/svg" width="77.674ex" height="5.271ex" role="img" focusable="false" viewBox="0 -1149.5 34331.8 2329.6"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mo"><path data-c="27E8" d="M333 -232Q332 -239 327 -244T313 -250Q303 -250 296 -240Q293 -233 202 6T110 250T201 494T296 740Q299 745 306 749L309 750Q312 750 313 750Q331 750 333 732Q333 727 243 489Q152 252 152 250T243 11Q333 -227 333 -232Z"></path></g><g data-mml-node="msup" transform="translate(389,0)"><g data-mml-node="mi"><path data-c="3A0" d="M128 619Q121 626 117 628T101 631T58 634H25V680H724V634H691Q651 633 640 631T622 619V61Q628 51 639 49T691 46H724V0H713Q692 3 569 3Q434 3 425 0H414V46H447Q489 47 498 49T517 61V634H232V348L233 61Q239 51 250 49T302 46H335V0H324Q303 3 180 3Q45 3 36 0H25V46H58Q100 47 109 49T128 61V619Z"></path></g><g data-mml-node="TeXAtom" transform="translate(783,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mo"><path data-c="2217" d="M229 286Q216 420 216 436Q216 454 240 464Q241 464 245 464T251 465Q263 464 273 456T283 436Q283 419 277 356T270 286L328 328Q384 369 389 372T399 375Q412 375 423 365T435 338Q435 325 425 315Q420 312 357 282T289 250L355 219L425 184Q434 175 434 161Q434 146 425 136T401 125Q393 125 383 131T328 171L270 213Q283 79 283 63Q283 53 276 44T250 35Q231 35 224 44T216 63Q216 80 222 143T229 213L171 171Q115 130 110 127Q106 124 100 124Q87 124 76 134T64 161Q64 166 64 169T67 175T72 181T81 188T94 195T113 204T138 215T170 230T210 250L74 315Q65 324 65 338Q65 353 74 363T98 374Q106 374 116 368T171 328L229 286Z"></path></g></g></g><g data-mml-node="mo" transform="translate(1575.6,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="msup" transform="translate(2020.2,0)"><g data-mml-node="mi"><path data-c="398" d="M56 340Q56 423 86 494T164 610T270 680T388 705Q521 705 621 601T722 341Q722 260 693 191T617 75T510 4T388 -22T267 3T160 74T85 189T56 340ZM610 339Q610 428 590 495T535 598T463 651T384 668Q332 668 289 638T221 566Q168 485 168 339Q168 274 176 235Q189 158 228 105T324 28Q356 16 388 16Q415 16 442 24T501 54T555 111T594 205T610 339ZM223 263V422H263V388H514V422H554V263H514V297H263V263H223Z"></path></g><g data-mml-node="TeXAtom" transform="translate(811,413) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mo"><path data-c="2217" d="M229 286Q216 420 216 436Q216 454 240 464Q241 464 245 464T251 465Q263 464 273 456T283 436Q283 419 277 356T270 286L328 328Q384 369 389 372T399 375Q412 375 423 365T435 338Q435 325 425 315Q420 312 357 282T289 250L355 219L425 184Q434 175 434 161Q434 146 425 136T401 125Q393 125 383 131T328 171L270 213Q283 79 283 63Q283 53 276 44T250 35Q231 35 224 44T216 63Q216 80 222 143T229 213L171 171Q115 130 110 127Q106 124 100 124Q87 124 76 134T64 161Q64 166 64 169T67 175T72 181T81 188T94 195T113 204T138 215T170 230T210 250L74 315Q65 324 65 338Q65 353 74 363T98 374Q106 374 116 368T171 328L229 286Z"></path></g></g></g><g data-mml-node="msub" transform="translate(3234.8,0)"><g data-mml-node="mo"><path data-c="27E9" d="M55 732Q56 739 61 744T75 750Q85 750 92 740Q95 733 186 494T278 250T187 6T92 -240Q85 -250 75 -250Q67 -250 62 -245T55 -232Q55 -227 145 11Q236 248 236 250T145 489Q55 727 55 732Z"></path></g><g data-mml-node="TeXAtom" transform="translate(422,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="3A6" d="M312 622Q310 623 307 625T303 629T297 631T286 634T270 635T246 636T211 637H184V683H196Q220 680 361 680T526 683H538V637H511Q468 637 447 635T422 631T411 622V533L425 531Q525 519 595 466T665 342Q665 301 642 267T583 209T506 172T425 152L411 150V61Q417 55 421 53T447 48T511 46H538V0H526Q502 3 361 3T196 0H184V46H211Q231 46 245 46T270 47T286 48T297 51T303 54T307 57T312 61V150H310Q309 151 289 153T232 166T160 195Q149 201 136 210T103 238T69 284T56 342Q56 414 128 467T294 530Q309 532 310 533H312V622ZM170 342Q170 207 307 188H312V495H309Q301 495 282 491T231 469T186 423Q170 389 170 342ZM415 188Q487 199 519 236T551 342Q551 384 539 414T507 459T470 481T434 491T415 495H410V188H415Z"></path></g></g></g><g data-mml-node="mstyle" transform="translate(4217.3,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(4773.1,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mstyle" transform="translate(5551.1,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="munder" transform="translate(6106.9,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="OP"><g data-mml-node="mi"><path data-c="61" d="M137 305T115 305T78 320T63 359Q63 394 97 421T218 448Q291 448 336 416T396 340Q401 326 401 309T402 194V124Q402 76 407 58T428 40Q443 40 448 56T453 109V145H493V106Q492 66 490 59Q481 29 455 12T400 -6T353 12T329 54V58L327 55Q325 52 322 49T314 40T302 29T287 17T269 6T247 -2T221 -8T190 -11Q130 -11 82 20T34 107Q34 128 41 147T68 188T116 225T194 253T304 268H318V290Q318 324 312 340Q290 411 215 411Q197 411 181 410T156 406T148 403Q170 388 170 359Q170 334 154 320ZM126 106Q126 75 150 51T209 26Q247 26 276 49T315 109Q317 116 318 175Q318 233 317 233Q309 233 296 232T251 223T193 203T147 166T126 106Z"></path><path data-c="72" d="M36 46H50Q89 46 97 60V68Q97 77 97 91T98 122T98 161T98 203Q98 234 98 269T98 328L97 351Q94 370 83 376T38 385H20V408Q20 431 22 431L32 432Q42 433 60 434T96 436Q112 437 131 438T160 441T171 442H174V373Q213 441 271 441H277Q322 441 343 419T364 373Q364 352 351 337T313 322Q288 322 276 338T263 372Q263 381 265 388T270 400T273 405Q271 407 250 401Q234 393 226 386Q179 341 179 207V154Q179 141 179 127T179 101T180 81T180 66V61Q181 59 183 57T188 54T193 51T200 49T207 48T216 47T225 47T235 46T245 46H276V0H267Q249 3 140 3Q37 3 28 0H20V46H36Z" transform="translate(500,0)"></path><path data-c="67" d="M329 409Q373 453 429 453Q459 453 472 434T485 396Q485 382 476 371T449 360Q416 360 412 390Q410 404 415 411Q415 412 416 414V415Q388 412 363 393Q355 388 355 386Q355 385 359 381T368 369T379 351T388 325T392 292Q392 230 343 187T222 143Q172 143 123 171Q112 153 112 133Q112 98 138 81Q147 75 155 75T227 73Q311 72 335 67Q396 58 431 26Q470 -13 470 -72Q470 -139 392 -175Q332 -206 250 -206Q167 -206 107 -175Q29 -140 29 -75Q29 -39 50 -15T92 18L103 24Q67 55 67 108Q67 155 96 193Q52 237 52 292Q52 355 102 398T223 442Q274 442 318 416L329 409ZM299 343Q294 371 273 387T221 404Q192 404 171 388T145 343Q142 326 142 292Q142 248 149 227T179 192Q196 182 222 182Q244 182 260 189T283 207T294 227T299 242Q302 258 302 292T299 343ZM403 -75Q403 -50 389 -34T348 -11T299 -2T245 0H218Q151 0 138 -6Q118 -15 107 -34T95 -74Q95 -84 101 -97T122 -127T170 -155T250 -167Q319 -167 361 -139T403 -75Z" transform="translate(892,0)"></path></g><g data-mml-node="mstyle" transform="translate(1392,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mi" transform="translate(1725.7,0)"><path data-c="6D" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q351 442 364 440T387 434T406 426T421 417T432 406T441 395T448 384T452 374T455 366L457 361L460 365Q463 369 466 373T475 384T488 397T503 410T523 422T546 432T572 439T603 442Q729 442 740 329Q741 322 741 190V104Q741 66 743 59T754 49Q775 46 803 46H819V0H811L788 1Q764 2 737 2T699 3Q596 3 587 0H579V46H595Q656 46 656 62Q657 64 657 200Q656 335 655 343Q649 371 635 385T611 402T585 404Q540 404 506 370Q479 343 472 315T464 232V168V108Q464 78 465 68T468 55T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"></path><path data-c="61" d="M137 305T115 305T78 320T63 359Q63 394 97 421T218 448Q291 448 336 416T396 340Q401 326 401 309T402 194V124Q402 76 407 58T428 40Q443 40 448 56T453 109V145H493V106Q492 66 490 59Q481 29 455 12T400 -6T353 12T329 54V58L327 55Q325 52 322 49T314 40T302 29T287 17T269 6T247 -2T221 -8T190 -11Q130 -11 82 20T34 107Q34 128 41 147T68 188T116 225T194 253T304 268H318V290Q318 324 312 340Q290 411 215 411Q197 411 181 410T156 406T148 403Q170 388 170 359Q170 334 154 320ZM126 106Q126 75 150 51T209 26Q247 26 276 49T315 109Q317 116 318 175Q318 233 317 233Q309 233 296 232T251 223T193 203T147 166T126 106Z" transform="translate(833,0)"></path><path data-c="78" d="M201 0Q189 3 102 3Q26 3 17 0H11V46H25Q48 47 67 52T96 61T121 78T139 96T160 122T180 150L226 210L168 288Q159 301 149 315T133 336T122 351T113 363T107 370T100 376T94 379T88 381T80 383Q74 383 44 385H16V431H23Q59 429 126 429Q219 429 229 431H237V385Q201 381 201 369Q201 367 211 353T239 315T268 274L272 270L297 304Q329 345 329 358Q329 364 327 369T322 376T317 380T310 384L307 385H302V431H309Q324 428 408 428Q487 428 493 431H499V385H492Q443 385 411 368Q394 360 377 341T312 257L296 236L358 151Q424 61 429 57T446 50Q464 46 499 46H516V0H510H502Q494 1 482 1T457 2T432 2T414 3Q403 3 377 3T327 1L304 0H295V46H298Q309 46 320 51T331 63Q331 65 291 120L250 175Q249 174 219 133T185 88Q181 83 181 74Q181 63 188 55T206 46Q208 46 208 23V0H201Z" transform="translate(1333,0)"></path></g></g><g data-mml-node="TeXAtom" transform="translate(879.8,-903.3) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mo"><path data-c="27E8" d="M333 -232Q332 -239 327 -244T313 -250Q303 -250 296 -240Q293 -233 202 6T110 250T201 494T296 740Q299 745 306 749L309 750Q312 750 313 750Q331 750 333 732Q333 727 243 489Q152 252 152 250T243 11Q333 -227 333 -232Z"></path></g><g data-mml-node="mi" transform="translate(389,0)"><path data-c="3A0" d="M128 619Q121 626 117 628T101 631T58 634H25V680H724V634H691Q651 633 640 631T622 619V61Q628 51 639 49T691 46H724V0H713Q692 3 569 3Q434 3 425 0H414V46H447Q489 47 498 49T517 61V634H232V348L233 61Q239 51 250 49T302 46H335V0H324Q303 3 180 3Q45 3 36 0H25V46H58Q100 47 109 49T128 61V619Z"></path></g><g data-mml-node="mo" transform="translate(1139,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(1417,0)"><path data-c="398" d="M56 340Q56 423 86 494T164 610T270 680T388 705Q521 705 621 601T722 341Q722 260 693 191T617 75T510 4T388 -22T267 3T160 74T85 189T56 340ZM610 339Q610 428 590 495T535 598T463 651T384 668Q332 668 289 638T221 566Q168 485 168 339Q168 274 176 235Q189 158 228 105T324 28Q356 16 388 16Q415 16 442 24T501 54T555 111T594 205T610 339ZM223 263V422H263V388H514V422H554V263H514V297H263V263H223Z"></path></g><g data-mml-node="mo" transform="translate(2195,0)"><path data-c="27E9" d="M55 732Q56 739 61 744T75 750Q85 750 92 740Q95 733 186 494T278 250T187 6T92 -240Q85 -250 75 -250Q67 -250 62 -245T55 -232Q55 -227 145 11Q236 248 236 250T145 489Q55 727 55 732Z"></path></g></g></g><g data-mml-node="mstyle" transform="translate(9693.5,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="msub" transform="translate(9971.5,0)"><g data-mml-node="TeXAtom" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="1D53C" d="M12 666Q12 675 24 683H582Q590 680 593 672V588Q593 514 591 502T575 490Q567 490 563 495T555 517Q552 556 517 590Q486 623 445 634T340 648H282Q266 636 264 620T260 492V370H277Q329 375 358 391T404 439Q420 480 420 506Q420 529 436 529Q445 529 451 521Q455 517 455 361Q455 333 455 298T456 253Q456 217 453 207T437 197Q420 196 420 217Q420 240 406 270Q377 328 284 335H260V201Q261 174 261 134Q262 73 264 61T278 38Q281 36 282 35H331Q400 35 449 50Q571 93 602 179Q605 203 622 203Q629 203 634 197T640 183Q638 181 624 95T604 3L600 -1H24Q12 5 12 16Q12 35 51 35Q92 38 97 52Q102 60 102 341T97 632Q91 645 51 648Q12 648 12 666ZM137 341Q137 131 136 89T130 37Q129 36 129 35H235Q233 41 231 48L226 61V623L231 635L235 648H129Q132 641 133 638T135 603T137 517T137 341ZM557 603V648H504Q504 646 515 639Q527 634 542 619L557 603ZM420 317V397L406 383Q394 370 380 363L366 355Q373 350 382 346Q400 333 409 328L420 317ZM582 61L586 88Q585 88 582 83Q557 61 526 46L511 37L542 35H577Q577 36 578 39T580 49T582 61Z"></path></g></g><g data-mml-node="TeXAtom" transform="translate(700,-176.7) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mo"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(389,0)"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mo" transform="translate(961,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(1239,0)"><path data-c="1D45A" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"></path></g><g data-mml-node="mo" transform="translate(2117,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g><g data-mml-node="mo" transform="translate(2506,0)"><path data-c="223C" d="M55 166Q55 241 101 304T222 367Q260 367 296 349T362 304T421 252T484 208T554 189Q616 189 655 236T694 338Q694 350 698 358T708 367Q722 367 722 334Q722 260 677 197T562 134H554Q517 134 481 152T414 196T355 248T292 293T223 311Q179 311 145 286Q109 257 96 218T80 156T69 133Q55 133 55 166Z"></path></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(3284,0)"><g data-mml-node="mi"><path data-c="54" d="M49 475Q34 475 34 490Q34 552 106 611T261 681Q272 683 507 683H742Q790 717 816 717Q833 717 833 708Q833 682 795 653T714 615Q691 610 588 609Q490 609 490 607L483 580Q476 554 462 496T435 392Q410 289 395 231T363 116T335 34T309 -15T279 -47T242 -64Q231 -68 218 -68Q203 -68 203 -57Q203 -52 211 -38Q224 -7 234 20T251 66T268 123T283 179T304 261T328 360Q342 415 360 488Q380 567 384 582T397 605Q400 607 401 609H302H244Q200 609 188 607T167 596Q145 572 145 541Q145 520 109 498T49 475Z"></path></g></g></g></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(13632.7,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="5B" d="M224 -649V1150H455V1099H275V-598H455V-649H224Z"></path></g></g><g data-mml-node="mstyle" transform="translate(14104.7,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mi" transform="translate(14271.7,0)"><path data-c="1D707" d="M58 -216Q44 -216 34 -208T23 -186Q23 -176 96 116T173 414Q186 442 219 442Q231 441 239 435T249 423T251 413Q251 401 220 279T187 142Q185 131 185 107V99Q185 26 252 26Q261 26 270 27T287 31T302 38T315 45T327 55T338 65T348 77T356 88T365 100L372 110L408 253Q444 395 448 404Q461 431 491 431Q504 431 512 424T523 412T525 402L449 84Q448 79 448 68Q448 43 455 35T476 26Q485 27 496 35Q517 55 537 131Q543 151 547 152Q549 153 557 153H561Q580 153 580 144Q580 138 575 117T555 63T523 13Q510 0 491 -8Q483 -10 467 -10Q446 -10 429 -4T402 11T385 29T376 44T374 51L368 45Q362 39 350 30T324 12T288 -4T246 -11Q199 -11 153 12L129 -85Q108 -167 104 -180T92 -202Q76 -216 58 -216Z"></path></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(14874.7,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="28" d="M152 251Q152 646 388 850H416Q422 844 422 841Q422 837 403 816T357 753T302 649T255 482T236 250Q236 124 255 19T301 -147T356 -251T403 -315T422 -340Q422 -343 416 -349H388Q359 -325 332 -296T271 -213T212 -97T170 56T152 251Z"></path></g></g><g data-mml-node="mi" transform="translate(15332.7,0)"><path data-c="3A6" d="M312 622Q310 623 307 625T303 629T297 631T286 634T270 635T246 636T211 637H184V683H196Q220 680 361 680T526 683H538V637H511Q468 637 447 635T422 631T411 622V533L425 531Q525 519 595 466T665 342Q665 301 642 267T583 209T506 172T425 152L411 150V61Q417 55 421 53T447 48T511 46H538V0H526Q502 3 361 3T196 0H184V46H211Q231 46 245 46T270 47T286 48T297 51T303 54T307 57T312 61V150H310Q309 151 289 153T232 166T160 195Q149 201 136 210T103 238T69 284T56 342Q56 414 128 467T294 530Q309 532 310 533H312V622ZM170 342Q170 207 307 188H312V495H309Q301 495 282 491T231 469T186 423Q170 389 170 342ZM415 188Q487 199 519 236T551 342Q551 384 539 414T507 459T470 481T434 491T415 495H410V188H415Z"></path></g><g data-mml-node="mo" transform="translate(16054.7,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(16443.7,0)"><path data-c="1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path></g><g data-mml-node="mo" transform="translate(17015.7,0)"><path data-c="3B" d="M78 370Q78 394 95 412T138 430Q162 430 180 414T199 371Q199 346 182 328T139 310T96 327T78 370ZM78 60Q78 85 94 103T137 121Q202 121 202 8Q202 -44 183 -94T144 -169T118 -194Q115 -194 106 -186T95 -174Q94 -171 107 -155T137 -107T160 -38Q161 -32 162 -22T165 -4T165 4Q165 5 161 4T142 0Q110 0 94 18T78 60Z"></path></g><g data-mml-node="mstyle" transform="translate(17293.7,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mo" transform="translate(17627.4,0)"><path data-c="27E8" d="M333 -232Q332 -239 327 -244T313 -250Q303 -250 296 -240Q293 -233 202 6T110 250T201 494T296 740Q299 745 306 749L309 750Q312 750 313 750Q331 750 333 732Q333 727 243 489Q152 252 152 250T243 11Q333 -227 333 -232Z"></path></g><g data-mml-node="mi" transform="translate(18016.4,0)"><path data-c="3A0" d="M128 619Q121 626 117 628T101 631T58 634H25V680H724V634H691Q651 633 640 631T622 619V61Q628 51 639 49T691 46H724V0H713Q692 3 569 3Q434 3 425 0H414V46H447Q489 47 498 49T517 61V634H232V348L233 61Q239 51 250 49T302 46H335V0H324Q303 3 180 3Q45 3 36 0H25V46H58Q100 47 109 49T128 61V619Z"></path></g><g data-mml-node="mo" transform="translate(18766.4,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mi" transform="translate(19211,0)"><path data-c="398" d="M56 340Q56 423 86 494T164 610T270 680T388 705Q521 705 621 601T722 341Q722 260 693 191T617 75T510 4T388 -22T267 3T160 74T85 189T56 340ZM610 339Q610 428 590 495T535 598T463 651T384 668Q332 668 289 638T221 566Q168 485 168 339Q168 274 176 235Q189 158 228 105T324 28Q356 16 388 16Q415 16 442 24T501 54T555 111T594 205T610 339ZM223 263V422H263V388H514V422H554V263H514V297H263V263H223Z"></path></g><g data-mml-node="msub" transform="translate(19989,0)"><g data-mml-node="mo"><path data-c="27E9" d="M55 732Q56 739 61 744T75 750Q85 750 92 740Q95 733 186 494T278 250T187 6T92 -240Q85 -250 75 -250Q67 -250 62 -245T55 -232Q55 -227 145 11Q236 248 236 250T145 489Q55 727 55 732Z"></path></g><g data-mml-node="TeXAtom" transform="translate(422,-150) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mi"><path data-c="3A6" d="M312 622Q310 623 307 625T303 629T297 631T286 634T270 635T246 636T211 637H184V683H196Q220 680 361 680T526 683H538V637H511Q468 637 447 635T422 631T411 622V533L425 531Q525 519 595 466T665 342Q665 301 642 267T583 209T506 172T425 152L411 150V61Q417 55 421 53T447 48T511 46H538V0H526Q502 3 361 3T196 0H184V46H211Q231 46 245 46T270 47T286 48T297 51T303 54T307 57T312 61V150H310Q309 151 289 153T232 166T160 195Q149 201 136 210T103 238T69 284T56 342Q56 414 128 467T294 530Q309 532 310 533H312V622ZM170 342Q170 207 307 188H312V495H309Q301 495 282 491T231 469T186 423Q170 389 170 342ZM415 188Q487 199 519 236T551 342Q551 384 539 414T507 459T470 481T434 491T415 495H410V188H415Z"></path></g></g></g><g data-mml-node="mo" transform="translate(20971.5,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g><g data-mml-node="mo" transform="translate(21360.5,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"></path></g><g data-mml-node="mstyle" transform="translate(21638.5,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mi" transform="translate(21972.2,0)"><path data-c="1D45A" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"></path></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(22850.2,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="29" d="M305 251Q305 -145 69 -349H56Q43 -349 39 -347T35 -338Q37 -333 60 -307T108 -239T160 -136T204 27T221 250T204 473T160 636T108 740T60 807T35 839Q35 850 50 850H56H69Q197 743 256 566Q305 425 305 251Z"></path></g></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(23308.2,0)"><g data-mml-node="mo" transform="translate(0 -0.5)"><path data-c="5D" d="M16 1099V1150H247V-649H16V-598H196V1099H16Z"></path></g></g><g data-mml-node="mstyle" transform="translate(23780.2,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mtext" transform="translate(25780.2,0)"><path data-c="73" d="M295 316Q295 356 268 385T190 414Q154 414 128 401Q98 382 98 349Q97 344 98 336T114 312T157 287Q175 282 201 278T245 269T277 256Q294 248 310 236T342 195T359 133Q359 71 321 31T198 -10H190Q138 -10 94 26L86 19L77 10Q71 4 65 -1L54 -11H46H42Q39 -11 33 -5V74V132Q33 153 35 157T45 162H54Q66 162 70 158T75 146T82 119T101 77Q136 26 198 26Q295 26 295 104Q295 133 277 151Q257 175 194 187T111 210Q75 227 54 256T33 318Q33 357 50 384T93 424T143 442T187 447H198Q238 447 268 432L283 424L292 431Q302 440 314 448H322H326Q329 448 335 442V310L329 304H301Q295 310 295 316Z"></path><path data-c="2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z" transform="translate(394,0)"></path><path data-c="74" d="M27 422Q80 426 109 478T141 600V615H181V431H316V385H181V241Q182 116 182 100T189 68Q203 29 238 29Q282 29 292 100Q293 108 293 146V181H333V146V134Q333 57 291 17Q264 -10 221 -10Q187 -10 162 2T124 33T105 68T98 100Q97 107 97 248V385H18V422H27Z" transform="translate(672,0)"></path><path data-c="2E" d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60Z" transform="translate(1061,0)"></path></g><g data-mml-node="mstyle" transform="translate(27119.2,0)"><g data-mml-node="mspace"></g></g><g data-mml-node="mi" transform="translate(28119.2,0)"><path data-c="23" d="M56 347Q56 360 70 367H313L355 524Q394 676 401 686Q406 694 416 694Q434 694 436 676Q436 672 396 522Q355 374 355 369L354 367H543L585 524Q626 679 630 685Q636 694 646 694Q653 694 659 689T665 678Q665 668 626 522Q585 374 585 369L584 367H762Q777 359 777 347Q777 334 767 331T722 327H667H572L552 251L531 174Q531 173 647 173H720Q756 173 766 170T777 153T762 133H519L477 -24Q436 -179 432 -185Q426 -194 416 -194Q409 -194 403 -189T397 -177Q397 -167 436 -21Q477 125 477 131L478 133H289L247 -24Q206 -179 202 -185Q196 -194 186 -194Q179 -194 173 -189T167 -177Q167 -167 206 -21Q247 125 247 131L248 133H70Q56 140 56 153Q56 168 72 173H260L280 249L301 326Q301 327 186 327H72Q56 332 56 347ZM531 326Q531 327 437 327H342L322 251L301 174Q301 173 395 173H490L510 249L531 326Z"></path></g><g data-mml-node="mtext" transform="translate(28952.2,0)"><path data-c="72" d="M36 46H50Q89 46 97 60V68Q97 77 97 91T98 122T98 161T98 203Q98 234 98 269T98 328L97 351Q94 370 83 376T38 385H20V408Q20 431 22 431L32 432Q42 433 60 434T96 436Q112 437 131 438T160 441T171 442H174V373Q213 441 271 441H277Q322 441 343 419T364 373Q364 352 351 337T313 322Q288 322 276 338T263 372Q263 381 265 388T270 400T273 405Q271 407 250 401Q234 393 226 386Q179 341 179 207V154Q179 141 179 127T179 101T180 81T180 66V61Q181 59 183 57T188 54T193 51T200 49T207 48T216 47T225 47T235 46T245 46H276V0H267Q249 3 140 3Q37 3 28 0H20V46H36Z"></path><path data-c="6F" d="M28 214Q28 309 93 378T250 448Q340 448 405 380T471 215Q471 120 407 55T250 -10Q153 -10 91 57T28 214ZM250 30Q372 30 372 193V225V250Q372 272 371 288T364 326T348 362T317 390T268 410Q263 411 252 411Q222 411 195 399Q152 377 139 338T126 246V226Q126 130 145 91Q177 30 250 30Z" transform="translate(392,0)"></path><path data-c="6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z" transform="translate(892,0)"></path><path data-c="6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z" transform="translate(1170,0)"></path><path data-c="6F" d="M28 214Q28 309 93 378T250 448Q340 448 405 380T471 215Q471 120 407 55T250 -10Q153 -10 91 57T28 214ZM250 30Q372 30 372 193V225V250Q372 272 371 288T364 326T348 362T317 390T268 410Q263 411 252 411Q222 411 195 399Q152 377 139 338T126 246V226Q126 130 145 91Q177 30 250 30Z" transform="translate(1448,0)"></path><path data-c="75" d="M383 58Q327 -10 256 -10H249Q124 -10 105 89Q104 96 103 226Q102 335 102 348T96 369Q86 385 36 385H25V408Q25 431 27 431L38 432Q48 433 67 434T105 436Q122 437 142 438T172 441T184 442H187V261Q188 77 190 64Q193 49 204 40Q224 26 264 26Q290 26 311 35T343 58T363 90T375 120T379 144Q379 145 379 161T380 201T380 248V315Q380 361 370 372T320 385H302V431Q304 431 378 436T457 442H464V264Q464 84 465 81Q468 61 479 55T524 46H542V0Q540 0 467 -5T390 -11H383V58Z" transform="translate(1948,0)"></path><path data-c="74" d="M27 422Q80 426 109 478T141 600V615H181V431H316V385H181V241Q182 116 182 100T189 68Q203 29 238 29Q282 29 292 100Q293 108 293 146V181H333V146V134Q333 57 291 17Q264 -10 221 -10Q187 -10 162 2T124 33T105 68T98 100Q97 107 97 248V385H18V422H27Z" transform="translate(2504,0)"></path><path data-c="73" d="M295 316Q295 356 268 385T190 414Q154 414 128 401Q98 382 98 349Q97 344 98 336T114 312T157 287Q175 282 201 278T245 269T277 256Q294 248 310 236T342 195T359 133Q359 71 321 31T198 -10H190Q138 -10 94 26L86 19L77 10Q71 4 65 -1L54 -11H46H42Q39 -11 33 -5V74V132Q33 153 35 157T45 162H54Q66 162 70 158T75 146T82 119T101 77Q136 26 198 26Q295 26 295 104Q295 133 277 151Q257 175 194 187T111 210Q75 227 54 256T33 318Q33 357 50 384T93 424T143 442T187 447H198Q238 447 268 432L283 424L292 431Q302 440 314 448H322H326Q329 448 335 442V310L329 304H301Q295 310 295 316Z" transform="translate(2893,0)"></path></g><g data-mml-node="mo" transform="translate(32517,0)"><path data-c="2264" d="M674 636Q682 636 688 630T694 615T687 601Q686 600 417 472L151 346L399 228Q687 92 691 87Q694 81 694 76Q694 58 676 56H670L382 192Q92 329 90 331Q83 336 83 348Q84 359 96 365Q104 369 382 500T665 634Q669 636 674 636ZM84 -118Q84 -108 99 -98H678Q694 -104 694 -118Q694 -130 679 -138H98Q84 -131 84 -118Z"></path></g><g data-mml-node="mi" transform="translate(33572.8,0)"><path data-c="1D435" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"></path></g></g></g></svg></div>
+          <div class="fnote">여기서 <span class="m">𝒯</span>는 task 분포, <span class="m">(x, m)</span>은 입력 <span class="m">x</span>와 평가용 metadata <span class="m">m</span>(gold answer, rubric, unit test 등). rollout(= <span class="m">Φ</span> 실행 + <span class="m">μ</span> 평가)은 계산·비용·시간 측면에서 비싸므로 최대 <span class="m">B</span>회로 제한된다.</div>
+        </div>
+
+        <p style="font-style:italic; color:var(--ink);">핵심 질문: 비싼 rollout 한 번마다 <strong>최대의 학습 신호</strong>를 뽑아내어, low-data·budget 제약 상황에서 복잡한 modular AI system을 효과적으로 적응시키려면 어떻게 해야 하는가?</p>
+      </div>
+    </section>
+
+    <!-- ===== 3. ARCHITECTURE ===== -->
+    <section id="architecture">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">03</span> GEPA Architecture</div>
+          <h2 class="section-title">Genetic-Pareto 최적화 루프</h2>
+          <p class="section-lead">candidate pool을 유전적으로 진화시키되, 두 제안 전략과 Pareto 필터링으로 sample-efficient하게 탐색한다.</p>
+        </div>
+
+        <p>GEPA는 base system 하나만 담긴 <strong>candidate pool P</strong>에서 시작해, 각 candidate가 부모로부터 파생되는 <strong>genetic tree</strong>(ancestry 기록)를 키워 나간다. 매 iteration에서 세 단계를 반복한다.</p>
+
+        <div class="flow">
+          <div class="flow-step"><div class="flow-num">STEP 1</div><div class="flow-title">Select</div><div class="flow-body">Pareto frontier에서 유망한 candidate를 stochastic하게 선택</div></div>
+          <div class="flow-step"><div class="flow-num">STEP 2</div><div class="flow-title">Propose</div><div class="flow-body">Reflective Mutation 또는 System Aware Merge로 variant 생성</div></div>
+          <div class="flow-step"><div class="flow-num">STEP 3</div><div class="flow-title">Minibatch Eval</div><div class="flow-body">minibatch에서 먼저 평가해 비싼 full eval 낭비 방지</div></div>
+          <div class="flow-step"><div class="flow-num">STEP 4</div><div class="flow-title">Accept?</div><div class="flow-body">부모보다 개선되면 pool에 추가, 아니면 discard</div></div>
+          <div class="flow-step"><div class="flow-num">STEP 5</div><div class="flow-title">Eval on D<sub>pareto</sub></div><div class="flow-body">채택 시 validation set 전체에서 점수 기록</div></div>
+          <div class="flow-step"><div class="flow-num">STEP 6</div><div class="flow-title">Return best</div><div class="flow-body">budget 소진 후 D<sub>pareto</sub> aggregate 최고 candidate 반환</div></div>
+        </div>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure3.png" alt="Figure 3: GEPA overview" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 3.</span> GEPA는 매 iteration마다 두 전략(<strong>Reflective Prompt Mutation</strong> 또는 <strong>System Aware Merge</strong>) 중 하나로 기존 candidate를 개선해 새 candidate를 제안하고, minibatch에서 먼저 평가한 뒤 개선되면 더 큰 dataset으로 평가한다. 항상 최고 candidate만 mutate하면 local optimum에 빠지므로, task별 최고 candidate 목록에서 sampling하는 <strong>Pareto-based candidate filtering</strong>으로 충분한 다양성을 확보한다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <div class="subhead">Figure 3 한 바퀴: pool에서 부모를 뽑아 새 후보를 만들고 검증까지</div>
+        <p class="steps-lead">그림은 한 iteration을 한 바퀴로 보여준다. 왼쪽 아래 Candidate Pool에서 부모를 뽑고(Pareto filtering), 오른쪽에서 새 후보 <span class="m">P<sub>new</sub></span>를 만든 뒤(propose), 위쪽에서 부모와 비교해 나으면 pool에 넣고 아니면 버린다. 각 박스를 흐름 순서대로 펼쳐 놓았다.</p>
+
+        <details class="pv">
+          <summary><span class="pv-node">1 · Candidate Pool P</span><span class="pv-what">지금까지 채택된 후보들의 유전 트리</span></summary>
+          <div class="pv-body">
+            <p>트리의 노드 하나(P₀, P₁, P₂ …)가 곧 candidate 하나다. 여기서 candidate란 시스템의 모든 module 프롬프트를 한 벌 채운 상태 <span class="m">Π = ⟨π₁, π₂, …⟩</span>를 말한다.</p>
+            <p>P₀가 base(뿌리)이고, 거기서 변이나 merge로 자식 후보가 뻗어 나간다. 한 iteration은 이 풀에서 부모 후보를 하나 고르는 데서 시작한다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">2 · Scores Matrix</span><span class="pv-what">후보 × task 채점표, 평균이 아니라 task별 점수</span></summary>
+          <div class="pv-body">
+            <p>풀의 모든 후보를 검증셋 <span class="m">D<sub>pareto</sub></span>의 task마다 채점해 표로 들고 있다. 행이 task, 열이 후보다. 그림 예시에서 P₃는 Task 1만 맞히고(✓), P₁과 P₂는 Task 2를 맞히고, P₂는 Task 3까지 맞힌다.</p>
+            <p>여기서 쓰는 값은 각 task의 <b>개별 점수</b>지 후보의 평균 점수가 아니다. 이 구분이 다음 단계 전체를 결정한다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">3 · Best candidate per task</span><span class="pv-what">task마다 1등 후보만 뽑기</span></summary>
+          <div class="pv-body">
+            <p>task 열을 하나씩 보며 그 task에서 가장 잘한 후보를 고른다. Task 1은 P₃, Task 2는 P₁과 P₂(공동 1등), Task 3은 P₂다.</p>
+            <p>“이 문제에선 누가 챔피언인가”를 문제 단위로 따로 본다는 게 핵심이다. 평균이 낮아도 특정 task에서 1등이면 여기서 걸린다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">4 · Filtered Pool (Pareto Frontier)</span><span class="pv-what">챔피언만 남기고 dominated 후보는 pruning</span></summary>
+          <div class="pv-body">
+            <p>task별 챔피언을 모으면 {P₃, P₁, P₂}가 된다. 여기서 다른 후보에 완전히 덮이는(dominated) 후보를 걷어낸다. P₁이 이긴 task는 {Task 2} 하나뿐인데, 이건 P₂가 이긴 {Task 2, Task 3}에 통째로 들어간다. 그래서 P₁은 P₂에 덮여 탈락하고, frontier에는 P₃와 P₂만 남는다.</p>
+            <p>P₀와 P₄는 어떤 task에서도 1등이 아니라 애초에 들어오지 못한다. 그림에서 P₃와 P₂만 초록으로 칠해진 이유가 이것이다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">5 · Sample (부모 선택)</span><span class="pv-what">이긴 task 수로 가중한 확률 추출</span></summary>
+          <div class="pv-body">
+            <p>남은 frontier {P₃, P₂}에서 후보 하나를 확률적으로 뽑는데, 확률은 그 후보가 이긴 task 수에 비례한다. P₂는 Task 2와 3, 두 개를 이겼고 P₃는 Task 1 하나를 이겼으니 P₂가 더 자주 뽑힌다.</p>
+            <p>넓게 이기는 후보를 우대하면서도, 한 task만 이기는 niche 후보에게도 확률을 남겨 탐색을 유지한다. 그림에서 P₂가 오른쪽 mutation 박스로 넘어가는 게 이 추출 결과다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">6 · Choose Strategy</span><span class="pv-what">새 후보를 만들 연산자 고르기</span></summary>
+          <div class="pv-body">
+            <p>뽑은 부모로 새 후보를 만드는 방법은 둘이다. 부모 하나로 진행하는 <b>Reflective Prompt Mutation</b>과, 부모 둘을 합치는 <b>System Aware Merge</b>. 기본 GEPA는 mutation을 쓰고, +Merge 변형이 merge를 주기적으로 끼워 넣는다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">7 · Reflective Prompt Mutation</span><span class="pv-what">부모 1개 · trace를 반성해 module 하나를 다시 씀</span></summary>
+          <div class="pv-body">
+            <p>부모(예: P₂)를 minibatch <span class="mono">M</span>에서 실행하고, 그 실행 trace를 feedback function <span class="m">μ<sub>f</sub></span>에 넣어 무엇이 왜 부족했는지 자연어로 받는다. reflection LM이 그 피드백과 현재 지시문을 읽고 module 하나의 <span class="m">πᵢ</span>를 새로 쓴다.</p>
+            <p>어느 module을 손댈지는 round-robin으로 돌아가며 정하므로, 한 번의 변이는 module 딱 하나만 바꾼다. (Figure 2가 이 mutation의 전후 프롬프트다.)</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">8 · System Aware Merge</span><span class="pv-what">부모 2개 · module 단위로 좋은 쪽을 조합</span></summary>
+          <div class="pv-body">
+            <p>frontier에서 후보 둘(그림에선 P₃와 P₂)을 뽑아 module 단위로 합친다. 어떤 module이 한쪽에서는 진화했고 다른 쪽에서는 base 그대로면, 진화한 쪽의 <span class="m">πᵢ</span>를 취한다.</p>
+            <p>입출력 스키마 <span class="m">Xᵢ/Yᵢ</span>가 고정된 계약이라 <span class="m">πᵢ</span>를 통째로 갈아끼워도 파이프라인이 깨지지 않는다. 글자 단위로 섞지 않고 module 통째로만 바꾼다.</p>
+          </div>
+        </details>
+
+        <details class="pv">
+          <summary><span class="pv-node">9 · Propose New Candidate → 검증</span><span class="pv-what">Pnew를 부모와 비교, 나으면 pool에 추가</span></summary>
+          <div class="pv-body">
+            <p>어느 전략을 쓰든 결과는 새 후보 <span class="m">P<sub>new</sub></span> 하나다. 이 <span class="m">P<sub>new</sub></span>를 minibatch에서 부모와 같은 조건으로 평가한다(Performance improved?). 부모보다 나으면 <span class="m">D<sub>pareto</sub></span> 전체로 다시 채점해 Scores Matrix에 새 행을 붙이고, 트리에 새 노드로 추가한다. 나빠지면 버린다.</p>
+            <p>budget이 남아 있으면 1번으로 돌아가 같은 루프를 반복한다.</p>
+          </div>
+        </details>
+
+        <div class="note">
+          <div class="card-body">GEPA는 prompt와 weight를 모두 파라미터로 두는 일반적 formulation을 채택해, 서로 다른 파라미터 공간에서 동작하는 최적화 알고리즘(예: <strong>GEPA vs GRPO</strong>)을 공정하게 비교할 수 있게 한다. 단, GEPA 자체는 prompt <span class="m">Π</span>만 진화시킨다.</div>
+        </div>
+
+        <div class="subhead">짚고 넘어갈 지점 ①: 후보 하나는 “모듈별 프롬프트의 묶음”</div>
+        <p><strong>module</strong>은 GEPA가 만드는 단위가 아니라, 시스템을 짤 때 <strong>개발자가 이미 선언한 LLM 호출 지점</strong>(고정된 아키텍처)이다. 따라서 후보(트리의 한 노드)는 “모든 module의 프롬프트를 한 벌씩 채운 상태” <span class="m">Π = ⟨π₁ … π<sub>|M|</sub>⟩</span>다. GEPA가 진화시키는 건 지시문 <span class="m">πᵢ</span>뿐이다. weight <span class="m">θᵢ</span>는 frozen, 입출력 스키마 <span class="m">Xᵢ / Yᵢ</span>(어떤 필드가 들고 나는가)는 고정된 계약(interface)이다.</p>
+
+        <div class="anatomy">
+          <div class="anatomy-head">후보 <span class="m">= ⟨ π₁, π₂ ⟩</span> <span class="sub">· 2-hop QA 시스템 (module 2개 · 스키마 <span class="m">Xᵢ→Yᵢ</span> 고정 · <span class="m">π</span>만 진화)</span></div>
+          <div class="modx">
+            <div class="modx-head"><span class="modx-name">M₁ · 쿼리 생성</span><span class="spacer"></span><span class="tag tag-frozen">θ₁ frozen</span></div>
+            <div class="modx-flow">
+              <div class="io"><div class="io-lbl">입력 <b>X₁</b></div><div class="io-fld">question,<br>summary_1</div></div>
+              <div class="io-arrow">→</div>
+              <div class="pi-box"><div class="pi-top"><span class="tag tag-evolve">진화 대상</span><span class="mono">π₁</span></div><div class="pi-txt">“second-hop 검색 쿼리를 생성하라 …” <em>— Figure 2의 그 프롬프트가 이 π₁이다.</em></div></div>
+              <div class="io-arrow">→</div>
+              <div class="io"><div class="io-lbl">출력 <b>Y₁</b></div><div class="io-fld">query</div></div>
+            </div>
+          </div>
+          <div class="modx">
+            <div class="modx-head"><span class="modx-name">M₂ · 답 추출</span><span class="spacer"></span><span class="tag tag-frozen">θ₂ frozen</span></div>
+            <div class="modx-flow">
+              <div class="io"><div class="io-lbl">입력 <b>X₂</b></div><div class="io-fld">question,<br>summary_1,<br>summary_2</div></div>
+              <div class="io-arrow">→</div>
+              <div class="pi-box"><div class="pi-top"><span class="tag tag-evolve">진화 대상</span><span class="mono">π₂</span></div><div class="pi-txt">“두 summary를 종합해 최종 answer를 뽑아라 …”</div></div>
+              <div class="io-arrow">→</div>
+              <div class="io"><div class="io-lbl">출력 <b>Y₂</b></div><div class="io-fld">answer</div></div>
+            </div>
+          </div>
+          <div class="anatomy-foot"><span class="m">Xᵢ / Yᵢ</span>가 고정된 <b>필드 계약</b>이라, 사이의 <span class="m">πᵢ</span>만 후보끼리 통째로 갈아끼워도 파이프라인이 안 깨진다 → <b>System Aware Merge</b>의 전제.</div>
+        </div>
+
+        <div class="subhead">짚고 넘어갈 지점 ②: 콜드 스타트, 처음엔 <span class="m">P<sub>new</sub></span>가 없다</div>
+        <div class="callout">
+          <div class="clabel">첫 iteration은 P_new를 “만드는” 단계</div>
+          <p>시작 시 풀엔 base(raw prompt) 하나뿐 = 유전 트리의 루트 <strong>P₀</strong>. 후보가 하나라 <strong>Merge(2개 필요)는 불가능</strong>하므로 첫 라운드는 반드시 <strong>Reflective Mutation</strong>이다. base를 minibatch에서 실행·반성해 첫 <span class="m">P<sub>new</sub></span>를 만들고, 이 <span class="m">P<sub>new</sub></span>는 부모(base)와 <strong>같은 minibatch 점수</strong>로 비교되므로 비교 대상은 항상 존재한다. (“P_new가 없다”가 아니라 “P_new를 만드는 게 첫 스텝”)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4. REFLECTIVE PROMPT MUTATION ===== -->
+    <section id="reflection">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">04</span> Method · Reflective Prompt Mutation</div>
+          <h2 class="section-title">trace를 반성해 prompt를 고친다</h2>
+          <p class="section-lead">자연어 trace + feedback function으로 credit assignment를 수행하고, reflection LM이 instruction을 다시 쓴다.</p>
+        </div>
+
+        <p>compound AI system 실행 중 생성되는 <strong>execution trace</strong>는 각 module의 중간 추론과 책임을 드러낸다. 최종 결과(성공/실패)와 짝지으면, 오류·성공을 module 수준의 특정 결정까지 거슬러 추적할 수 있는 강한 진단 가치를 갖는다. LLM은 이 trace를 reflect하며 <strong>implicit credit assignment</strong>를 수행해, 최종 결과의 책임을 관련 module에 귀속시키고 targeted update를 만든다.</p>
+
+        <div class="subhead">동작 절차</div>
+        <ul class="clean">
+          <li>Pareto frontier에서 mutate할 candidate를 선택하고, trainset에서 stochastic하게 뽑은 <strong>minibatch</strong>에서 실행하며 프로그램 실행을 trace한다.</li>
+          <li>trace에서 module의 input·output·reasoning을 추출하고 <strong>feedback function <span class="m">μ<sub>f</sub></span></strong>를 호출한다. <span class="m">μ<sub>f</sub></span>는 스칼라 점수와 함께 <strong>텍스트 피드백</strong>(compiler error, 실패한 rubric 등)을 반환한다.</li>
+          <li>업데이트할 module을 policy(round-robin)로 고르고, <strong>reflection LM</strong>에 (현재 prompt, 실행 trajectory, 점수, 피드백)을 보여준다. reflection LM은 성공/실패를 prompt 요소에 귀속시키고 <strong>수정된 instruction</strong>을 제안한다.</li>
+          <li>수정된 module을 나머지 프로그램과 함께 minibatch에서 재평가해 점수가 오르면 candidate pool에 추가한다.</li>
+        </ul>
+
+        <div class="callout">
+          <div class="clabel">한 번의 변이 = 정확히 한 module</div>
+          <p>Mutation 한 iteration은 <strong>round-robin</strong>으로 module 하나만 골라 그 <span class="m">πᵢ</span>만 재작성한다(M₁, M₂, M₁ … 순환). 여러 module을 동시에 고치면 무엇이 효과였는지 분리가 안 되므로, <strong>집중된 credit assignment</strong>를 위해 일부러 한 번에 하나씩 손댄다. “양쪽 module이 다 진화한 후보”는 이 변이가 <strong>여러 번 누적된 깊은 계보</strong>에서 나온다.</p>
+        </div>
+
+        <div class="callout">
+          <div class="clabel">Evaluation traces as diagnostic signals</div>
+          <p>많은 평가 지표는 스칼라 reward를 내기 전에 풍부한 과정(compile → execute → profile 등)을 자연어로 남긴다. GEPA는 reward <span class="m">μ</span>를 <strong>feedback function <span class="m">μ<sub>f</sub></span></strong>로 확장해 이 evaluation trace를 <code>feedback_text</code>로 함께 반환하고, multi-hop처럼 module-specific 피드백(각 hop 이후)까지 credit assignment에 활용한다.</p>
+        </div>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure2.png" alt="Figure 2: seed prompt vs GEPA-evolved prompt example" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 2.</span> multi-hop QA 시스템의 second-hop 검색 module에 대해 GEPA가 진화시킨 prompt 예시. 한 줄짜리 <strong>seed prompt</strong>(“Given the fields <code>question</code>, <code>summary_1</code>, produce <code>query</code>”)가, 과제의 뉘앙스·관찰·전략(“first-hop이 커버하지 못한 연결 entity를 겨냥하라” 등)을 축적한 풍부한 instruction으로 진화했다. 단 한 번의 reflective update만으로도 큰 이득이 나는 경우가 많다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <div class="subhead">프롬프트가 계보를 따라 어떻게 자라는가 (PUPA 실제 사례)</div>
+        <p>Figure 2가 “한 번의” 진화라면, 아래는 <strong>PUPA</strong>(privacy-aware delegation) 최적화에서 <strong>한 계보(ancestry)를 따라 프롬프트가 대물림되며 자라는</strong> 실제 궤적이다(논문 Figure 26 · Appendix M.1). 2문장짜리 seed(<strong>Node 0</strong>, 82.26점)가, 매 reflective update마다 이전 프롬프트에 targeted nuance를 축적해 다단계 구조화 지침(<strong>Node 11</strong>, 97.6점)으로 자란다. 각 노드를 펼치면 <strong>그 시점의 실제 전체 프롬프트</strong>를 그대로 볼 수 있다.</p>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure26.png" alt="Figure 26: PUPA prompt optimization trajectory tree" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 26.</span> PUPA 최적화의 실제 subtree. 참고로 PUPA 시스템(PAPILLON)은 module이 2개(query rewriter · response rewriter)이며, 이 트리는 그중 <strong>query rewriter 한 module의 계보</strong>다. 각 노드는 사실 <span class="m">⟨π₁, π₂⟩</span> 전체지만 그 한 module의 <span class="m">π</span>만 annotate했다. base(Node 0, 82.26)에서 best(Node 11, 97.6)로 가는 경로가 <strong>빨간 화살표</strong>로 표시되고, 노드마다 그 단계에서 더해진 nuance가 주석으로 붙어 있다: “Expanded Privacy Strategies” → “Structured Output &amp; Domain Best-Practices” → “Detailed Transformation Rationale” → “Rigorous, Exhaustive Protocol”. 부모 프롬프트를 물려받아 그 위에 규칙을 덧대는 방식이라, 지우는 게 아니라 쌓인다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+        <p style="font-size:0.86rem; color:var(--faint);">위 트리의 각 노드에 해당하는 <strong>전체 프롬프트 원문</strong>은 아래 토글에서 펼쳐 볼 수 있다(Appendix M.1).</p>
+
+        <details class="pv" open>
+          <summary><span class="pv-node">Node 0</span><span class="pv-score">82.26점</span><span class="pv-what">2문장 seed. “private query를 privacy-preserving 요청으로 바꿔라”가 전부</span></summary>
+          <pre class="prompt">Given a private user query, create a privacy-preserving request for a powerful
+external LLM.
+The LLM may assist without learning private information about the user.</pre>
+        </details>
+        <details class="pv">
+          <summary><span class="pv-node">Node 2</span><span class="pv-score">90.99점</span><span class="pv-what">5개 섹션으로 구조화: Privacy/Reformulation/Quality/Strategies/Reasoning. PII(위치·날짜·이름·URL) 명시</span></summary>
+          <pre class="prompt">Task Description:
+You are provided with a private user query that may contain sensitive, personal,
+or identifying information. Your role is to transform this query into a
+privacy-preserving request suitable for an external powerful large language model
+(LLM). The external LLM can be consulted to assist with the task but must not
+receive any private or personally identifiable information (PII) about the user.
+Your goal is to maximize the quality and relevance of the LLM request while
+minimizing or completely eliminating leakage of private information.
+
+Key Points and Domain-Specific Details:
+
+1. Privacy Preservation:
+   - Do not include any user-specific or sensitive data in the external LLM
+   request.
+   - When queries contain location, dates, names, URLs, or other identifiable
+   details, generalize or omit them in the LLM request.
+   - Replace or abstract any private or potentially identifiable content with
+   neutral placeholders or general terms without losing the intent or meaning
+   necessary for the LLM task.
+
+2. Query Understanding and Reformulation:
+
+   - Analyze the user&#x27;s query carefully to understand the underlying task or
+   information need.
+   - Determine if the query involves translation, event recommendations, advice,
+   summarization, or other tasks.
+   - Identify when user-provided content is sensitive or proprietary (e.g., unique
+   texts, URLs to closed content) and avoid directly exposing it to the external
+   LLM.
+
+3. Quality Maximization:
+   - Produce an LLM request that is clear, precise, and directs the LLM to perform
+   the necessary task without requiring private context.
+   - Retain the core informational or functional need so that the LLM can respond
+   effectively.
+   - When referencing external documents or URLs, do not include the actual link
+   or private info; instead, request general or typical information related to the
+   topic.
+
+4. Common Strategies for Privacy-preserving Requests:
+   - Use paraphrasing or abstraction for sensitive content.
+   - Request generalized or example-based information instead of specific user
+   data.
+   - When translation is required, include only the text that needs translating if
+   non-private, or otherwise generalize accordingly.
+   - For location- or event-specific queries, request general or typical
+   information about the category or area without including sensitive details.
+
+5. Reasoning Explanation:
+   - For each transformation, produce clear reasoning explaining how privacy is
+   preserved and why the LLM request fulfills the user&#x27;s intent without leaking
+   sensitive information.
+
+Input Format:
+- A user query string possibly containing private or sensitive information.
+- Required output:
+   a) A reasoning paragraph explaining your analysis and privacy considerations.
+   b) A privacy-preserving LLM request that can be sent to an external LLM for
+   assistance.
+
+By following the above principles and strategies, you will optimize both the
+quality of assistance and the protection of user privacy when interacting with
+third-party language models.</pre>
+        </details>
+        <details class="pv">
+          <summary><span class="pv-node">Node 4</span><span class="pv-score">94.44점</span><span class="pv-what">task type 확장(번역·요약·프로필·이벤트)·fictional 처리, ‘HHV→건강 부전공’ 같은 구체 치환 예시 추가</span></summary>
+          <pre class="prompt">Task Description:
+You will be given a user query that may include sensitive, personal, or
+identifiable information. Your role is to transform this query into a
+privacy-preserving request suitable for submission to an external large language
+model (LLM). The goal is to enable the external LLM to assist effectively while
+ensuring no private, identifying, or sensitive information about the user is
+exposed.
+
+Key Requirements and Domain-Specific Details:
+
+1. Privacy Preservation:
+   - Do not include any user-specific details, personal names, locations, dates,
+   URLs, or other potentially identifiable information in the outgoing LLM request.
+   - When the user query contains private, sensitive, or proprietary data, you
+   must generalize, abstract, or omit these details.
+   - Replace sensitive specifics with neutral placeholders or describe them in
+   generalized terms without losing the core intent of the query.
+
+   - Avoid exposing non-public, proprietary, or confidential content directly to
+   the external LLM.
+
+2. Understanding and Reformulation:
+   - Carefully analyze the user&#x27;s query to identify the underlying task type
+   (e.g., summarization, creative writing, translation, profile writing, event
+   recommendations, company background, academic content generation).
+   - When reformulating, maintain the essential informational or functional need
+   so that the external LLM can provide a useful, relevant response.
+   - Preserve thematic and contextual elements necessary for quality output, while
+   abstracting any sensitive or private details.
+   - If the task involves user-supplied content (e.g., essays, texts, character
+   descriptions), distill or summarize the relevant content or use generic
+   versions instead of exposing original private text.
+
+3. Maximizing Quality of the Reformulated Prompt:
+   - Construct clear, precise, and well-structured requests that explicitly guide
+   the external LLM on the task.
+   - Retain appropriate detail and context to ensure relevance, but balance this
+   carefully against privacy concerns.
+   - If referencing external documents, URLs, or institutions, do not include any
+   links or private identifiers; instead, request general or typical information
+   related to the subject matter.
+   - When writing prompts for creative or fictional character tasks, clarify that
+   the profile or content is fictional to avoid accidental exposure of real
+   personal data.
+
+4. Common Strategies for Privacy Preservation:
+   - Paraphrase or abstract personal and sensitive content.
+   - Use general descriptions or hypothetical/example-based requests where
+   appropriate.
+   - Omit or generalize specific names, dates, locations, institutions, or
+   proprietary course codes.
+   - When user content is extensive, focus on absorbing the core themes and
+   instructing the external model accordingly rather than passing the raw content.
+
+5. Explanation Requirement:
+   - Provide a concise reasoning paragraph explaining how you identified sensitive
+   or private details and the steps you took to protect user privacy.
+   - Clarify how your reformulated LLM request retains the user&#x27;s original
+   intent and task needs without risking data leakage.
+   - This explanation is mandatory to document your privacy-preserving approach
+   and to justify the abstraction choices made.
+
+Input and Output Format:
+
+- Input: A single user query string that may include sensitive or personal content.
+- Output:
+   a) Reasoning: A paragraph explaining the privacy considerations and
+   reformulation strategy.
+   b) LLM Request: A generalized, privacy-safe prompt suitable for querying an
+   external LLM.
+
+Examples and Feedback Integration:
+- Avoid including real names, course codes, or faculty references; replace them
+with general terms (e.g., &quot;an interdisciplinary health minor&quot; rather than &quot;HHV&quot;).
+- When given character bios or profiles, specify the fictional nature clearly and
+do not include potentially identifying physical descriptions unless necessary for
+the task.
+- When a user asks about specific companies or entities, generalize the request to
+&quot;a major company in [industry/country]&quot; if privacy concerns exist.
+- Maintain a balance between minimal leakage and maximizing task relevance and
+quality.
+
+- Ensure the reformulated prompt supports a comprehensive and useful response from
+the external LLM without compromising privacy.
+
+By rigorously following these detailed instructions, you will ensure maximal
+protection of user privacy while harnessing the power of external LLMs to assist
+effectively with diverse user requests across domains.</pre>
+        </details>
+        <details class="pv">
+          <summary><span class="pv-node">Node 5</span><span class="pv-score">94.67점</span><span class="pv-what">출력을 (a) Reasoning / (b) LLM Request로 명시 재구조화, ‘concise’ 강조</span></summary>
+          <pre class="prompt">New Instruction for Privacy-Preserving Query Reformulation Assistant:
+
+Task Overview:
+You receive a user query that may contain sensitive, private, or personally
+identifiable information (PII). Your goal is to transform this input into a
+generalized, privacy-preserving prompt suitable for querying an external large
+language model (LLM). The reformulated prompt must enable the external LLM to
+fulfill the user&#x27;s original intent effectively, while rigorously protecting user
+privacy by abstracting or omitting any sensitive details.
+
+Input Format:
+- A single string representing a user query.
+- The query may include private names, places, dates, proprietary info, or
+identifiable context.
+
+Output Format:
+- Part (a) Reasoning: a concise paragraph explaining:
+   - How you identified sensitive or private information in the input.
+   - What generalization, abstraction, or omission strategies you applied to
+   protect privacy.
+   - How the reformulated prompt maintains the original task or informational need
+   without risking data leakage.
+- Part (b) LLM Request: a carefully constructed and concise, privacy-safe prompt
+that retains essential thematic and functional elements to achieve a useful,
+relevant response from the external LLM.
+
+Key Domain-Specific Details and Best Practices:
+
+1. Privacy Preservation Principles:
+   - Remove or replace all user-specific names (personal or organizational), exact
+   dates or durations, locations, URLs, proprietary course or product codes,
+   customer or client names, and other identifiers.
+   - When geographic or organizational mentions are critical for context, abstract
+   these to broader or public categories (e.g., &quot;a sustainable travel website
+   focused on a Central American country&quot; rather than naming the country
+   explicitly).
+   - Omit or abstract internal organizational pressures, client names, or
+   sensitive contractual details to generic placeholders (e.g., &quot;a client&quot;
+   rather than a named company).
+   - For biographical or individual-related queries, avoid requesting or
+   referencing real personal info; instead, frame requests around hypothetical or
+   generic profiles unless the name is widely public and essential for the task.
+
+2. Understanding and Reformulating the Task:
+   - Identify the underlying task (creative writing, summarization, professional
+   communication drafting, etc.) from the user&#x27;s query.
+   - Preserve the functional intent and thematic requirements (e.g., content
+   topics around sustainability, summary of a person&#x27;s background, professional
+   email follow-up).
+   - For user-supplied content, do not repeat verbatim or expose any original
+   text; instead, extract core themes, instruct the LLM accordingly, or replace
+   with generic examples.
+
+3. Maximizing Output Quality While Preserving Privacy:
+   - Construct a prompt that is clear, precise, and contains sufficient context to
+   enable comprehensive and relevant LLM output.
+   - Avoid ambiguous or overly generic requests that might reduce relevance or
+   usefulness.
+   - Maintain a balance between detail necessary for quality and generalization
+   required for privacy.
+
+4. Common Reformulation Strategies:
+   - Replace specific names with generic role identifiers or placeholders (&quot;a
+   business contact,&quot; &quot;a notable individual&quot;).
+   - Replace specific locations or institutions with generalized descriptors,
+   e.g., &quot;a country known for eco-tourism.&quot;
+   - For time references, use relative or approximate terms without revealing
+   explicit dates.
+   - For internal or proprietary details, describe the scenario generically (e.g.,
+   &quot;pressure from a client to close a matter urgently&quot;).
+   - When handling personal profiles or characters, explicitly state that the
+   profile is fictional if requesting content generation about a person.
+
+5. Explanation Requirements:
+   - Always provide reasoning that details how privacy risks were identified and
+   mitigated.
+   - Explain how the essential task was preserved despite abstraction.
+   - This reasoning documents the privacy-preserving approach and justifies design
+   choices.
+
+Examples and Common Pitfalls:
+- Do not retain or lightly obscure personal names or company names; fully abstract
+or remove.
+- Avoid exposing direct quotes from user-supplied texts.
+- Use neutral, context-appropriate phrasing to describe user intents.
+- Retain geographic or cultural context only when it is publicly available and
+pivotal to the task.
+- Ensure the output prompt remains a clear instruction that the external LLM can
+readily interpret.
+
+Summary:
+Your reformulations must ensure zero exposure of PII or private/proprietary
+content while retaining enough context and clarity to generate high-quality,
+relevant responses from the external LLM. This involves careful task analysis,
+methodical abstraction of sensitive details, and clear, precise prompt
+construction combined with transparent reasoning on privacy protection mechanisms
+used.</pre>
+        </details>
+        <details class="pv">
+          <summary><span class="pv-node">Node 11</span><span class="pv-score">97.6점</span><span class="pv-what">최종본: full anonymization 강제, 상대적 시점(‘recently’), 실제 치환 사례 + Common Pitfalls 목록</span></summary>
+          <pre class="prompt">New Instruction for Privacy-Preserving Query Reformulation Assistant (Enhanced):
+
+Task Overview:
+You receive a user query that may contain sensitive, private, or personally
+identifiable information (PII). Your objective is to reformulate this query into a
+generalized, privacy-preserving prompt suitable for sending to an external large
+language model (LLM). The reformulated prompt must enable the external LLM to
+fulfill the user&#x27;s original intent effectively while rigorously protecting all
+user privacy by abstracting, omitting, or generalizing any sensitive details.
+
+Input Format:
+- A single user query string.
+
+- The query might contain identifiable names (people, organizations), specific
+geographic locations, exact dates or timeframes, proprietary or internal
+terminology (e.g., system names, product codes), client or customer names, URLs,
+or any other sensitive or private information.
+
+Output Format:
+- Part (a) Reasoning:
+   Provide a concise paragraph that explains:
+   * How you identified sensitive or private information in the input
+   * What strategies you applied to protect privacy (generalization, omission,
+   abstraction, replacement with placeholders)
+   * How the reformulated prompt preserves the original intent and task
+   requirements without risking data leakage
+- Part (b) LLM Request:
+   A concise, carefully constructed privacy-safe prompt that:
+   * Removes or anonymizes all PII and proprietary/internal details
+   * Abstracts locations, names, dates, and technical terms as needed
+   * Produces a clear and contextually rich instruction for the LLM to generate a
+   relevant and informative response aligned with the user&#x27;s original task
+
+Detailed Domain-Specific Guidance and Best Practices:
+
+1. Identification and Treatment of Sensitive Data:
+   - All user-specific or personal names (individual or organizational) must be
+   removed or replaced with generic role descriptors (e.g., &quot;a business
+   contact,&quot; &quot;a client,&quot; &quot;a notable individual&quot;). Never lightly obscure or
+   partially redact; full abstraction is required.
+   - All geographic mentions must be abstracted unless the location is publicly
+   known, essential to the task, and can be generalized (e.g., &quot;a region known
+   for eco-tourism&quot; instead of naming a country or city explicitly).
+   - Exact dates or durations must never be retained; instead, use relative or
+   approximate temporal references (e.g., &quot;recently,&quot; &quot;over the past year&quot;).
+   - Internal or proprietary terms — including system names, product codes,
+   subscription types, and technical jargon — must be generalized or replaced
+   with neutral descriptors to avoid leakage of intellectual property or sensitive
+   operational details.
+   - Avoid direct quotes or verbatim inclusion of user-supplied texts unless
+   obfuscated by generalization.
+
+2. Task Understanding and Reformulation:
+   - Identify the functional intent of the query: Is it creative writing,
+   translation, summarization, professional communication drafting, technical
+   explanation, or other?
+   - Preserve the thematic and informational core of the query (e.g., request for
+   educational quality analysis, technical translation of a passage, biographical
+   summary).
+   - Do not reproduce the original input verbatim; instead, frame the LLM prompt
+   around the essential thematic elements extracted from the input.
+   - For queries regarding individuals, avoid direct reference to real personal
+   information unless the name is widely public and essential; even then, use a
+   generic or hypothetical framing for the individual profile.
+
+3. Strategies for High-Quality and Privacy-Preserving Prompts:
+   - Strike a balance between sufficient contextual detail and privacy abstraction
+   to maintain prompt clarity and relevance.
+   - Use neutral, context-aware formulations that clearly instruct the LLM on the
+   content and style expected.
+   - Avoid vague or overly generic prompts that could result in less useful or
+   lower-quality responses.
+   - When system or proprietary content is mentioned, instruct the LLM to
+   generalize specific terms and maintain the technical meaning without revealing</pre>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===== 5. SYSTEM AWARE MERGE ===== -->
+    <section id="merge">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">05</span> Method · System Aware Merge</div>
+          <h2 class="section-title">두 후보의 좋은 module을 조립한다</h2>
+          <p class="section-lead">Mutation이 한 번에 한 module만 고치므로, 계보마다 서로 다른 module이 진화한다. Merge는 그 보완적 개선들을 rollout 없이 한 스텝에 합친다.</p>
+        </div>
+
+        <p>Mutation은 항상 한 module만 손대기 때문에, 성공적으로 accept된 <strong>가지(lineage)마다 진화한 module이 다르다</strong>. 즉 어떤 후보는 쿼리 생성(M₁)만 잘하고, 다른 후보는 답 추출(M₂)만 잘하는 <strong>보완적 반쪽</strong>이 생긴다. 계보가 이렇게 갈라지는 이유는 세 가지가 겹치기 때문이다.</p>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">① Accept 게이트</div>
+            <div class="card-body">round-robin이 M₂를 고쳐 보라 해도, 개선을 못 내면 폐기된다. 그럼 그 계보에서 M₂는 계속 base(nascent)로 남는다. 결국 “어느 update가 통과했나”가 계보의 진화 프로필을 정한다.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">② Minibatch 무작위성</div>
+            <div class="card-body">매 변이는 무작위 샘플된 minibatch에서 평가된다. 같은 module을 고쳐도 배치에 따라 통과/탈락이 갈려, 가지마다 통과 이력이 달라진다.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">③ Pareto 분기</div>
+            <div class="card-body">부모를 Pareto frontier에서 확률적으로 뽑으니, 서로 다른 조상에서 서로 다른 가지가 자라고 각자 다른 module에 개선이 “붙는다”.</div>
+          </div>
+        </div>
+
+        <div class="tree">
+<span class="n">P₀</span>  base — <span class="c">⟨π₁, π₂⟩ 둘 다 base</span>
+ ├─ M₁ 변이 → 개선 <span class="r">✓</span> → <span class="n">P2</span>   <span class="c">(π₁ 진화 · π₂ base)</span>
+ └─ M₂ 변이 → 개선 <span class="r">✓</span> → <span class="n">P3</span>   <span class="c">(π₂ 진화 · π₁ base)</span>
+        merge(P2, P3) → <span class="n">Child</span>   <span class="c">(π₁ ← P2 · π₂ ← P3)</span>
+        </div>
+
+        <div class="subhead">Crossover: module 경계를 따라 조립</div>
+        <p>P2 혼자선 답을 못 뽑고(π₂=base), P3 혼자선 2-hop 검색이 약하다(π₁=base). Merge는 <strong>module별로 “진화한 쪽”의 <span class="m">πᵢ</span>를 골라</strong> 둘 다 좋은 자식을 한 방에 만든다.</p>
+
+        <div class="merge">
+          <div class="cand-card">
+            <div class="cand-title">후보 P2 <span class="sub">· M₁ 계보</span></div>
+            <div class="cand-row"><span class="rn"><strong>M₁</strong> 쿼리 생성</span><span class="pill pill-p2">P2에서 진화 ✓</span></div>
+            <div class="cand-row"><span class="rn"><strong>M₂</strong> 답 추출</span><span class="pill pill-base">base · 미진화</span></div>
+          </div>
+          <div class="cand-card">
+            <div class="cand-title">후보 P3 <span class="sub">· M₂ 계보</span></div>
+            <div class="cand-row"><span class="rn"><strong>M₁</strong> 쿼리 생성</span><span class="pill pill-base">base · 미진화</span></div>
+            <div class="cand-row"><span class="rn"><strong>M₂</strong> 답 추출</span><span class="pill pill-p3">P3에서 진화 ✓</span></div>
+          </div>
+        </div>
+        <div class="merge-arrow">▼ &nbsp;System Aware Merge: module별로 진화한 쪽을 취함</div>
+        <div class="merge-child">
+          <div class="cand-title">병합 자식 <span class="sub">· 양쪽 module 모두 진화본</span></div>
+          <div class="cand-row"><span class="rn"><strong>M₁</strong> 쿼리 생성 <span style="color:var(--muted)">· P2의 π₁</span></span><span class="pill pill-p2">← P2</span></div>
+          <div class="cand-row"><span class="rn"><strong>M₂</strong> 답 추출 <span style="color:var(--muted)">· P3의 π₂</span></span><span class="pill pill-p3">← P3</span></div>
+        </div>
+
+        <div class="callout">
+          <div class="clabel">왜 “진화한 쪽”을 보나 · 왜 “system-aware”인가</div>
+          <p><strong>덮어쓰기 방지.</strong> 한 번도 안 건드린 base(nascent) module을 가져오면 상대의 개선을 날려버린다. 그래서 한쪽이 진화했고 다른 쪽이 nascent면 진화한 쪽을 취한다. 누가 진화시켰는지는 ancestry(유전 트리)로 안다. 그리고 텍스트를 글자 단위로 섞지 않는다. <span class="m">Xᵢ/Yᵢ</span>로 module이 명확히 나뉘어 있으니 <span class="m">π₁</span> 통째 / <span class="m">π₂</span> 통째 단위로만 갈아끼운다. 이게 “system-aware”이며 crossover가 안전한 이유다. (양쪽 다 진화한 경우의 tie-break은 Appendix D.1.)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 6. PARETO SELECTION ===== -->
+    <section id="pareto">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">06</span> Method · Pareto-based Candidate Selection</div>
+          <h2 class="section-title">local optima를 피하는 illumination 전략</h2>
+          <p class="section-lead">global best만 진화시키는 대신, task별 “승리 전략”을 담은 candidate들을 Pareto frontier로 유지한다.</p>
+        </div>
+
+        <p>가장 단순한 전략은 항상 <strong>best-performing candidate</strong>를 mutate하는 것이지만, 이는 종종 <strong>local optimum</strong>에 갇힌다. 지배적 전략이 하나 발견되면 그것을 넘어서기 어렵고, 옵티마이저는 새 전략을 배우지 못한 채 budget을 소진한다(Figure 4a).</p>
+
+        <p>이를 해결하기 위해 GEPA는 <strong>Pareto-based “illumination”</strong> 전략을 쓴다. 각 training instance마다 모든 candidate 중 최고 점수를 기록해 <strong>Pareto frontier</strong>를 만들고, 하나 이상의 task에서 best인 candidate만 남기고 strictly dominated된 것은 pruning한다. 남은 집합에서, 각 candidate가 앞서는 task 수로 확률을 가중해 <strong>stochastic하게 sampling</strong>한다. 탐색을 부풀리지 않으면서 local optima를 탈출하고, exploration–exploitation의 균형을 맞춘다.</p>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure4.png" alt="Figure 4: SelectBestCandidate vs Pareto-based search tree" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 4.</span> candidate 선택 전략 비교. <strong>(좌) SelectBestCandidate</strong>: 한 iteration 만에 local optima에 도달해 얕고 넓은(비생산적) tree를 만든다. <strong>(우) Pareto-based sampling</strong>: 균형 잡힌 search tree를 만들어, 같은 budget 안에서 더 높은 성능의 program을 찾아낸다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <p style="margin-top:8px;">Qwen3 8B에서 evolution harness를 고정한 채 선택 전략만 바꿔 비교하면, Pareto-based selection이 <strong>+12.44%</strong>로 greedy(+6.05) · beam-search(+5.11)를 크게 앞선다.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Qwen3 8B</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>Aggregate</th><th>Improvement</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Baseline</td><td>42.33</td><td>36.90</td><td>35.33</td><td>80.82</td><td>48.84</td><td>—</td></tr>
+              <tr><td>SelectBestCandidate <span style="color:var(--muted)">(greedy)</span></td><td>58.33</td><td>30.44</td><td>45.33</td><td>85.45</td><td>54.89</td><td class="pos">+6.05</td></tr>
+              <tr><td>BeamSearch</td><td>57.33</td><td>36.39</td><td>41.00</td><td>81.08</td><td>53.95</td><td class="pos">+5.11</td></tr>
+              <tr class="hl"><td>GEPA (Pareto)</td><td>62.33</td><td>38.61</td><td>52.33</td><td>91.85</td><td>61.28</td><td>+12.44</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-top:-14px;">Table 3. GEPA의 Pareto-based selection은 greedy(TextGrad류)·beam-search(APO류) 대비 2배 이상의 aggregate 향상을 낸다.</p>
+      </div>
+    </section>
+
+    <!-- ===== 6. RESULTS ===== -->
+    <section id="results">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">07</span> Quantitative Evaluation</div>
+          <h2 class="section-title">최종 성능: GRPO·MIPROv2를 모두 상회</h2>
+          <p class="section-lead">6개 benchmark, open(Qwen3 8B)·proprietary(GPT-4.1 Mini) 모델 모두에서 GEPA가 앞선다.</p>
+        </div>
+
+        <p>표준 train/validation/test 분리 하에, GEPA는 GRPO를 6개 중 5개 task에서 상회(각각 19.0, 2.73, 13.66, 5.19, 0.7pp)하면서 <strong>4~35× 적은 rollout</strong>으로 최적 test 성능에 도달한다. 또한 모든 benchmark·모델에서 MIPROv2를 넘어 <strong>+13pp</strong> aggregate 향상을 달성한다. 이는 MIPROv2의 +5.6pp의 두 배가 넘는다.</p>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure9.png" alt="Figure 9: final test set performance bars for both models" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 9.</span> aggregate 및 개별 benchmark의 최종 test set 성능. <strong>(위) GPT-4.1 Mini</strong>: Aggregate 기준 Baseline 52.7 → MIPROv2 59.7 → GEPA 67.0 → GEPA+Merge 68.7. <strong>(아래) Qwen3 8B</strong>: Baseline 48.8 → MIPROv2 55.1 → GRPO(24k) 51.1 → GEPA 61.3. 대부분의 benchmark에서 GEPA 계열이 다른 모든 방법을 앞선다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <div class="subhead">6개 benchmark 전체 결과 (Qwen3 8B)</div>
+        <p>Figure 9의 4개 외에 <strong class="en">AIME-2025</strong>·<strong class="en">LiveBench-Math</strong>까지 더한 표다. GEPA는 GRPO(24k rollouts) 대비 aggregate <strong>+9.62pp</strong>를 훨씬 적은 rollout으로 낸다.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Qwen3 8B</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>AIME</th><th>LiveBench</th><th>Aggregate</th><th>Improve</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Baseline</td><td>42.33</td><td>36.90</td><td>35.33</td><td>80.82</td><td>27.33</td><td>48.70</td><td>45.23</td><td>—</td></tr>
+              <tr><td>GRPO <span style="color:var(--muted)">(24k)</span></td><td>43.33</td><td>35.88</td><td>38.67</td><td>86.66</td><td>38.00</td><td>51.26</td><td>48.91</td><td class="pos">+3.68</td></tr>
+              <tr><td>MIPROv2</td><td>55.33</td><td>36.22</td><td>47.33</td><td>81.55</td><td>20.00</td><td>46.60</td><td>47.84</td><td class="pos">+2.61</td></tr>
+              <tr class="hl"><td>GEPA</td><td>62.33</td><td>38.61</td><td>52.33</td><td>91.85</td><td>32.00</td><td>51.95</td><td>54.85</td><td>+9.62</td></tr>
+              <tr><td>GEPA+Merge</td><td>64.33</td><td>28.23</td><td>51.67</td><td>86.26</td><td>32.00</td><td>51.95</td><td>52.40</td><td class="pos">+7.17</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-top:-14px;">Table 1. GEPA의 총 rollout budget은 task당 1,839~7,051회로, GRPO의 24,000회를 훨씬 밑돈다. 6개 중 <strong>AIME</strong> 하나만 GRPO(38.00)가 GEPA(32.00)를 앞선다. 나머지 5개는 GEPA 우위.</p>
+
+        <div class="callout">
+          <div class="clabel">Cross-model Transfer · 프롬프트는 모델을 갈아타도 통한다</div>
+          <p>약한 <strong class="en">Qwen3-8B</strong>로만 최적화한 GEPA 프롬프트를 <strong class="en">GPT-4.1-Mini</strong>에 <strong>무수정</strong>으로 얹어도 baseline 대비 <strong>+9.00pp</strong>다. 정작 GPT-4.1-Mini로 <strong>직접</strong> 최적화한 MIPROv2(+5.64)·TextGrad(+6.11)·Trace(+3.27)보다 높다. reflectively 진화한 지시문이 특정 weight에 얽매이지 않는다는 뜻이다.</p>
+        </div>
+
+        <div class="grid-2 mt-32">
+          <div class="card">
+            <div class="card-title">Observation · 짧고 일반화되는 prompt</div>
+            <div class="card-body">reflectively 진화한 instruction은 few-shot demonstration보다 <strong>최대 9.2× 짧다</strong>. prompt 크기가 작을수록 input token 비용·latency가 줄고, 경험적으로 성능이 높은 옵티마이저가 오히려 더 짧은 prompt를 만드는 경향이 있다.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Observation · sample efficiency</div>
+            <div class="card-body">GRPO는 24,000 rollouts를 쓰지만 GEPA는 그 <strong>1/4 ~ 1/35 수준</strong>의 rollout으로 더 높은 성능에 도달한다. tool call이 비싸거나 weight finetune이 불가능한 실무 환경에서 특히 유리하다.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 8. ANALYSIS ===== -->
+    <section id="analysis">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">08</span> Analysis</div>
+          <h2 class="section-title">왜 통하나: 일반화, 그리고 instruction의 부활</h2>
+          <p class="section-lead">reflectively 진화한 지시문은 과적합이 덜하고, “few-shot 예시가 답”이라는 기존 정설을 뒤집는다.</p>
+        </div>
+
+        <div class="subhead">일반화 gap: reflective instruction이 덜 과적합한다</div>
+        <p>최적화한 프롬프트가 validation에서 좋았다고 test에서도 좋으리란 보장은 없다. 그 낙폭(final test − best validation)이 <strong>generalization gap</strong>이다. Wan et al.(2024)은 few-shot exemplar가 instruction보다 이 gap이 작다고 봤는데, GEPA에서는 그 관찰이 뒤집힌다. reflectively 진화한 instruction이 exemplar만큼, 또는 그보다 잘 일반화되면서 최종 성능까지 더 높다.</p>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure15.png" alt="Figure 15: generalization gaps for different optimizers across six benchmark-model combinations" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 15.</span> 6개 (benchmark × 모델) 조합에서 각 옵티마이저의 final test 점수와 best validation 점수를 나란히 놓았다. 두 막대의 차이가 generalization gap이다. GEPA·GEPA+Merge의 gap이 대체로 작아, 진화한 지시문이 validation에만 맞춰 과적합되지 않았음을 보여준다. 저자들은 최신 LLM이 지시를 더 잘 따르고 자기 출력을 반성하는 능력이 늘어난 결과로 본다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <div class="subhead">instruction 최적화가 few-shot을 이긴다 (트렌드 반전)</div>
+        <p>한동안 프롬프트 최적화의 정설은 지시문을 다듬기보다 좋은 <strong>few-shot 예시를 고르는</strong> 쪽이 낫다는 것이었다(Opsahl-Ong 2024, Wan 2024). GEPA는 예시를 하나도 고르지 않고 지시문만 reflectively 고치는데도, instruction과 few-shot을 함께 최적화하는 <strong class="en">MIPROv2</strong>를 6개 task·2개 모델에서 전부 앞선다. aggregate로 보면 GEPA+Merge <strong>+13.33pp</strong>, GEPA <strong>+12.19pp</strong>인데 MIPROv2는 +5.64pp에 그쳐 두 배가 넘는 차이다. 개별 격차는 GPT-4.1 Mini에서 최대 11.1pp, Qwen3 8B에서 12pp까지 벌어진다.</p>
+
+        <div class="callout">
+          <div class="clabel">왜 뒤집혔나</div>
+          <p>예전엔 지시문 최적화가 약해서 예시로 메웠다면, 이제 모델이 지시를 잘 따르니 지시문만으로 충분해졌다. 실제로 GEPA 프롬프트는 예시를 지시처럼 욱여넣은 quasi-exemplar가 아니라, Figure 2처럼 선언적 규칙으로 채워진다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 9. EXTENDED APPLICATIONS ===== -->
+    <section id="applications">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">09</span> Extended Applications</div>
+          <h2 class="section-title">inference-time search로의 확장</h2>
+          <p class="section-lead">validation set을 train set과 동일하게 두면(D<sub>val</sub> = D<sub>train</sub>), GEPA는 각 target task에 대해 더 나은 solution을 반복 제안하는 inference-time search가 된다.</p>
+        </div>
+
+        <div class="subhead">코드 최적화 (Code Optimization)</div>
+        <p>hardware-specific 코드 생성에 GEPA를 적용한다. GPT-4o로 AMD NPU kernel(NPUEval)과 NVIDIA CUDA kernel(KernelBench)을 생성한다.</p>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure7.png" alt="Figure 7: NPU vector utilization" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 7.</span> GPT-4o + GEPA는 AMD NPU kernel의 vector utilization을 최대 70%, 평균 <strong>30.52%</strong>까지 끌어올린다. 환경 피드백 기반 sequential refinement(10회)의 aggregate는 4.25%에 불과하고, RAG·MIPRO를 더해도 16.33% · 19.03%다. GEPA가 만든 최종 prompt는 <strong>런타임 RAG 없이</strong> 26.85%를 달성한다.
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <figure class="fig" onclick="openLightbox(this)">
+          <img src="images/figure8.png" alt="Figure 8: CUDA fast_p score vs budget" loading="lazy">
+          <figcaption>
+            <span class="fnum">Figure 8.</span> GPT-4o + GEPA는 CUDA kernel 코드를 반복적으로 개선한다. <code>fast_p</code>(baseline PyTorch보다 <span class="m">p</span>배 빠른 kernel을 만든 task 비율) vs rollout budget 그래프에서, GEPA는 PyTorch-eager보다 빠른 CUDA kernel을 35개 대표 task 중 <strong>20% 이상</strong>에서 생성한다(≈0% → &gt;20%).
+            <span class="hint">클릭하여 확대</span>
+          </figcaption>
+        </figure>
+
+        <div class="subhead">적대적 프롬프트 탐색 (Adversarial Prompt Search)</div>
+        <p>reward를 <strong>반전</strong>시키면 GEPA는 성능을 최소화하는 instruction(적대적 prompt)을 찾는다. AIME-2025 · GPT-5 Mini에서, 단순 instruction으로 시작해 <strong>trivia-style distractor</strong>를 진화시켜 pass@1을 <strong>76% → 10%</strong>로 떨어뜨렸다(오류율 24% → 90%, ≈3.8× 증가). 이는 query-agnostic한 취약 지점을 드러내 배포용 stress test·regression suite로 재사용할 수 있다.</p>
+      </div>
+    </section>
+
+    <!-- ===== 10. TAKEAWAYS ===== -->
+    <section id="takeaways">
+      <div class="container">
+        <div class="section-head">
+          <div class="kicker"><span class="num">10</span> Conclusion &amp; Takeaways</div>
+          <h2 class="section-title">핵심 요약</h2>
+        </div>
+
+        <ul class="clean">
+          <li><strong>Language reflection &gt; sparse scalar reward.</strong> 해석 가능한 자연어 trace는 policy gradient보다 담고 있는 학습 신호가 많다. 그래서 GEPA는 적은 rollout으로도 큰 향상을 낸다.</li>
+          <li><strong>두 축의 설계.</strong> <em>Reflective Prompt Mutation</em>(자연어 credit assignment로 targeted update) + <em>Pareto-based selection</em>(다양성 유지로 local optima 회피)이 sample efficiency와 일반화를 동시에 달성한다.</li>
+          <li><strong>강한 실증 결과.</strong> 6개 task에서 GRPO 대비 평균 +6pp(최대 19pp)를 <strong>최대 35× 적은 rollout</strong>으로, MIPROv2 대비 aggregate +13pp를 달성한다.</li>
+          <li><strong>짧고 전이 가능한 prompt.</strong> 진화된 instruction은 few-shot보다 최대 9.2× 짧고, cross-model 일반화를 보이며 해석 가능하다.</li>
+          <li><strong>확장성.</strong> weight를 건드리지 않고 prompt만 진화시키는 접근은 code optimization(inference-time search)과 adversarial stress-testing으로 확장된다.</li>
+        </ul>
+
+        <div class="callout mt-40">
+          <div class="clabel">Bottom line</div>
+          <p>budget이 빠듯한 상황에서 modular AI system을 적응시킬 때 RL(GRPO)만이 답은 아니다. 프롬프트를 자연어로 reflect하며 진화시키는 방식이 더 적은 rollout으로 비슷하거나 더 나은 성능을 낸다.</p>
+        </div>
+
+        <p style="margin-top:36px; font-size:0.85rem; color:var(--muted);">Agrawal et al., <em>GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning</em>, ICLR 2026 · <a href="https://github.com/gepa-ai/gepa" style="color:var(--accent); text-decoration:none;">github.com/gepa-ai/gepa</a></p>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="lightbox">
+    <button id="lightbox-close" aria-label="닫기">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption"></div>
+    <div id="lightbox-hint">스크롤·클릭 확대 · 드래그로 이동 · 0 원래대로 · 배경/Esc 닫기</div>
+  </div>
+
+  <script>
+    (function initProgressBar() {
+      var bar = document.getElementById('progress-bar');
+      function upd() {
+        var s = window.scrollY || document.documentElement.scrollTop;
+        var d = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        bar.style.width = (d > 0 ? (s/d)*100 : 0) + '%';
+      }
+      window.addEventListener('scroll', upd, { passive: true });
+      upd();
+    })();
+
+    (function initScrollSpy() {
+      var navLinks = document.querySelectorAll('.nav-links a');
+      function setActive(id) {
+        navLinks.forEach(function(l) { l.classList.toggle('active', l.getAttribute('href') === '#' + id); });
+      }
+      var sections = document.querySelectorAll('section[id]');
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) setActive(e.target.id); });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    })();
+
+    (function initSmoothScroll() {
+      var navHeight = 56;
+      document.querySelectorAll('.nav-links a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+          var href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            var target = document.querySelector(href);
+            if (target) {
+              var t = target.getBoundingClientRect().top + window.scrollY - navHeight;
+              window.scrollTo({ top: t, behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    })();
+
+    var lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightbox-img');
+    var lbCap = document.getElementById('lightbox-caption');
+    var lbClose = document.getElementById('lightbox-close');
+
+    // transform state: image drawn at translate(tx,ty) scale(scale), origin 0,0
+    var scale = 1, minScale = 1, maxScale = 1, tx = 0, ty = 0, natW = 0, natH = 0;
+    function vw() { return window.innerWidth; }
+    function vh() { return window.innerHeight; }
+
+    function apply() {
+      var w = natW * scale, h = natH * scale;
+      if (w <= vw()) tx = (vw() - w) / 2; else tx = Math.min(0, Math.max(vw() - w, tx));
+      if (h <= vh()) ty = (vh() - h) / 2; else ty = Math.min(0, Math.max(vh() - h, ty));
+      lbImg.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+      lb.classList.toggle('zoomed', scale > minScale + 0.001);
+    }
+    function fitReset(smooth) {
+      minScale = Math.min(vw() * 0.97 / natW, vh() * 0.96 / natH);
+      if (minScale > 1) minScale = 1;            // don't upscale small figures past 100%
+      maxScale = minScale * 8;
+      scale = minScale;
+      tx = (vw() - natW * scale) / 2;
+      ty = (vh() - natH * scale) / 2;
+      lbImg.classList.toggle('smooth', !!smooth);
+      apply();
+    }
+    function zoomAt(px, py, factor) {   // wheel: keep the point under the cursor fixed
+      var ns = Math.max(minScale, Math.min(maxScale, scale * factor));
+      if (ns === scale) return;
+      var k = ns / scale;
+      tx = px - (px - tx) * k;
+      ty = py - (py - ty) * k;
+      scale = ns;
+      apply();
+    }
+    function zoomToCenter(px, py, ns) {   // click: bring the clicked point to the viewport center
+      ns = Math.max(minScale, Math.min(maxScale, ns));
+      var ix = (px - tx) / scale, iy = (py - ty) / scale;
+      scale = ns;
+      tx = vw() / 2 - ix * scale;
+      ty = vh() / 2 - iy * scale;
+      apply();
+    }
+    function initImg() {
+      natW = lbImg.naturalWidth || lbImg.width;
+      natH = lbImg.naturalHeight || lbImg.height;
+      if (natW && natH) fitReset(false);
+    }
+
+    function openLightbox(fig) {
+      var img = fig.querySelector('img');
+      if (!img) return;
+      lbImg.classList.remove('smooth');
+      lbImg.style.transform = '';
+      lbImg.src = img.src; lbImg.alt = img.alt || '';
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (lbImg.complete && lbImg.naturalWidth) initImg();
+      else lbImg.onload = initImg;
+      lbClose.focus();
+    }
+    function closeLightbox() {
+      lb.classList.remove('open', 'zoomed', 'grabbing');
+      document.body.style.overflow = '';
+      lbImg.src = '';
+    }
+    lbClose.addEventListener('click', function(e) { e.stopPropagation(); closeLightbox(); });
+
+    // wheel: zoom toward the cursor
+    lb.addEventListener('wheel', function(e) {
+      if (!lb.classList.contains('open') || !natW) return;
+      e.preventDefault();
+      lbImg.classList.remove('smooth');
+      zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.18 : 1 / 1.18);
+    }, { passive: false });
+
+    // pointer: drag to pan; a click (no drag) zooms in at that point, or zooms back out
+    var down = null, moved = false;
+    lbImg.addEventListener('pointerdown', function(e) {
+      e.preventDefault();
+      down = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
+      moved = false;
+      lbImg.classList.remove('smooth');
+      lbImg.setPointerCapture(e.pointerId);
+    });
+    lbImg.addEventListener('pointermove', function(e) {
+      if (!down) return;
+      var dx = e.clientX - down.x, dy = e.clientY - down.y;
+      if (!moved && Math.abs(dx) + Math.abs(dy) > 4) { moved = true; lb.classList.add('grabbing'); }
+      if (!moved) return;
+      tx = down.tx + dx; ty = down.ty + dy;
+      apply();
+    });
+    lbImg.addEventListener('pointerup', function(e) {
+      lb.classList.remove('grabbing');
+      var wasDrag = moved;
+      down = null; moved = false;
+      if (wasDrag) return;
+      lbImg.classList.add('smooth');
+      if (scale > minScale + 0.001) fitReset(true);        // already zoomed → back to fit
+      else zoomToCenter(e.clientX, e.clientY, minScale * 2.6);  // fit → clicked point to center
+    });
+    lbImg.addEventListener('dblclick', function(e) { e.preventDefault(); });
+
+    // click on the dark backdrop (outside the image) closes
+    lb.addEventListener('pointerdown', function(e) { if (e.target === lb) lb._bd = true; });
+    lb.addEventListener('pointerup', function(e) { if (e.target === lb && lb._bd) closeLightbox(); lb._bd = false; });
+
+    window.addEventListener('resize', function() { if (lb.classList.contains('open') && natW) apply(); });
+    document.addEventListener('keydown', function(e) {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      else if (e.key === '0') { lbImg.classList.add('smooth'); fitReset(true); }
+    });
+  </script>
+</body>
+</html>
